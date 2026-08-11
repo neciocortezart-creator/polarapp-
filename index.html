@@ -1521,17 +1521,23 @@
   function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
 
   async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
-    const userId = localStorage.getItem('polar_user_id');
-    if (!userId) {
-        alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
-        return;
+    // 1. EXCELENCIA 100%: Verificamos con Supabase si la sesión es válida y real AHORA MISMO.
+    const { data: sessionData, error: sessionError } = await polarDb.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+      alert("Líder, por la seguridad de los datos, la conexión caducó. Reconectando el sistema...");
+      cerrarSesion(); // Expulsamos al muro élite para renovar credenciales limpias
+      return;
     }
+
+    // Tomamos el ID real, fresco y autorizado directamente de la sesión verificada
+    const userId = sessionData.session.user.id;
 
     const ahora = new Date(); 
     const fecha = ahora.toLocaleString('es-CL'); 
     const isoFecha = obtenerFechaLocalISO(); 
 
-    // 1. Inyección de Excelencia: Mandar a la Bóveda de Supabase
+    // 2. Inyección a la Bóveda de Supabase
     const { data, error } = await polarDb
       .from('historial_polar')
       .insert([
@@ -1549,7 +1555,7 @@
       return;
     }
 
-    // 2. Respaldo Visual Rápido para que la app reaccione al instante sin lag
+    // 3. Respaldo Visual Rápido para que la app reaccione al instante sin lag
     let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
     historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
     localStorage.setItem('historial_polar', JSON.stringify(historial));
@@ -1583,7 +1589,7 @@
     localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
     if(typeof renderTemporizadores === 'function') renderTemporizadores();
 
-    alert(`polar guardo ${dosis}u con excelencia`);
+    alert(`polar guardó ${dosis}u con excelencia`);
     autoSeleccionarComida(); 
   }
 
