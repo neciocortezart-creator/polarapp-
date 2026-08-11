@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <title>App Polar - Élite V5 Segura</title>
+  
+  <link rel="apple-touch-icon" href="polar-logo.png">
+  <link rel="icon" type="image/png" href="polar-logo.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CONEXIÓN SUPABASE ÉLITE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap');
+
+    :root {
+      /* ELITE UI SYSTEM */
+      --bg-polar: #FAF8F5; 
+      --white: #FFFFFF; 
+      --blue-ice-light: #5B9BD5; 
+      --blue-ice-mid: #F3C623; 
+      --turquoise-soft: #088387; 
+      --turquoise-strong: #088387; 
+      
+      /* TOKENS DE TEXTO DINÁMICOS */
+      --text-primary: #2C3A40; 
+      --text-inverse: #FFFFFF;
+      --text-dark: #2C3A40; 
+      
+      --btn-text: #FFFFFF;
+      --accent-btn: #F05A4A; 
+      --accent-btn-text: #FFFFFF;
+      --radius: 24px;
+      
+      --card-bg: #FFFFFF;
+      --card-text: var(--text-primary);
+      --input-bg: #FFFFFF;
+      --input-text: var(--text-primary);
+      --input-border: rgba(44, 58, 64, 0.20); 
+      --label-color: var(--text-primary);
+      --calendar-invert: 0;
+
+      /* Contrastes dinámicos de tarjetas */
+      --bg-card-glucose: #088387;
+      --text-card-glucose: #FFFFFF;
+      --bg-card-carbs: #2C3A40;
+      --text-card-carbs: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; font-family: 'Nunito', -apple-system, sans-serif; margin: 0; padding: 0; }
+    
+    body { background-color: var(--bg-polar); color: var(--text-primary); padding: 20px; -webkit-font-smoothing: antialiased; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
+
+    /* PANTALLAS DE CARGA Y LOGIN (MURO ÉLITE) */
+    #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-polar); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease-out, visibility 0.5s ease-out; }
+    #splash-screen img { width: 150px; height: auto; border-radius: 35px; animation: latido 1.5s infinite ease-in-out; box-shadow: 0 15px 40px rgba(0,0,0,0.08); }
+    @keyframes latido { 0% { transform: scale(0.97); } 50% { transform: scale(1.03); } 100% { transform: scale(0.97); } }
+    .splash-oculto { opacity: 0; visibility: hidden; }
+
+    #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-polar); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9998; padding: 20px; transition: opacity 0.4s ease, visibility 0.4s ease; }
+    .login-box { background: var(--white); width: 100%; max-width: 380px; padding: 40px 30px; border-radius: var(--radius); box-shadow: 0 20px 50px rgba(8,131,135,0.08); text-align: center; border: 1px solid rgba(8,131,135,0.1); }
+    .login-box h2 { color: var(--turquoise-strong); font-size: 28px; font-weight: 900; margin-bottom: 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    .login-box p { color: var(--text-primary); font-size: 14px; font-weight: 700; margin-bottom: 25px; opacity: 0.8; }
+    .login-box label { font-size: 14px; font-weight: 800; color: var(--text-primary); display: block; text-align: left; margin-bottom: 8px; }
+    .login-box input { margin-bottom: 20px; background: var(--bg-polar); border: 2px solid var(--input-border); color: var(--input-text); transition: all 0.3s ease; }
+
+    /* CONTENEDOR PRINCIPAL OCULTO INICIALMENTE */
+    #main-app { display: none; }
+
+    .app-container { max-width: 450px; margin: 0 auto; padding-bottom: 40px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
+    .logo-container { display: flex; align-items: center; gap: 12px; }
+
+    .hamburger-btn { background: none; border: none; font-size: 28px; color: var(--text-primary); font-weight: 900; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2001; }
+    .hamburger-btn:active { transform: scale(0.85); }
+
+    h1 { font-size: 32px; font-weight: 900; color: var(--turquoise-strong); line-height: 1.1; letter-spacing: -0.5px; margin: 0; }
+
+    #polar-bear { width: 45px; height: 45px; position: relative; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none; cursor: pointer; }
+    #polar-bear .z-icon { position: absolute; top: -5px; right: -15px; font-size: 18px; opacity: 0; pointer-events: none; }
+    #polar-bear.sleeping { transform: translateY(2px) scale(0.95); filter: grayscale(20%); }
+    #polar-bear.sleeping .z-icon { animation: floatZ 2.5s infinite ease-in-out; }
+    #polar-bear.awake { transform: translateY(-5px) scale(1.1); filter: grayscale(0%); }
+    @keyframes floatZ { 0% { transform: translateY(0) scale(0.8) rotate(-10deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-25px) scale(1.3) rotate(15deg); opacity: 0; } }
+
+    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .icon-btn { background: var(--white); color: var(--turquoise-strong); border: 2px solid transparent; padding: 10px 14px; border-radius: 20px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.04); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 6px; position: relative; }
+    .icon-btn:active { transform: scale(0.92); }
+    .icon-btn.active { background: var(--turquoise-strong); color: var(--btn-text); box-shadow: 0 8px 20px rgba(8,131,135,0.2); }
+    .icon-btn.settings { background: var(--text-primary); color: var(--text-inverse); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    
+    .card { border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); }
+    .card::before { content: ""; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--white); opacity: 0.08; border-radius: 40% 60% 70% 30%; z-index: 0; pointer-events: none; }
+    .card > * { position: relative; z-index: 1; } 
+    
+    .card-full { grid-column: span 2; }
+    .card-meal { background: var(--white); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; border: 1px solid rgba(8,131,135,0.1); }
+    
+    .card-glucose { background: var(--bg-card-glucose); color: var(--text-card-glucose); transition: background 0.4s ease, color 0.4s ease; }
+    .card-carbs { background: var(--bg-card-carbs); color: var(--text-card-carbs); transition: background 0.4s ease, color 0.4s ease; }
+    
+    .card-settings, .card-alarmas, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
+
+    .avatar-frame { background: var(--turquoise-strong); border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(8,131,135,0.2); height: 130px; width: 130px; margin: 0 auto; transition: all 0.3s ease; }
+
+    label { font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: inherit; }
+    .label-small { font-size: 13px; margin-top: 12px; margin-bottom: 6px; color: inherit; font-weight: 700; }
+
+    /* INPUTS ÉLITE CON CONTRASTE */
+    input:not([type="file"]), select, textarea { width: 100%; background: var(--input-bg); border: 2px solid var(--input-border); border-radius: 16px; padding: 14px; font-size: 18px; font-weight: 600; color: var(--input-text) !important; outline: none; appearance: none; -webkit-appearance: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-meal select { background: var(--bg-polar); border-color: rgba(0,0,0,0.1); color: var(--text-primary) !important; font-size: 15px; font-weight: 800; }
+    .card-carbs input, .card-glucose input { background: #FFFFFF; color: #1A1A1A !important; border-color: transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    input::placeholder, textarea::placeholder { color: var(--input-text) !important; font-weight: 600; opacity: 0.4; }
+    input:focus, select:focus, textarea:focus { border-color: var(--turquoise-strong); box-shadow: 0 0 0 4px rgba(8, 131, 135, 0.15); transform: translateY(-2px); }
+    select.select-small { padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--input-text) !important; font-weight: 700; }
+
+    .card-settings input, .card-alarmas input, .card-citas input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
+    .card-settings select { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
+    .card-settings label, .card-alarmas label, .card-citas label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
+    .card-settings h3, .card-alarmas h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
+    .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-alarmas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
+
+    .btn-main { background: var(--turquoise-strong); color: var(--btn-text); border: none; width: 100%; padding: 20px; border-radius: 100px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(8,131,135,0.25); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-top: 8px; }
+    .btn-main:active { transform: scale(0.95); box-shadow: 0 5px 15px rgba(8,131,135,0.2); }
+    .btn-save { background: var(--text-primary); color: var(--text-inverse); border: none; padding: 12px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .btn-save:active { transform: scale(0.95); }
+    .btn-accent { background: var(--accent-btn); color: var(--accent-btn-text); border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; cursor: pointer; margin-top: 10px; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .btn-accent:active { transform: scale(0.95); }
+    .btn-small { background: var(--bg-polar); color: var(--text-primary); border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; transition: transform 0.1s; border: 1px solid rgba(0,0,0,0.1); }
+    .btn-small:active { transform: scale(0.92); }
+    .btn-small:disabled { background: #E0E0E0; color: #999; cursor: not-allowed; border: none; }
+
+    .result-box { margin-top: 24px; background: var(--white); border-radius: var(--radius); padding: 35px 20px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.06); display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); }
+    .result-box::after { content: ""; position: absolute; bottom: -30px; left: -30px; width: 120px; height: 120px; background: var(--turquoise-strong); opacity: 0.04; border-radius: 40% 60% 70% 30%; pointer-events: none; }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.92) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+    .result-box h2 { font-size: 18px; color: var(--text-primary); font-weight: 900; margin-bottom: 12px; position: relative; z-index: 2; }
+    .result-number { font-size: 72px; font-weight: 900; line-height: 1; margin-bottom: 8px; position: relative; z-index: 2; letter-spacing: -2px; }
+    .result-unit { font-size: 18px; font-weight: 800; color: var(--text-primary); position: relative; z-index: 2; opacity: 0.7; text-transform: uppercase; }
+    .result-details { font-size: 14px; color: var(--text-primary); font-weight: 700; margin-top: 20px; background: var(--bg-polar); padding: 16px; border-radius: 16px; position: relative; z-index: 2; text-align: left; line-height: 1.5; border: 1px solid rgba(0,0,0,0.04); }
+
+    /* ALERTAS EN ROJO PURO */
+    .alert-box { background: #FF3B30 !important; color: #FFFFFF !important; }
+    .alert-box h2, .alert-box .result-number, .alert-box p, .alert-box .result-unit, .alert-box .result-details { color: #FFFFFF !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    
+    .btn-emergency, .btn-papa { display: block; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 18px; margin-top: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; z-index: 2; text-align: center; transition: transform 0.2s; }
+    .btn-emergency:active, .btn-papa:active { transform: scale(0.95); }
+    .btn-emergency { background: #FFFFFF; color: #FF3B30; }
+    .btn-papa { background: var(--text-primary); color: var(--text-inverse); }
+
+    .historial-box { background: var(--white); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: none; margin-top: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); animation: popIn 0.4s ease-out; border: 1px solid rgba(0,0,0,0.03); }
+    .historial-item { padding: 14px 10px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .historial-item:last-child { border-bottom: none; }
+
+    .side-panel { position: fixed; top: 0; width: 320px; height: 100%; background: var(--bg-polar); box-shadow: -10px 0 40px rgba(0,0,0,0.15); z-index: 2000; padding: 40px 24px; display: flex; flex-direction: column; overflow-y: auto; }
+    .left-panel { left: -340px; transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .left-panel.open { left: 0; }
+    .right-panel { right: -340px; transition: right 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .right-panel.open { right: 0; }
+
+    /* Efecto Glassmorphism Élite para el fondo */
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 38, 43, 0.5); z-index: 1999; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.4s ease; }
+    .overlay.active { display: block; opacity: 1; }
+
+    .receta-item { background: var(--white); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); }
+    .receta-item h4 { font-size: 16px; color: var(--turquoise-strong); font-weight: 900; margin-bottom: 6px; }
+    .receta-item p { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.5; }
+
+    #toast-undo { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--text-inverse); padding: 14px 28px; border-radius: 30px; display: flex; align-items: center; gap: 15px; font-weight: 800; font-size: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+    #toast-undo.show { bottom: 40px; }
+    .btn-undo { background: var(--turquoise-strong); color: var(--btn-text); border: none; padding: 8px 18px; border-radius: 20px; font-weight: 900; cursor: pointer; transition: transform 0.2s; }
+    .btn-undo:active { transform: scale(0.9); }
+    
+    .rules-menu { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-top: 0; border: 1px solid rgba(8, 131, 135, 0.1); }
+    .rules-menu h3 { font-size: 15px; font-weight: 900; margin-bottom: 14px; color: var(--turquoise-strong); display: flex; align-items: center; gap: 8px; }
+    .rules-menu ul { list-style: none; font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.4; }
+    .rules-menu li { margin-bottom: 10px; padding-left: 22px; position: relative; }
+    .rules-menu li::before { content: " "; position: absolute; left: 0; top: 0; font-size: 14px; }
+
+    /* CSS PARA LA CUADRÍCULA DE AVATARES */
+    .avatars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 14px; margin-top: 12px; }
+    .avatar-card { background: var(--white); border-radius: 16px; padding: 12px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; box-shadow: 0 6px 15px rgba(0,0,0,0.04); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; }
+    .avatar-card.locked { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+    .avatar-card.active { border-color: var(--turquoise-strong); transform: scale(1.08); box-shadow: 0 10px 25px rgba(8,131,135,0.2); }
+    .avatar-bg { border-radius: 14px; width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; padding: 10px; }
+    .avatar-card h4 { font-size: 13px; font-weight: 900; color: var(--text-primary); margin: 0 0 4px 0; line-height: 1.2; }
+    .avatar-card p { font-size: 11px; font-weight: 900; color: var(--turquoise-strong); margin: 0; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<!-- Audio para alarma de fondo -->
+<audio id="audio-alarma" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+<div id="splash-screen">
+  <img src="polar-logo.png" alt="Cargando App Polar...">
+</div>
+
+<!-- MURO ÉLITE (SISTEMA DE ACCESO) -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="width: 75px; height: 75px; background: var(--turquoise-strong); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 12px 30px rgba(8,131,135,0.35);">
+      <svg viewBox="0 0 100 100" width="80%" height="80%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>
+    </div>
+    <h2>Polar</h2>
+    <p>Acceso Seguro Familiar</p>
+    
+    <label>Correo Electrónico</label>
+    <input type="email" id="login-user" placeholder="Ej: papa@polar.com" autocomplete="off" autocapitalize="none">
+    
+    <label>Código de Seguridad</label>
+    <input type="password" id="login-pass" placeholder="Ingresa tu código">
+    
+    <button class="btn-main" onclick="validarAcceso()">Acceder</button>
+  </div>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL DE LA APP -->
+<div id="main-app">
+
+  <div id="panel-overlay" class="overlay" onclick="cerrarOverlays()"></div>
+  <div id="toast-undo"><span>  Elemento borrado</span><button class="btn-undo" onclick="deshacerBorrado()">Deshacer</button></div>
+
+  <div id="panel-menu" class="side-panel left-panel">
+    <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 24px; font-size: 26px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px;">☰ Menú Polar</h2>
+    <button class="btn-save" style="background: var(--white); color: var(--text-primary); margin-top: 0; margin-bottom: 12px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);" onclick="abrirDesdeMenu('panel')">
+      <div style="width: 24px; height: 24px; display: flex; align-items: center;">
+        <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
+      </div>
+      Panel Analítico
+    </button>
+    
+    <button class="btn-save" style="background: var(--white); color: var(--text-primary); margin-top: 0; margin-bottom: 16px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);" onclick="abrirDesdeMenu('historial')">
+      <div style="width: 24px; height: 24px; display: flex; align-items: center;">
+        <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
+      </div>
+      Guardados
+    </button>
+
+    <div class="rules-menu">
+      <h3>  Recordatorios Importantes</h3>
+      <ul>
+        <li><strong>Toujeo / Baja:</strong> <span id="txt-toujeo" style="color: var(--turquoise-strong); font-weight: 900; font-size: 15px;">56</span> U configuradas.</li>
+        <li><strong style="color:#FF3B30;">Crítica (&lt;= 54):</strong> NO inyectar. Agua con azúcar según peso, esperar 15 min.</li>
+        <li><strong>Alta (&gt;= 250):</strong> Si hay muchos picos de azúcar altos, se recomienda medir cetonas.</li>
+        <li><strong style="color:#FF3B30;">Extrema (&gt;= 400):</strong> Riesgo inminente. Llamar a emergencias / Papá.</li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 28px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 24px;">
+      <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 12px; font-size: 22px;">Reporte Médico  </h2>
+      <button class="btn-main" style="padding: 14px; font-size: 16px; margin-bottom: 12px; border-radius: 14px;" onclick="enviarReporte()">  Enviar por WhatsApp / Mail</button>
+      <button class="btn-save" style="background: var(--white); color: var(--text-primary); border: 2px solid var(--turquoise-soft); margin-bottom: 12px; margin-top: 0; box-shadow: 0 4px 10px rgba(8,131,135,0.1);" onclick="copiarReporte()">  Copiar al Portapapeles</button>
+    </div>
+    
+    <!-- BOTÓN DE CERRAR SESIÓN -->
+    <button class="btn-save" style="background: #FF3B30; color: var(--white); margin-top: 24px; box-shadow: 0 6px 15px rgba(255,59,48,0.2);" onclick="cerrarSesion()">  Cerrar Sesión</button>
+    <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleMenuPanel()">Cerrar Menú</button>
+  </div>
+
+  <div id="panel-recetas" class="side-panel right-panel">
+    <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 20px; font-size: 24px;">  ¡Misión: Comida!</h2>
+    <div id="recomendacion-comida" class="receta-item">
+      <h4>  ¡Esperando el cálculo mágico!</h4>
+      <p>Ingresa la energía de Polar y sus carbohidratos, luego presiona el botón para descubrir tu alternativa élite.</p>
+    </div>
+    <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleRecetasPanel()">Cerrar Sugerencias</button>
+  </div>
+
+  <div class="app-container">
+    
+    <div class="header">
+      <div class="logo-container">
+        <!-- BOTÓN DE LAS TRES RAYITAS -->
+        <button class="hamburger-btn" onclick="toggleMenuPanel()">☰</button>
+        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+          <h1>Polar</h1>
+        </div>
+        <div id="polar-bear" class="sleeping" onclick="togglePanel('panel-avatars')">
+          <span class="bear-icon" id="main-bear-icon" style="display: block; width: 100%; height: 100%;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>
+          </span>
+          <span class="z-icon"> </span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
+        
+        <!-- BOTÓN TEMPORIZADOR EN LETRAS -->
+        <button id="btn-alarmas" class="icon-btn" onclick="togglePanel('panel-alarmas')">Temporizador</button>
+        
+        <!-- BOTÓN AGENDAR CITAS -->
+        <button class="icon-btn" style="background: var(--text-primary); color: var(--text-inverse); position: relative; padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-citas')">
+          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="50" cy="85" r="8" fill="#E85D75"/>
+              <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
+              <circle cx="80" cy="45" r="8" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <span id="badge-citas" style="position: absolute; top: -6px; right: -6px; background: #FF3B30 !important; color: white !important; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: 900; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.25);">0</span>
+        </button>
+        
+        <!-- BOTÓN DE CONFIGURACIÓN -->
+        <button class="icon-btn settings" style="padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-config')">
+          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="6" fill="#FFFFFF"/>
+              <circle cx="50" cy="50" r="18" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+              <line x1="50" y1="32" x2="50" y2="15" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="63" y1="37" x2="75" y2="25" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="68" y1="50" x2="85" y2="50" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="63" y1="63" x2="75" y2="75" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="50" y1="68" x2="50" y2="85" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="37" y1="63" x2="25" y2="75" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="32" y1="50" x2="15" y2="50" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <line x1="37" y1="37" x2="25" y2="25" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="50" cy="15" r="7" fill="#FF5A4D"/>
+              <circle cx="75" cy="25" r="7" fill="#FFFFFF"/>
+              <circle cx="85" cy="50" r="7" fill="#FCA311"/>
+              <circle cx="75" cy="75" r="7" fill="#2C3A40" stroke="#FFFFFF" stroke-width="2"/>
+              <circle cx="50" cy="85" r="7" fill="#FF5A4D"/>
+              <circle cx="25" cy="75" r="7" fill="#FCA311"/>
+              <circle cx="15" cy="50" r="7" fill="#FFFFFF"/>
+              <circle cx="25" cy="25" r="7" fill="#2C3A40" stroke="#FFFFFF" stroke-width="2"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL GRÁFICO ÉLITE CON ARREGLO DE PUNTERO (pointerdown) -->
+    <div class="card card-panel-grafico card-full" id="panel-grafico">
+      <h3 style="display:flex; justify-content:space-between; align-items: center;">
+        <span style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 28px; height: 28px; display: flex; align-items: center;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
+          </div>
+          Panel Analítico
+        </span> 
+        <div style="display:flex; gap: 10px; align-items:center;">
+          <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Semana Actual</span>
+          <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-grafico')">×</button>
+        </div>
+      </h3>
+      <p style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;">Ciclo de visualización. Los puntos se agregan solos. (Toca los puntos para ver el nivel y la hora exactos):</p>
+      
+      <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 12px; text-align: center; overflow-x: auto; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
+        <canvas id="graficoPicos" style="width: 100%; height: 260px; display: block; cursor: pointer;"></canvas>
+        <div id="grafico-tooltip" style="display:none; position:absolute; background:var(--text-primary); color:var(--text-inverse); padding:8px 14px; border-radius:10px; font-size:13px; font-weight:900; pointer-events:none; transform:translate(-50%, -120%); box-shadow:0 8px 20px rgba(0,0,0,0.25); z-index:10; white-space:nowrap;"></div>
+      </div>
+      
+      <!-- BARRAS DE PORCENTAJE MENSUAL -->
+      <div id="barras-mensuales" style="margin-top: 28px; padding-top: 24px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
+
+      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 24px;" onclick="togglePanel('panel-grafico')">  Cerrar Panel</button>
+    </div>
+
+    <!-- PANEL DE CITAS -->
+    <div class="card card-citas card-full" id="panel-citas">
+      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="50" cy="85" r="8" fill="#E85D75"/>
+              <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
+              <circle cx="80" cy="45" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/>
+            </svg>
+          </div>
+          Agregar cita
+        </div>
+        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-citas')">×</button>
+      </h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div><label>Fecha</label><input type="date" id="cita-fecha"></div>
+        <div><label>Hora</label><input type="time" id="cita-hora"></div>
+      </div>
+      <label>Especialista</label><input type="text" id="cita-especialista" placeholder="Endocrinólogo, Pediatra...">
+      <button class="btn-accent" style="margin-bottom: 24px; background: var(--turquoise-strong); display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px;" onclick="agregarCita()">
+        <div style="width: 22px; height: 22px; display: flex; align-items: center;">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="50" cy="85" r="8" fill="#E85D75"/>
+            <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
+            <circle cx="80" cy="45" r="8" fill="#FFFFFF"/>
+          </svg>
+        </div>
+        Agendar
+      </button>
+      <h4 style="font-size: 15px; margin-bottom: 12px; color: var(--turquoise-soft); font-weight: 900;">Citas pendientes:</h4>
+      <div id="lista-citas"></div>
+    </div>
+
+    <!-- AVATARES (CUADRÍCULA ÉLITE) -->
+    <div class="card card-avatars card-full" id="panel-avatars">
+      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+        <span>  Bestias de Poder</span>
+        <div style="display:flex; gap: 10px; align-items:center;">
+          <span style="font-size: 13px; color: var(--text-primary); font-weight: 800; background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: 12px;">Recompensas</span>
+          <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-avatars')">×</button>
+        </div>
+      </h3>
+      <div id="avatars-grid-container" class="avatars-grid"></div>
+      <p style="font-size: 13px; text-align:center; color: var(--text-primary); margin-bottom:10px; font-weight: 800; margin-top: 18px;">Nota: El líder equipa la excelencia.</p>
+    </div>
+
+    <!-- SECCIÓN DE TEMPORIZADOR CRUD -->
+    <div class="card card-alarmas card-full" id="panel-alarmas">
+      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+        Temporizador Élite
+        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-alarmas')">×</button>
+      </h3>
+      <p style="font-size: 14px; color: var(--text-primary); margin-bottom: 18px; font-weight: 700; line-height: 1.4;">Programa tu tiempo. Al iniciar, se mostrará en la barra principal abajo.</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+        <div><label>Horas</label><input type="number" id="temp-horas" value="0" min="0" inputmode="numeric"></div>
+        <div><label>Mins</label><input type="number" id="temp-minutos" value="5" min="0" max="59" inputmode="numeric"></div>
+        <div><label>Segs</label><input type="number" id="temp-segundos" value="0" min="0" max="59" inputmode="numeric"></div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label>Nombre</label>
+        <input type="text" id="temp-nombre" placeholder="Ej: Chequeo 2H, Cocina...">
+      </div>
+
+      <button class="btn-main" id="btn-guardar-temp" style="padding: 16px; font-size: 18px; margin-bottom: 20px; border-radius: 16px;" onclick="guardarTemporizador()">Añadir Temporizador</button>
+
+      <div id="lista-temporizadores" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;"></div>
+      
+      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-bottom: 10px;" onclick="togglePanel('panel-alarmas')">Cerrar Ajustes</button>
+    </div>
+
+    <!-- PANEL DE CONFIGURACIÓN -->
+    <div class="card card-settings card-full" id="panel-config">
+      <!-- TÍTULO DE CONFIGURACIÓN -->
+      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="6" fill="#2C3A40"/>
+              <circle cx="50" cy="50" r="18" fill="none" stroke="#2C3A40" stroke-width="6"/>
+              <line x1="50" y1="32" x2="50" y2="15" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="63" y1="37" x2="75" y2="25" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="68" y1="50" x2="85" y2="50" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="63" y1="63" x2="75" y2="75" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="50" y1="68" x2="50" y2="85" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="37" y1="63" x2="25" y2="75" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="32" y1="50" x2="15" y2="50" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <line x1="37" y1="37" x2="25" y2="25" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="50" cy="15" r="7" fill="#FF5A4D"/>
+              <circle cx="75" cy="25" r="7" fill="#FFFFFF" stroke="#2C3A40" stroke-width="1.5"/>
+              <circle cx="85" cy="50" r="7" fill="#FCA311"/>
+              <circle cx="75" cy="75" r="7" fill="#2C3A40"/>
+              <circle cx="50" cy="85" r="7" fill="#FF5A4D"/>
+              <circle cx="25" cy="75" r="7" fill="#FCA311"/>
+              <circle cx="15" cy="50" r="7" fill="#FFFFFF" stroke="#2C3A40" stroke-width="1.5"/>
+              <circle cx="25" cy="25" r="7" fill="#2C3A40"/>
+            </svg>
+          </div>
+          Esquema actual
+        </div>
+        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-config')">×</button>
+      </h3>
+      
+      <!-- BOTÓN PEQUEÑO DE REDONDEO -->
+      <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
+      
+      <label>  Peso de Polar (kg)</label>
+      <input type="number" id="cfg-peso" value="50" inputmode="numeric" style="margin-bottom: 18px;">
+      
+      <label>  Toujeo / Baja</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric" style="margin-bottom: 12px;">
+      <label>  Factor Corrección (1U baja X mg/dL)</label><input type="number" id="cfg-fc" value="30" inputmode="numeric" style="margin-bottom: 8px;">
+      
+      <h3 style="font-size: 16px; margin-top:24px;">  Objetivos de Energía (Metas)</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+        <div><label>Antes Comer</label><input type="number" id="cfg-meta-antes" value="100" inputmode="numeric"></div>
+        <div><label>Corrección</label><input type="number" id="cfg-meta-cor" value="150" inputmode="numeric"></div>
+      </div>
+      
+      <h3 style="font-size: 16px; margin-top:12px;">Ratios (Comida para Polar por 1U)</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+        <div><label>  Desayuno</label><input type="number" id="cfg-r-desayuno" value="4" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+        <div><label>  Once</label><input type="number" id="cfg-r-mam" value="0" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+        <div><label>  Almuerzo</label><input type="number" id="cfg-r-alm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+        <div><label>  Merienda PM</label><input type="number" id="cfg-r-mpm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+        <div style="grid-column: span 2;"><label>  Cena</label><input type="number" id="cfg-r-cena" value="14" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+      </div>
+
+      <!-- TEMAS VISUALES CON CONTRASTE DINÁMICO -->
+      <select id="cfg-tema" onchange="cambiarTema()" style="margin-top: 24px; margin-bottom: 24px; font-weight: 800;">
+        <option value="elite">  Polar Élite (Oficial V5)</option>
+        <option value="original">  Polar Ice (Clásico)</option>
+        <option value="oscuro">  Tema Negro (Modo Oscuro)</option>
+        <option value="blanco">  Tema Blanco (Modo Claro)</option>
+        <option value="halloween">  Halloween</option>
+        <option value="mustard_jet">  Jet & Mustard</option>
+        <option value="moonstone_orange">  Moonstone & Orange</option>
+        <option value="persian_carrot">  Persian Blue & Carrot</option>
+        <option value="mellow_cornflower">  Cornflower & Citron</option>
+      </select>
+
+      <h3 style="font-size: 16px; margin-top:24px;">Llamadas de Emergencia Rápidas</h3>
+      <a href="tel:131" id="btn-llamar-emergencia" class="btn-emergency" style="margin-top: 0; margin-bottom: 12px; padding: 18px; font-size: 18px;">LLAMAR EMERGENCIA</a>
+      <a href="tel:973808283" id="btn-llamar-papa" class="btn-papa" style="margin-top: 0; margin-bottom: 24px; padding: 18px; font-size: 18px;">LLAMAR PAPÁ O MAMÁ</a>
+
+      <h3 style="font-size: 16px; margin-top:24px;">  Números de Emergencia</h3>
+      <label>  Ambulancia / Rescate</label><input type="tel" id="cfg-tel-emergencia" value="131" style="background: #FF3B30 !important; color: white !important; border-radius: 14px; margin-bottom: 18px; border:none; padding: 16px; font-weight: 900; box-shadow: 0 4px 10px rgba(255,59,48,0.2);">
+      <label>  Teléfono Papá</label><input type="tel" id="cfg-tel-papa" value="973808283" style="background: #FFFFFF; color: #1A1A1A !important; border-radius: 14px; font-weight: 900; margin-bottom: 18px; border:none; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      
+      <button id="btn-guardar-config" class="btn-accent" style="margin-top: 18px; background: var(--turquoise-strong); padding: 16px; font-size: 18px; border-radius: 16px;" onclick="guardarConfig()">  Guardar</button>
+    </div>
+
+    <!-- MAIN GRID (CALCULADORA) -->
+    <div class="grid">
+      <div class="card card-meal card-full">
+        <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
+        <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true';">
+          <option value="desayuno">DESAYUNO</option><option value="mam">ONCE</option><option value="almuerzo">ALMUERZO</option><option value="mpm">MERIENDA TARDE</option><option value="cena">CENA</option><option value="corroborar">CORROBORAR</option>
+        </select>
+      </div>
+
+      <div class="card card-glucose">
+        <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
+        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar()">
+        <label for="meta" class="label-small" style="color: inherit; font-size: 14px;">  Nivel ideal:</label>
+        <select id="meta" class="select-small"></select>
+      </div>
+
+      <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
+        <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
+        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()">
+        <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
+        <input type="hidden" id="ejercicio" value="1">
+        <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 18px; font-size: 14px; margin: 0; border: none; box-shadow: 0 6px 15px rgba(0,0,0,0.15); background: #4CAF50 !important; color: #FFFFFF !important;" onclick="ciclarEjercicio()">No, estará tranquilo</button>
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="calcular()">  Medir gemas</button>
+
+    <!-- AQUÍ SE PONE LA BARRITA DE TEMPORIZADORES ACTIVOS -->
+    <div id="active-timers-banner" style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px; margin-bottom: 18px;"></div>
+
+    <div id="resultado" class="result-box"></div>
+
+    <div id="panel-historial" class="historial-box">
+      <h3 style="color: var(--turquoise-strong); margin-bottom: 18px; font-size: 22px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+           <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
+           </div>
+           Guardados
+        </div>
+        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="toggleHistorial()">×</button>
+      </h3>
+      <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
+      <div id="lista-historial"></div>
+      <button id="btn-borrar-historial" class="btn-save" style="background: #FF3B30; color: white; margin-top: 18px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(255,59,48,0.2);" onclick="borrarHistorialCompleto()">  Borrar Todo el Historial</button>
+      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleHistorial()">  Cerrar Guardados</button>
+    </div>
+
+  </div> <!-- Cierre App Container -->
+</div> <!-- Cierre Main App -->
+
+<script>
+  /* ====== INICIALIZAR SUPABASE ====== */
+  const { createClient } = supabase;
+  
+  const supabaseUrl = 'https://rgwawwdldqodzmsizean.supabase.co'; 
+  const supabaseKey = 'sb_publishable_-4Q07zNvB5Ep9fLwIZW6Yw_axmOPTM7';
+  
+  const polarDb = createClient(supabaseUrl, supabaseKey);
+
+  /* ====== NUEVA FUNCIÓN DE EXCELENCIA: Traer los datos de la bóveda al teléfono ====== */
+  async function sincronizarDatosNube() {
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) return;
+
+    console.log("Líder: Sincronizando con Supabase...");
+
+    const { data, error } = await polarDb
+      .from('historial_polar')
+      .select('*')
+      .eq('paciente_id', userId)
+      .order('created_at', { ascending: true }); // Traemos todo ordenado
+
+    if (error) {
+      console.error("Fallo en la sincronización:", error.message);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      // Reconstruimos los datos para que el teléfono los entienda como antes
+      const historialDescargado = data.map(dbItem => {
+        const d = new Date(dbItem.created_at);
+        return {
+          fecha: d.toLocaleString('es-CL'),
+          iso: d.toISOString().split('T')[0],
+          dosis: dbItem.dosis,
+          glucosa: dbItem.glucosa,
+          carbos: dbItem.carbos,
+          tipoComida: dbItem.tipo_comida,
+          timestamp: d.getTime()
+        };
+      });
+
+      // Inyectamos la data fresca en la memoria del teléfono actual
+      localStorage.setItem('historial_polar', JSON.stringify(historialDescargado));
+
+      // Refrescamos la UI para que la magia suceda en pantalla
+      if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
+      const panelHistorial = document.getElementById('panel-historial');
+      if (panelHistorial && panelHistorial.style.display === 'block') {
+        if (typeof actualizarVistaHistorial === 'function') actualizarVistaHistorial();
+      }
+    }
+  }
+
+
+  /* ====== LÓGICA DE ACCESO (AHORA 100% REAL) ====== */
+  function verificarSesion() {
+    const session = localStorage.getItem('polar_session_activa'); 
+    if (session === 'true') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+    } else {
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('main-app').style.display = 'none';
+    }
+  }
+
+  async function validarAcceso() {
+    const user = document.getElementById('login-user').value.trim().toLowerCase();
+    const pass = document.getElementById('login-pass').value.trim();
+
+    if (!user || !pass) {
+      alert("Líder, la excelencia exige que llenes todos los datos.");
+      return;
+    }
+
+    // Aquí sucede la magia de seguridad: conectamos con la bóveda
+    const { data, error } = await polarDb.auth.signInWithPassword({
+      email: user,
+      password: pass,
+    });
+
+    if (error) {
+      alert("Acceso Denegado. Verifica el correo o la contraseña.");
+      console.error(error);
+      document.getElementById('login-pass').value = '';
+    } else {
+      // Todo correcto, guardamos la sesión
+      localStorage.setItem('polar_session_activa', 'true');
+      localStorage.setItem('polar_rol', data.user.email);
+      localStorage.setItem('polar_user_id', data.user.id); 
+      
+      // ¡AQUÍ INYECTAMOS LA EXCELENCIA! Descargamos los datos antes de entrar
+      await sincronizarDatosNube();
+      
+      document.getElementById('login-screen').style.opacity = '0';
+      setTimeout(() => {
+        verificarSesion();
+        document.getElementById('login-screen').style.opacity = '1';
+      }, 400);
+    }
+  }
+
+  async function cerrarSesion() {
+    await polarDb.auth.signOut();
+    localStorage.removeItem('polar_session_activa');
+    localStorage.removeItem('polar_rol');
+    localStorage.removeItem('polar_user_id');
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    toggleMenuPanel();
+    verificarSesion();
+  }
+
+  /* =================================================== */
+  /* FUNCIONES DE DESHACER                               */
+  /* =================================================== */
+  let backupData = null; let toastTimeout;
+
+  function activarDeshacer(tipo, datosViejos) { 
+      backupData = { tipo: tipo, datos: datosViejos }; 
+      const toast = document.getElementById('toast-undo'); 
+      toast.classList.add('show'); 
+      clearTimeout(toastTimeout); 
+      toastTimeout = setTimeout(() => { toast.classList.remove('show'); backupData = null; }, 5000); 
+  }
+
+  function deshacerBorrado() {
+    if (!backupData) return;
+    if (backupData.tipo === 'citas') { 
+        localStorage.setItem('citas_polar', JSON.stringify(backupData.datos)); 
+        renderCitas(); 
+    } 
+    else if (backupData.tipo === 'historial') { 
+        localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
+        actualizarVistaHistorial(); 
+        renderGraficoPicos(); 
+    }
+    document.getElementById('toast-undo').classList.remove('show'); backupData = null;
+  }
+
+  /* =================================================== */
+  /* TEMAS VISUALES CON CONTRASTE DINÁMICO DE TEXTO      */
+  /* =================================================== */
+  const temasVisuales = {
+    elite: { '--bg-polar': '#FAF8F5', '--white': '#FFFFFF', '--blue-ice-light': '#5B9BD5', '--blue-ice-mid': '#F3C623', '--turquoise-soft': '#088387', '--turquoise-strong': '#088387', '--text-primary': '#2C3A40', '--text-inverse': '#FFFFFF', '--text-dark': '#2C3A40', '--btn-text': '#FFFFFF', '--accent-btn': '#F05A4A', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#2C3A40', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': 'rgba(44, 58, 64, 0.20)', '--label-color': '#2C3A40', '--calendar-invert': '0', '--bg-card-glucose': '#088387', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#2C3A40', '--text-card-carbs': '#FFFFFF' },
+    original: { '--bg-polar': '#F0F6F7', '--white': '#FFFFFF', '--blue-ice-light': '#D4E4E6', '--blue-ice-mid': '#A2C5C9', '--turquoise-soft': '#7AB0B2', '--turquoise-strong': '#4A8C8E', '--text-primary': '#1A2A30', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2A30', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#1A2A30', '--card-bg': '#2C3A40', '--card-text': '#F0F6F7', '--input-bg': '#FFFFFF', '--input-text': '#1A2A30', '--input-border': 'rgba(0, 0, 0, 0.25)', '--label-color': '#1A2A30', '--calendar-invert': '1', '--bg-card-glucose': '#D4E4E6', '--text-card-glucose': '#1A2A30', '--bg-card-carbs': '#A2C5C9', '--text-card-carbs': '#1A2A30' },
+    oscuro: { '--bg-polar': '#121212', '--white': '#1E1E1E', '--blue-ice-light': '#2C2C2C', '--blue-ice-mid': '#3A3A3A', '--turquoise-soft': '#66B2B4', '--turquoise-strong': '#4A8C8E', '--text-primary': '#F0F0F0', '--text-inverse': '#121212', '--text-dark': '#F0F0F0', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#121212', '--card-bg': '#1E1E1E', '--card-text': '#F0F0F0', '--input-bg': '#2A2A2A', '--input-text': '#F0F0F0', '--input-border': 'rgba(255, 255, 255, 0.4)', '--label-color': '#F0F0F0', '--calendar-invert': '1', '--bg-card-glucose': '#2C2C2C', '--text-card-glucose': '#F0F0F0', '--bg-card-carbs': '#3A3A3A', '--text-card-carbs': '#F0F0F0' },
+    blanco: { '--bg-polar': '#F8F9FA', '--white': '#FFFFFF', '--blue-ice-light': '#E9ECEF', '--blue-ice-mid': '#CED4DA', '--turquoise-soft': '#495057', '--turquoise-strong': '#212529', '--text-primary': '#1A1A1A', '--text-inverse': '#FFFFFF', '--text-dark': '#1A1A1A', '--btn-text': '#FFFFFF', '--accent-btn': '#0D6EFD', '--accent-btn-text': '#FFFFFF', '--card-bg': '#E9ECEF', '--card-text': '#1A1A1A', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': '#ADB5BD', '--label-color': '#1A1A1A', '--calendar-invert': '0', '--bg-card-glucose': '#E9ECEF', '--text-card-glucose': '#1A1A1A', '--bg-card-carbs': '#CED4DA', '--text-card-carbs': '#1A1A1A' },
+    halloween: { '--bg-polar': '#2A162B', '--white': '#1A0B1A', '--blue-ice-light': '#582A4D', '--blue-ice-mid': '#B5452C', '--turquoise-soft': '#E88C15', '--turquoise-strong': '#E88C15', '--text-primary': '#F5D6B4', '--text-inverse': '#1A0B1A', '--text-dark': '#F5D6B4', '--btn-text': '#1A0B1A', '--accent-btn': '#B5452C', '--accent-btn-text': '#FFFFFF', '--card-bg': '#1A0B1A', '--card-text': '#F5D6B4', '--input-bg': '#2A162B', '--input-text': '#F5D6B4', '--input-border': '#E88C15', '--label-color': '#F5D6B4', '--calendar-invert': '1', '--bg-card-glucose': '#582A4D', '--text-card-glucose': '#F5D6B4', '--bg-card-carbs': '#B5452C', '--text-card-carbs': '#FFFFFF' },
+    mustard_jet: { '--bg-polar': '#E4DFD8', '--white': '#FFFFFF', '--blue-ice-light': '#F2D04E', '--blue-ice-mid': '#24221B', '--turquoise-soft': '#F2D04E', '--turquoise-strong': '#24221B', '--text-primary': '#24221B', '--text-inverse': '#E4DFD8', '--text-dark': '#24221B', '--btn-text': '#FFFFFF', '--accent-btn': '#F2D04E', '--accent-btn-text': '#24221B', '--card-bg': '#FFFFFF', '--card-text': '#24221B', '--input-bg': '#FFFFFF', '--input-text': '#24221B', '--input-border': 'rgba(36, 34, 27, 0.25)', '--label-color': '#24221B', '--calendar-invert': '0', '--bg-card-glucose': '#24221B', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#F2D04E', '--text-card-carbs': '#24221B' },
+    moonstone_orange: { '--bg-polar': '#7AA6B3', '--white': '#FFFFFF', '--blue-ice-light': '#EE6C29', '--blue-ice-mid': '#282B2B', '--turquoise-soft': '#EE6C29', '--turquoise-strong': '#282B2B', '--text-primary': '#282B2B', '--text-inverse': '#FFFFFF', '--text-dark': '#282B2B', '--btn-text': '#FFFFFF', '--accent-btn': '#EE6C29', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#282B2B', '--input-bg': '#FFFFFF', '--input-text': '#282B2B', '--input-border': 'rgba(40, 43, 43, 0.3)', '--label-color': '#282B2B', '--calendar-invert': '0', '--bg-card-glucose': '#282B2B', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#EE6C29', '--text-card-carbs': '#282B2B' },
+    persian_carrot: { '--bg-polar': '#EEEEEE', '--white': '#FFFFFF', '--blue-ice-light': '#EF8F00', '--blue-ice-mid': '#0038BC', '--turquoise-soft': '#EF8F00', '--turquoise-strong': '#0038BC', '--text-primary': '#0038BC', '--text-inverse': '#FFFFFF', '--text-dark': '#0038BC', '--btn-text': '#FFFFFF', '--accent-btn': '#EF8F00', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#0038BC', '--input-bg': '#FFFFFF', '--input-text': '#0038BC', '--input-border': 'rgba(0, 56, 188, 0.25)', '--label-color': '#0038BC', '--calendar-invert': '0', '--bg-card-glucose': '#0038BC', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#EF8F00', '--text-card-carbs': '#1A1A1A' },
+    mellow_cornflower: { '--bg-polar': '#DDD4C4', '--white': '#FFFFFF', '--blue-ice-light': '#F1C436', '--blue-ice-mid': '#5C88CD', '--turquoise-soft': '#F1C436', '--turquoise-strong': '#5C88CD', '--text-primary': '#1A2B4C', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2B4C', '--btn-text': '#FFFFFF', '--accent-btn': '#F1C436', '--accent-btn-text': '#1A2B4C', '--card-bg': '#FFFFFF', '--card-text': '#1A2B4C', '--input-bg': '#FFFFFF', '--input-text': '#1A2B4C', '--input-border': 'rgba(26, 43, 76, 0.25)', '--label-color': '#1A2B4C', '--calendar-invert': '0', '--bg-card-glucose': '#5C88CD', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#F1C436', '--text-card-carbs': '#1A2B4C' }
+  };
+
+  function cambiarTema() { 
+    const temaElegido = document.getElementById('cfg-tema').value; 
+    config.tema = temaElegido; 
+    localStorage.setItem('polar_config', JSON.stringify(config)); 
+    aplicarTemaReal(temaElegido); 
+    cargarAvatar(); 
+  }
+  
+  function aplicarTemaReal(temaNombre) { 
+    const paleta = temasVisuales[temaNombre] || temasVisuales['elite']; 
+    const root = document.documentElement; 
+    for (const [key, value] of Object.entries(paleta)) { root.style.setProperty(key, value); } 
+  }
+
+  /* =================================================== */
+  /* TEMPORIZADOR CRUD + ALERTA + CEREBRO AUTO-COMIDA    */
+  /* =================================================== */
+  let timerGlobalInterval = null;
+  let idTempEnEdicion = null;
+  let tickAutoComida = 0;
+
+  function iniciarMotorTemporizadores() {
+    if (timerGlobalInterval) clearInterval(timerGlobalInterval);
+    timerGlobalInterval = setInterval(() => {
+      let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+      let cambiado = false;
+
+      timers = timers.map(t => {
+        if (t.activo && t.restante > 0) {
+          t.restante--;
+          cambiado = true;
+          if (t.restante <= 0) {
+            t.activo = false;
+            dispararAlertaTemporizador(t.nombre);
+          }
+        }
+        return t;
+      });
+
+      if (cambiado) {
+        localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+        renderTemporizadores();
+      }
+
+      // El cerebro verificando la comida en segundo plano
+      tickAutoComida++;
+      if (tickAutoComida >= 5) { // Revisa cada 5 segundos
+        tickAutoComida = 0;
+        if (typeof autoSeleccionarComida === 'function') {
+          autoSeleccionarComida();
+        }
+      }
+    }, 1000);
+  }
+
+  function dispararAlertaTemporizador(nombre) {
+    const audio = document.getElementById('audio-alarma');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log('Audio error:', e));
+    }
+    
+    let mensaje = `¡Tiempo terminado en tu temporizador: ${nombre}!`;
+    
+    if (nombre.includes("A medir energía")) {
+        mensaje = `¡Líder, el tiempo ha terminado! Es momento de medir la energía de Polar para asegurar la excelencia.`;
+    }
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("¡Misión Polar!", { body: mensaje, icon: "polar-logo.png" });
+    } else {
+      alert(mensaje);
+    }
+  }
+
+  function guardarTemporizador() {
+    const horas = parseInt(document.getElementById('temp-horas').value) || 0;
+    const minutos = parseInt(document.getElementById('temp-minutos').value) || 0;
+    const segundos = parseInt(document.getElementById('temp-segundos').value) || 0;
+    const nombre = document.getElementById('temp-nombre').value.trim() || 'Temporizador';
+
+    const totalSegs = (horas * 3600) + (minutos * 60) + segundos;
+    if (totalSegs <= 0) {
+      alert("Líder, ingresa un tiempo válido mayor a 0.");
+      return;
+    }
+
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+
+    if (idTempEnEdicion !== null) {
+      timers = timers.map(t => t.id === idTempEnEdicion ? { ...t, nombre, total: totalSegs, restante: totalSegs, activo: false } : t);
+      idTempEnEdicion = null;
+      document.getElementById('btn-guardar-temp').innerText = "Añadir Temporizador";
+    } else {
+      timers.push({
+        id: Date.now(),
+        nombre,
+        total: totalSegs,
+        restante: totalSegs,
+        activo: false
+      });
+    }
+
+    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+    document.getElementById('temp-horas').value = 0;
+    document.getElementById('temp-minutos').value = 5;
+    document.getElementById('temp-segundos').value = 0;
+    document.getElementById('temp-nombre').value = '';
+    renderTemporizadores();
+  }
+
+  function toggleRunTimer(id) {
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    timers = timers.map(t => {
+      if (t.id === id) {
+        t.activo = !t.activo;
+        if (t.restante <= 0) t.restante = t.total;
+      }
+      return t;
+    });
+    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+    renderTemporizadores();
+  }
+
+  function resetTimer(id) {
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    timers = timers.map(t => {
+      if (t.id === id) {
+        t.restante = t.total;
+        t.activo = false;
+      }
+      return t;
+    });
+    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+    renderTemporizadores();
+  }
+
+  function editarTemporizador(id) {
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    const t = timers.find(item => item.id === id);
+    if (t) {
+      document.getElementById('temp-horas').value = Math.floor(t.total / 3600);
+      document.getElementById('temp-minutos').value = Math.floor((t.total % 3600) / 60);
+      document.getElementById('temp-segundos').value = t.total % 60;
+      document.getElementById('temp-nombre').value = t.nombre;
+      idTempEnEdicion = t.id;
+      document.getElementById('btn-guardar-temp').innerText = "Actualizar Temporizador";
+    }
+  }
+
+  function borrarTemporizador(id) {
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    timers = timers.filter(t => t.id !== id);
+    if (idTempEnEdicion === id) {
+      idTempEnEdicion = null;
+      document.getElementById('btn-guardar-temp').innerText = "Añadir Temporizador";
+    }
+    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+    renderTemporizadores();
+  }
+
+  function formatTime(segs) {
+    const h = Math.floor(segs / 3600).toString().padStart(2, '0');
+    const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
+    const s = (segs % 60).toString().padStart(2, '0');
+    return h === "00" ? `${m}:${s}` : `${h}:${m}:${s}`;
+  }
+
+  function renderTemporizadores() {
+    const lista = document.getElementById('lista-temporizadores');
+    const banner = document.getElementById('active-timers-banner');
+    if (!lista || !banner) return;
+
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    
+    if (timers.length === 0) {
+      lista.innerHTML = '<p style="font-size:13px; color:var(--text-primary); text-align: center;">Aún no hay temporizadores configurados.</p>';
+    } else {
+      lista.innerHTML = timers.map(t => {
+        const timeStr = formatTime(t.restante);
+        const btnStateText = t.activo ? 'Pausar' : 'Iniciar';
+        const btnStateColor = t.activo ? '#FF9F0A' : 'var(--turquoise-strong)';
+
+        return `
+          <div style="background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong style="color: var(--turquoise-strong); font-size: 15px;">${t.nombre}</strong>
+              <span style="font-size: 22px; font-weight: 900; color: var(--text-primary);">${timeStr}</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn-small" style="background: ${btnStateColor}; color: white; border:none; flex: 1;" onclick="toggleRunTimer(${t.id})">${btnStateText}</button>
+              <button class="btn-small" style="background: var(--blue-ice-light); color: white; border:none;" onclick="resetTimer(${t.id})">Reiniciar</button>
+              <button class="btn-small" style="background: var(--turquoise-soft); color: white; border:none;" onclick="editarTemporizador(${t.id})">Editar</button>
+              <button class="btn-small" style="background: #FF3B30; color: white; border:none;" onclick="borrarTemporizador(${t.id})">Borrar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const runningTimers = timers.filter(t => t.activo);
+    if (runningTimers.length === 0) {
+      banner.innerHTML = '';
+    } else {
+      banner.innerHTML = runningTimers.map(t => {
+        const timeStr = formatTime(t.restante);
+        return `
+          <div style="background: var(--text-primary); color: var(--text-inverse); border-radius: 18px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 12px; font-weight: 800; color: var(--turquoise-soft); text-transform: uppercase; margin-bottom: 2px;">${t.nombre}</span>
+              <span style="font-size: 28px; font-weight: 900; line-height: 1; letter-spacing: 1px;">${timeStr}</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="background: #FF9F0A; color: white; border: none; border-radius: 12px; padding: 12px 18px; font-weight: 900; font-size: 14px; cursor: pointer; transition: transform 0.2s;" onclick="toggleRunTimer(${t.id})" onactive="this.style.transform='scale(0.95)'">Pausar</button>
+              <button style="background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 12px; padding: 12px 16px; font-weight: 900; font-size: 15px; cursor: pointer; transition: transform 0.2s;" onclick="resetTimer(${t.id})" onactive="this.style.transform='scale(0.95)'">X</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+
+  /* =================================================== */
+  /* REDONDEO ESTRICTO Y DINÁMICO                        */
+  /* =================================================== */
+  let usoRedondeoElite = true;
+  let diasFiltroBarras = 7;
+  
+  function cambiarFiltroBarras(dias) {
+      diasFiltroBarras = dias;
+      renderBarrasPorcentaje();
+  }
+
+  function renderBarrasPorcentaje() {
+      const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      const ahora = new Date().getTime();
+      const tiempoLimite = ahora - (diasFiltroBarras * 24 * 60 * 60 * 1000);
+
+      const parseItemTime = (item) => {
+          if (item.timestamp) return item.timestamp;
+          if(!item.iso) return 0;
+          return new Date(item.iso + 'T00:00:00').getTime();
+      };
+
+      const historialFiltrado = historialCompleto.filter(item => parseItemTime(item) >= tiempoLimite);
+
+      let n70 = 0, n180 = 0, n240 = 0, nMas240 = 0, total = 0;
+      historialFiltrado.forEach(d => {
+          let v = parseFloat(d.glucosa);
+          if(isNaN(v)) return;
+          total++;
+          if (v <= 70) n70++;
+          else if (v <= 180) n180++;
+          else if (v <= 239) n240++;
+          else nMas240++;
+      });
+
+      let p70 = total ? Math.round((n70/total)*100) : 0;
+      let p180 = total ? Math.round((n180/total)*100) : 0;
+      let p240 = total ? Math.round((n240/total)*100) : 0;
+      let pMas240 = total ? Math.round((nMas240/total)*100) : 0;
+
+      const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
+      const textCol = isDarkBg ? '#FFFFFF' : '#000000';
+
+      const divBarras = document.getElementById('barras-mensuales');
+      if(!divBarras) return;
+
+      const circuloStyle = (dias) => `
+          width: 52px; height: 52px; border-radius: 50%;
+          background: ${diasFiltroBarras === dias ? 'var(--turquoise-strong)' : 'transparent'};
+          color: ${diasFiltroBarras === dias ? 'var(--white)' : 'var(--text-primary)'};
+          border: 2px solid var(--turquoise-strong);
+          display: flex; flex-direction: column; justify-content: center; align-items: center;
+          font-weight: 900; font-size: 14px; cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); line-height: 1.1;
+      `;
+
+      divBarras.innerHTML = `
+          <h4 style="font-size: 17px; color: var(--turquoise-strong); margin-bottom: 18px; font-weight: 900;">mg/dl</h4>
+
+          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+            <span>240 de azúcar en adelante</span><span>${pMas240}%</span>
+          </div>
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+            <div style="height: 100%; background: #FF9F0A; width: ${pMas240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+            <span>de 181 a 240</span><span>${p240}%</span>
+          </div>
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+            <div style="height: 100%; background: #F3C623; width: ${p240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+            <span>de 70 a 180</span><span>${p180}%</span>
+          </div>
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+            <div style="height: 100%; background: #4CAF50; width: ${p180}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+            <span>en 70</span><span>${p70}%</span>
+          </div>
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 28px; overflow:hidden;">
+            <div style="height: 100%; background: #FF3B30; width: ${p70}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
+              <div style="${circuloStyle(7)}" onclick="cambiarFiltroBarras(7)">7<br><span style="font-size:11px;font-weight:700;">días</span></div>
+              <div style="${circuloStyle(10)}" onclick="cambiarFiltroBarras(10)">10<br><span style="font-size:11px;font-weight:700;">días</span></div>
+              <div style="${circuloStyle(14)}" onclick="cambiarFiltroBarras(14)">14<br><span style="font-size:11px;font-weight:700;">días</span></div>
+              <div style="${circuloStyle(30)}" onclick="cambiarFiltroBarras(30)">30<br><span style="font-size:11px;font-weight:700;">días</span></div>
+              <div style="${circuloStyle(90)}" onclick="cambiarFiltroBarras(90)">90<br><span style="font-size:11px;font-weight:700;">días</span></div>
+          </div>
+      `;
+  }
+
+  function toggleRedondeo() {
+      usoRedondeoElite = !usoRedondeoElite;
+      actualizarBotonRedondeoUI();
+      localStorage.setItem('polar_redondeo_activo', usoRedondeoElite ? 'true' : 'false');
+  }
+
+  function actualizarBotonRedondeoUI() {
+      const btn = document.getElementById('btn-toggle-redondeo');
+      if (usoRedondeoElite) {
+          btn.innerText = "redondeo activado";
+          btn.style.background = "var(--turquoise-strong)";
+      } else {
+          btn.innerText = "redondeo apagado";
+          btn.style.background = "#FF3B30";
+      }
+  }
+
+  function redondeoElite(valor) {
+    if (!usoRedondeoElite) return valor;
+    let entero = Math.floor(valor);
+    let decimal = valor - entero;
+    if (decimal >= 0.7) return entero + 1;
+    return entero; 
+  }
+
+  let deferredPrompt; let calFechaActual = new Date();
+  let estadoEjercicio = 0; let calcHistoria = []; let calcPosicion = -1;
+  let tooltipListenerAdded = false;
+
+  let config = {
+    peso: 50, toujeo: 56, fc: 30, telEmergencia: "131", telPapa: "973808283", avatar: 0, tema: "elite",
+    ratios: { desayuno: 4, mam: 0, almuerzo: 5, mpm: 5, cena: 14, corroborar: 0 },
+    metas: { antes: 100, correccion: 150 }
+  };
+
+  const svgOso = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>`;
+  const svgZorro = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="15,50 35,20 45,50" fill="#FFFFFF"/><polygon points="85,50 65,20 55,50" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#2C3A40"/></svg>`;
+  const svgPinguino = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 5 95 A 45 45 0 0 1 95 95 Z" fill="#2C3A40"/><path d="M 20 95 A 30 40 0 0 1 80 95 Z" fill="#FFFFFF"/><polygon points="45,65 55,65 50,75" fill="#F3C623"/><circle cx="40" cy="55" r="4" fill="#2C3A40"/><circle cx="60" cy="55" r="4" fill="#2C3A40"/></svg>`;
+  const svgFoca = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 10 95 A 40 30 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="70" r="5" fill="#2C3A40"/><circle cx="65" cy="70" r="5" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="3" fill="#2C3A40"/></svg>`;
+  const svgBuho = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,40 35,15 50,40" fill="#5B9BD5"/><polygon points="80,40 65,15 50,40" fill="#5B9BD5"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="65" r="15" fill="#FFFFFF"/><circle cx="65" cy="65" r="15" fill="#FFFFFF"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><polygon points="47,72 53,72 50,82" fill="#F3C623"/></svg>`;
+  const svgLobo = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,45 35,15 45,45" fill="#E8F4F8"/><polygon points="80,45 65,15 55,45" fill="#E8F4F8"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="4" fill="#2C3A40"/></svg>`;
+  const svgTigre = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="45" r="12" fill="#FFFFFF"/><circle cx="75" cy="45" r="12" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><path d="M 30 55 Q 50 65 70 55" stroke="#2C3A40" stroke-width="3" fill="none"/><path d="M 25 65 Q 50 75 75 65" stroke="#2C3A40" stroke-width="3" fill="none"/><circle cx="38" cy="75" r="4" fill="#2C3A40"/><circle cx="62" cy="75" r="4" fill="#2C3A40"/><ellipse cx="50" cy="85" rx="5" ry="3" fill="#F05A4A"/></svg>`;
+  const svgPanda = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="14" fill="#2C3A40"/><circle cx="72" cy="40" r="14" fill="#2C3A40"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><ellipse cx="35" cy="70" rx="10" ry="14" fill="#2C3A40"/><ellipse cx="65" cy="70" rx="10" ry="14" fill="#2C3A40"/><circle cx="35" cy="68" r="3" fill="#FFFFFF"/><circle cx="65" cy="68" r="3" fill="#FFFFFF"/><ellipse cx="50" cy="85" rx="6" ry="3" fill="#2C3A40"/></svg>`;
+  const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="40,45 50,10 60,45" fill="#F3C623"/><path d="M 20 95 Q 10 60 30 45" stroke="#5B9BD5" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 80 95 Q 90 60 70 45" stroke="#F05A4A" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 15 95 A 35 35 0 0 1 85 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4" fill="#2C3A40"/><circle cx="62" cy="70" r="4" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#F05A4A"/></svg>`;
+  const svgDragon = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="30,45 50,20 70,45" fill="#F05A4A"/><polygon points="10,60 25,35 40,60" fill="#F05A4A"/><polygon points="90,60 75,35 60,60" fill="#F05A4A"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#088387"/><circle cx="35" cy="70" r="5" fill="#FFFFFF"/><circle cx="65" cy="70" r="5" fill="#FFFFFF"/><circle cx="35" cy="70" r="2" fill="#2C3A40"/><circle cx="65" cy="70" r="2" fill="#2C3A40"/><rect x="42" y="85" width="4" height="4" fill="#2C3A40"/><rect x="54" y="85" width="4" height="4" fill="#2C3A40"/></svg>`;
+
+  const avatares = [
+    { icon: svgOso, name: 'Oso Polar (Líder)', req: 0, desc: 'Líder desde el día 1.' },
+    { icon: svgZorro, name: 'Zorro Ártico', req: 3, desc: 'Requiere 3 días estables.' },
+    { icon: svgPinguino, name: 'Pingüino Emperador', req: 7, desc: 'Requiere 1 semana estable.' },
+    { icon: svgFoca, name: 'Foca Valiente', req: 10, desc: 'Requiere 10 días de excelencia.' },
+    { icon: svgBuho, name: 'Búho Nival', req: 14, desc: 'Requiere 2 semanas estables.' },
+    { icon: svgLobo, name: 'Lobo Alfa', req: 18, desc: 'Requiere 18 días de liderazgo.' },
+    { icon: svgTigre, name: 'Tigre Blanco', req: 21, desc: 'Requiere 3 semanas estables.' },
+    { icon: svgPanda, name: 'Panda Zen', req: 25, desc: 'Requiere 25 días estables.' },
+    { icon: svgUnicornio, name: 'Unicornio Místico', req: 28, desc: 'Requiere 4 semanas estables.' },
+    { icon: svgDragon, name: 'Dragón Legendario', req: 35, desc: 'Requiere 35 días absolutos.' }
+  ];
+
+  const avataresBgColors = ['#197B79', '#E55938', '#73A5D4', '#7BA68D', '#2B3C46', '#1A7A78', '#EFBA34', '#799E7A', '#FA65ED', '#213B41'];
+
+  function contarDiasEstables() {
+    const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
+    const glucosasPorDia = {};
+    
+    historial.forEach(reg => { 
+        if (reg.iso && reg.glucosa) { 
+            if (!glucosasPorDia[reg.iso]) glucosasPorDia[reg.iso] = []; 
+            glucosasPorDia[reg.iso].push(parseFloat(reg.glucosa)); 
+        } 
+    });
+    
+    let estables = 0;
+    for (let fecha in glucosasPorDia) {
+      let lecturas = glucosasPorDia[fecha].filter(g => !isNaN(g)); 
+      if (lecturas.length === 0) continue;
+      
+      // Una evaluación más justa para el esfuerzo diario:
+      // Se considera día estable si no hay crisis severas (hipo < 65 o hiper > 250)
+      let crisis = lecturas.find(g => g < 65 || g > 250);
+      if (!crisis) { 
+          estables++; 
+      }
+    }
+    return estables;
+  }
+
+  function renderAvatarPanel() {
+    const diasEstables = contarDiasEstables(); 
+    const gridContainer = document.getElementById('avatars-grid-container');
+    
+    let gridHTML = '';
+    avatares.forEach((av, index) => {
+      const desbloqueado = diasEstables >= av.req;
+      const isActive = (config.avatar === index);
+      const statusClass = desbloqueado ? '' : 'locked';
+      const activeClass = isActive ? 'active' : '';
+      const bg = avataresBgColors[index] || '#2C3A40';
+      const diasTexto = index === 0 ? 'Nivel Base' : `${av.req} Días`;
+      const nombreCorto = av.name.replace(' Emperador', '').replace(' Legendario', ' Leyenda');
+
+      gridHTML += `
+        <div class="avatar-card ${statusClass} ${activeClass}" onclick="${desbloqueado ? `seleccionarAvatarDirecto(${index})` : 'null'}">
+          <div class="avatar-bg" style="background-color: ${bg};">
+            <span style="display: block; width: 100%; height: 100%;">${av.icon}</span>
+          </div>
+          <h4>${nombreCorto}</h4>
+          <p>${diasTexto}</p>
+        </div>
+      `;
+    });
+    gridContainer.innerHTML = gridHTML;
+  }
+  
+  function seleccionarAvatarDirecto(index) { 
+    config.avatar = index; 
+    localStorage.setItem('polar_config', JSON.stringify(config)); 
+    cargarAvatar(); 
+    renderAvatarPanel(); 
+    alert("¡Poder equipado con excelencia!"); 
+  }
+  
+  function cargarAvatar() { document.getElementById('main-bear-icon').innerHTML = avatares[config.avatar || 0].icon; }
+
+  function obtenerFechaLocalISO() { const ahora = new Date(); const tzOffset = ahora.getTimezoneOffset() * 60000; return new Date(ahora.getTime() - tzOffset).toISOString().split('T')[0]; }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { document.getElementById('splash-screen').classList.add('splash-oculto'); }, 1500);
+    verificarSesion();
+    
+    // AQUÍ: Si hay sesión activa, jalamos los datos más recientes de la nube
+    if (localStorage.getItem('polar_session_activa') === 'true') {
+      sincronizarDatosNube();
+    }
+    
+    // Iniciar el temporizador y auto-comida
+    iniciarMotorTemporizadores();
+    renderTemporizadores();
+
+    const configGuardada = localStorage.getItem('polar_config');
+    if (configGuardada) { 
+        config = JSON.parse(configGuardada); 
+        if (typeof config.ratios.corroborar === 'undefined') config.ratios.corroborar = 0; 
+        if (typeof config.peso === 'undefined') config.peso = 50; 
+        if (typeof config.avatar === 'undefined') config.avatar = 0;
+        if (typeof config.tema === 'undefined') config.tema = "elite"; 
+        if (typeof config.metas === 'undefined') config.metas = { antes: 100, correccion: 150 };
+    }
+
+    const estadoRedondeoGuardado = localStorage.getItem('polar_redondeo_activo');
+    if (estadoRedondeoGuardado !== null) {
+      usoRedondeoElite = (estadoRedondeoGuardado === 'true');
+    }
+    
+    document.getElementById('cfg-tema').value = config.tema; aplicarTemaReal(config.tema);
+
+    document.getElementById('cfg-peso').value = config.peso;
+    document.getElementById('cfg-toujeo').value = config.toujeo; 
+    document.getElementById('cfg-fc').value = config.fc; 
+    document.getElementById('cfg-tel-emergencia').value = config.telEmergencia; 
+    document.getElementById('cfg-tel-papa').value = config.telPapa;
+    
+    document.getElementById('cfg-meta-antes').value = config.metas.antes;
+    document.getElementById('cfg-meta-cor').value = config.metas.correccion;
+    
+    if (document.getElementById('cfg-r-desayuno')) document.getElementById('cfg-r-desayuno').value = config.ratios.desayuno; 
+    if (document.getElementById('cfg-r-mam')) document.getElementById('cfg-r-mam').value = config.ratios.mam; 
+    if (document.getElementById('cfg-r-alm')) document.getElementById('cfg-r-alm').value = config.ratios.almuerzo; 
+    if (document.getElementById('cfg-r-mpm')) document.getElementById('cfg-r-mpm').value = config.ratios.mpm; 
+    if (document.getElementById('cfg-r-cena')) document.getElementById('cfg-r-cena').value = config.ratios.cena;
+    
+    actualizarDropdownMetas(); 
+
+    actualizarRecordatoriosUI();
+    actualizarTextosComida(); renderCitas(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
+    autoSeleccionarComida(); // Asegurar que inicie en la comida perfecta
+
+    // Actualizar botones de llamada rápida al inicio
+    document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
+    document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
+
+    const btnInstall = document.getElementById('btn-install'); const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!isStandalone) { if (isIOS) { btnInstall.style.display = 'flex'; } }
+  });
+
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('btn-install').style.display = 'flex'; });
+  function instalarApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((choiceResult) => { if (choiceResult.outcome === 'accepted') document.getElementById('btn-install').style.display = 'none'; deferredPrompt = null; }); } else { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if (isIOS) document.getElementById('ios-modal').style.display = 'flex'; else alert("Instala desde las opciones de tu navegador."); } }
+  
+  function toggleMenuPanel() {
+    const panel = document.getElementById('panel-menu'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-recetas').classList.remove('open');
+    if (panel.classList.contains('open')) { panel.classList.remove('open'); overlay.classList.remove('active'); } else { panel.classList.add('open'); overlay.classList.add('active'); }
+  }
+  
+  function abrirDesdeMenu(tipo) {
+    toggleMenuPanel();
+    setTimeout(() => {
+      if (tipo === 'panel') { const panel = document.getElementById('panel-grafico'); cerrarTodosPanelesSecundarios(); if (panel.style.display !== 'block') { panel.style.display = 'block'; renderGraficoPicos(); } }
+      else if (tipo === 'historial') { const panel = document.getElementById('panel-historial'); cerrarTodosPanelesSecundarios(); if (panel.style.display !== 'block') toggleHistorial(); } 
+    }, 300);
+  }
+
+  function cerrarTodosPanelesSecundarios() {
+    ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico'].forEach(p => {
+      document.getElementById(p).style.display = 'none';
+    });
+  }
+
+  function togglePanel(idPanel) {
+    const paneles = ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico'];
+    paneles.forEach(p => {
+      if(p === idPanel) {
+        const el = document.getElementById(p); const mostrando = el.style.display === 'block'; el.style.display = mostrando ? 'none' : 'block';
+        if (!mostrando && idPanel === 'panel-grafico') renderGraficoPicos();
+        if (idPanel === 'panel-avatars') renderAvatarPanel();
+      } else { document.getElementById(p).style.display = 'none'; }
+    });
+  }
+
+  function toggleRecetasPanel() {
+    const panel = document.getElementById('panel-recetas'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-menu').classList.remove('open');
+    if (panel.classList.contains('open')) { panel.classList.remove('open'); overlay.classList.remove('active'); } else { panel.classList.add('open'); overlay.classList.add('active'); }
+  }
+
+  function cerrarOverlays() { document.getElementById('panel-recetas').classList.remove('open'); document.getElementById('panel-menu').classList.remove('open'); document.getElementById('panel-overlay').classList.remove('active'); }
+  
+  function agregarCita() {
+    const f = document.getElementById('cita-fecha').value; const h = document.getElementById('cita-hora').value; const e = document.getElementById('cita-especialista').value.trim();
+    if (!f || !h || !e) { alert("Llena todo para agendar con excelencia."); return; }
+    let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); citas.push({ id: Date.now(), fecha: f, hora: h, especialista: e }); citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    localStorage.setItem('citas_polar', JSON.stringify(citas)); document.getElementById('cita-fecha').value = ''; document.getElementById('cita-hora').value = ''; document.getElementById('cita-especialista').value = ''; renderCitas(); verificarCitasProximas();
+  }
+  
+  function borrarCita(id) { 
+      let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); 
+      const cv = citas; 
+      citas = citas.filter(c => c.id !== id); 
+      localStorage.setItem('citas_polar', JSON.stringify(citas)); 
+      renderCitas(); 
+      activarDeshacer('citas', cv);
+  }
+  
+  function renderCitas() {
+    const lista = document.getElementById('lista-citas'); const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); const badge = document.getElementById('badge-citas');
+    if (citas.length > 0) { badge.style.display = 'block'; badge.innerText = citas.length; } else { badge.style.display = 'none'; }
+    if (citas.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">No hay citas pendientes.</p>'; return; }
+    lista.innerHTML = citas.map(cita => {
+      const pF = cita.fecha.split('-'); const fechaLimpia = `${pF[2]}/${pF[1]}/${pF[0]}`;
+      return `<div class="cita-item" style="background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">${cita.especialista}</div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px;">${fechaLimpia} | ${cita.hora}</div>
+        </div>
+        <button style="background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s;" onactive="this.style.transform='scale(0.95)'" onclick="borrarCita(${cita.id})">Borrar</button>
+      </div>`;
+    }).join('');
+  }
+
+  function verificarCitasProximas() {
+    const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
+    if (citas.length === 0) return;
+    const ahora = new Date(); const manana = new Date(); manana.setDate(ahora.getDate() + 1); const isoManana = manana.toISOString().split('T')[0];
+    
+    citas.forEach(cita => {
+      if (cita.fecha === isoManana) {
+        const keyNotif = `notif_cita_${cita.fecha}_${cita.hora}`;
+        if (!localStorage.getItem(keyNotif)) {
+          const pF = cita.fecha.split('-'); const fechaExacta = `${pF[2]}/${pF[1]}/${pF[0]}`;
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("¡Presta atención!", { body: `Mañana tienes cita agendada con ${cita.especialista} el ${fechaExacta} a las ${cita.hora}`, icon: "polar-logo.png" });
+          }
+          localStorage.setItem(keyNotif, 'enviada');
+        }
+      }
+    });
+  }
+
+  function actualizarRecordatoriosUI() { 
+      const txtToujeo = document.getElementById('txt-toujeo');
+      if (txtToujeo) { txtToujeo.innerText = config.toujeo; }
+  }
+
+  function armarTextoReporte() {
+    const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); let texto = "REPORTE MÉDICO - APP POLAR\n\nESQUEMA ACTUAL:\n";
+    texto += `- Basal (Toujeo): ${config.toujeo} U\n- Factor Corrección: 1 U baja ${config.fc} mg/dL\n- Ratios -> Desayuno:R${config.ratios.desayuno} | Once:R${config.ratios.mam} | Alm:R${config.ratios.almuerzo} | PM:R${config.ratios.mpm} | Cena:R${config.ratios.cena}\n\nHISTORIAL:\n`;
+    if (historial.length === 0) texto += "Sin registros.\n"; else historial.forEach(item => texto += `• ${item.fecha} -> Dosis: ${item.dosis} U | Glucosa: ${item.glucosa ? item.glucosa : 'N/A'} | CHO: ${item.carbos || 0}g\n`);
+    return texto;
+  }
+  function enviarReporte() { if (navigator.share) navigator.share({ title: 'Reporte Mensual Polar', text: armarTextoReporte() }).catch(e => console.log(e)); else copiarReporte(); }
+  function copiarReporte() { navigator.clipboard.writeText(armarTextoReporte()).then(() => alert("Reporte copiado.")); }
+
+  function guardarConfig() {
+    config.peso = parseFloat(document.getElementById('cfg-peso').value) || 50;
+    config.toujeo = parseFloat(document.getElementById('cfg-toujeo').value) || 0; 
+    config.fc = parseFloat(document.getElementById('cfg-fc').value) || 1; 
+    config.telEmergencia = document.getElementById('cfg-tel-emergencia').value || "131"; 
+    config.telPapa = document.getElementById('cfg-tel-papa').value || "973808283";
+    
+    let valAntes = document.getElementById('cfg-meta-antes').value;
+    let valCor = document.getElementById('cfg-meta-cor').value;
+
+    config.metas.antes = valAntes ? parseFloat(valAntes) : 100;
+    config.metas.correccion = valCor ? parseFloat(valCor) : 150;
+
+    document.getElementById('cfg-meta-antes').value = config.metas.antes;
+    document.getElementById('cfg-meta-cor').value = config.metas.correccion;
+    
+    if(document.getElementById('cfg-r-desayuno')) config.ratios.desayuno = parseFloat(document.getElementById('cfg-r-desayuno').value) || 0;
+    if(document.getElementById('cfg-r-mam')) config.ratios.mam = parseFloat(document.getElementById('cfg-r-mam').value) || 0;
+    if(document.getElementById('cfg-r-alm')) config.ratios.almuerzo = parseFloat(document.getElementById('cfg-r-alm').value) || 0;
+    if(document.getElementById('cfg-r-mpm')) config.ratios.mpm = parseFloat(document.getElementById('cfg-r-mpm').value) || 0;
+    if(document.getElementById('cfg-r-cena')) config.ratios.cena = parseFloat(document.getElementById('cfg-r-cena').value) || 0;
+    
+    localStorage.setItem('polar_config', JSON.stringify(config));
+    
+    actualizarRecordatoriosUI();
+    actualizarDropdownMetas();
+    actualizarTextosComida(); 
+    
+    // Actualizar href de los botones de llamada en tiempo real
+    document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
+    document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
+
+    togglePanel('panel-config'); 
+    alert("Metas y control médico guardados con excelencia.");
+  }
+  
+  function actualizarDropdownMetas() {
+    const select = document.getElementById('meta');
+    if (!select) return;
+    const antes = config.metas.antes;
+    const cor = config.metas.correccion;
+    
+    select.innerHTML = `
+      <option value="${antes}">Antes de comer (${antes})</option>
+      <option value="${cor}">Corrección (${cor})</option>
+    `;
+  }
+
+  /* ====== EL CEREBRO AUTOMÁTICO DE COMIDAS ====== */
+  function determinarComidaAutomatica() {
+    const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+    const hoyIso = obtenerFechaLocalISO();
+    const registrosHoy = historial.filter(r => r.iso === hoyIso);
+
+    // Si el día empieza limpio, el rey es el desayuno
+    if (registrosHoy.length === 0) return 'desayuno';
+
+    // Filtramos las comidas principales reales
+    const principales = registrosHoy.filter(r => ['desayuno', 'mam', 'almuerzo', 'mpm', 'cena'].includes(r.tipoComida));
+    if (principales.length === 0) return 'desayuno';
+
+    const ultimaPrincipal = principales[principales.length - 1];
+    const timestampUltima = ultimaPrincipal.timestamp;
+
+    // ¿Ya hicimos una corrección después de la última comida?
+    const corroboracionesPost = registrosHoy.filter(r => (r.tipoComida === 'corroborar' || r.tipoComida === 'post-comida') && r.timestamp > timestampUltima);
+    const yaCorroborado = corroboracionesPost.length > 0;
+
+    const horasPasadas = (Date.now() - timestampUltima) / 3600000;
+    const secuencia = ['desayuno', 'mam', 'almuerzo', 'mpm', 'cena'];
+    const idx = secuencia.indexOf(ultimaPrincipal.tipoComida);
+    const nextMeal = secuencia[(idx + 1) % secuencia.length];
+
+    if (!yaCorroborado) {
+        // Ventana crítica: a las 2 horas exactas (1.98 para precisión del intervalo) y hasta 3.5 horas
+        if (horasPasadas >= 1.98 && horasPasadas <= 3.5) {
+            return 'corroborar';
+        }
+    }
+
+    // Si ya corroboró, o el tiempo pasó de largo, o recién comió, se pone directo la siguiente comida
+    return nextMeal;
+  }
+
+  function autoSeleccionarComida() {
+    const select = document.getElementById('comida');
+    if (!select) return;
+    
+    // Respetar el pilar de excelencia: si el líder lo tocó manualmente, no interferimos
+    if (select.dataset.manual === 'true') return;
+    
+    const sugerida = determinarComidaAutomatica();
+    if (select.value !== sugerida) {
+        select.value = sugerida;
+        actualizarTextosComida();
+    }
+  }
+  /* ============================================== */
+
+  function actualizarTextosComida() {
+    const s = document.getElementById('comida');
+    const ratioDes = document.getElementById('cfg-r-desayuno') ? document.getElementById('cfg-r-desayuno').value : config.ratios.desayuno;
+    const ratioMam = document.getElementById('cfg-r-mam') ? document.getElementById('cfg-r-mam').value : config.ratios.mam;
+    const ratioAlm = document.getElementById('cfg-r-alm') ? document.getElementById('cfg-r-alm').value : config.ratios.almuerzo;
+    const ratioMpm = document.getElementById('cfg-r-mpm') ? document.getElementById('cfg-r-mpm').value : config.ratios.mpm;
+    const ratioCena = document.getElementById('cfg-r-cena') ? document.getElementById('cfg-r-cena').value : config.ratios.cena;
+
+    s.options[0].text = `DESAYUNO (R${ratioDes})`; 
+    s.options[1].text = `ONCE (R${ratioMam})`; 
+    s.options[2].text = `ALMUERZO (R${ratioAlm})`; 
+    s.options[3].text = `MERIENDA TARDE (R${ratioMpm})`; 
+    s.options[4].text = `CENA (R${ratioCena})`; 
+    if(s.options[5]) s.options[5].text = `CORROBORAR (SOLO CORRECCIÓN)`;
+    
+    const meal = s.value;
+    const inputActivo = document.getElementById('cfg-r-' + meal);
+    const valActivo = inputActivo ? inputActivo.value : (config.ratios[meal] || 0);
+    const labelCarbos = document.getElementById('label-carbos');
+    if (labelCarbos) { labelCarbos.innerHTML = `comida CHO R${valActivo}`; }
+    
+    const selectMeta = document.getElementById('meta');
+    if(selectMeta) {
+      if (meal === 'corroborar') {
+        selectMeta.value = config.metas.correccion;
+      } else {
+        selectMeta.value = config.metas.antes;
+      }
+    }
+  }
+  
+  function despertarPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('sleeping'); b.classList.add('awake'); }
+  function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
+
+  async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) {
+        alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
+        return;
+    }
+
+    const ahora = new Date(); 
+    const fecha = ahora.toLocaleString('es-CL'); 
+    const isoFecha = obtenerFechaLocalISO(); 
+
+    // 1. Inyección de Excelencia: Mandar a la Bóveda de Supabase
+    const { data, error } = await polarDb
+      .from('historial_polar')
+      .insert([
+        { 
+          paciente_id: userId,
+          glucosa: glucosa, 
+          carbos: carbos, 
+          dosis: dosis, 
+          tipo_comida: tipoComida 
+        }
+      ]);
+
+    if (error) {
+      alert("Error al guardar en la nube: " + error.message);
+      return;
+    }
+
+    // 2. Respaldo Visual Rápido para que la app reaccione al instante sin lag
+    let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
+    historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
+    localStorage.setItem('historial_polar', JSON.stringify(historial));
+    
+    if (document.getElementById('panel-historial').style.display === 'block') actualizarVistaHistorial(); 
+    renderGraficoPicos();
+    
+    // Limpiamos la UI
+    document.getElementById('glucosa').value = ''; 
+    document.getElementById('carbos').value = ''; 
+    document.getElementById('resultado').style.display = 'none'; 
+    delete document.getElementById('comida').dataset.manual; 
+    dormirPolar(); 
+    
+    // TEMPORIZADOR AUTOMÁTICO POST-REGISTRO ÉLITE
+    let tiempoTimer = 7200; // 2 horas por defecto
+    let textoTimer = "2H";
+    if (glucosa < 70 || glucosa >= 250) {
+        tiempoTimer = 900; // 15 minutos exactos
+        textoTimer = "15 min";
+    }
+
+    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
+    timers.push({
+        id: Date.now(),
+        nombre: `¡A medir energía! (Control)`,
+        total: tiempoTimer, 
+        restante: tiempoTimer,
+        activo: true
+    });
+    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
+    if(typeof renderTemporizadores === 'function') renderTemporizadores();
+
+    alert(`polar guardo ${dosis}u con excelencia`);
+    autoSeleccionarComida(); 
+  }
+
+  function toggleHistorial() { const p = document.getElementById('panel-historial'); if (p.style.display === 'block') p.style.display = 'none'; else { actualizarVistaHistorial(); p.style.display = 'block'; setTimeout(() => p.scrollIntoView({behavior: "smooth"}), 100); } }
+  
+  function actualizarVistaHistorial() {
+    const lista = document.getElementById('lista-historial'); const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+    if (historial.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; return; }
+    const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'Corroboración', 'post-comida': '2 Horas Post-Comida' };
+    let html = ''; let fechaAgrupada = ''; const hOrd = historial.slice(); 
+    
+    hOrd.forEach(item => {
+      const nom = item.tipoComida ? dict[item.tipoComida] : 'Manual'; const partes = item.fecha.split(', '); const dS = partes[0]; const hS = partes[1] || item.fecha;
+      if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div style="background: var(--turquoise-strong); color: #FFFFFF; padding: 12px 16px; border-radius: 14px; margin-top: 18px; margin-bottom: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase;">${dS}</div>`; }
+      let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
+      let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
+
+      html += `<div class="historial-item" style="background: var(--bg-polar); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 10px; border: 1px solid var(--input-border);"><div style="width: 100%;"><div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">${hS}</div><div style="font-size: 17px; font-weight: 900; color: var(--turquoise-strong); margin-top: 4px;">${nom}</div><div style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-top: 4px;">${det}</div><div style="margin-top: 8px;">${dos}</div></div></div>`;
+    });
+    lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
+  }
+
+  function borrarHistorialCompleto() { 
+    if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) { 
+      const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      localStorage.removeItem('historial_polar'); 
+      actualizarVistaHistorial(); 
+      renderGraficoPicos();
+      activarDeshacer('historial', hV);
+    } 
+  }
+
+  function sugerirEsquema() {
+    const h = JSON.parse(localStorage.getItem('historial_polar') || '[]'); if (h.length === 0) { alert("Registra datos primero, líder."); return; }
+    const ah = new Date(); const h2d = new Date(); h2d.setDate(ah.getDate() - 2); const ult = h.filter(i => { if (!i.iso) return false; return new Date(i.iso) >= h2d; });
+    if (ult.length === 0) { alert("No hay mediciones en los últimos 2 días."); return; }
+    let s = 0; let c = 0; ult.forEach(r => { if (r.glucosa && r.glucosa > 0) { s += Number(r.glucosa); c++; } }); if (c === 0) return;
+    const p = s / c; let m = "";
+    if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).\n\nSugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios. Revisa con médico.`;
+    else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).\n\nSugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
+    else m = `Promedio EXCELENTE (${p.toFixed(0)}).\n\nSugerencia: Estás dominando al 100%. Mantén el esquema.`;
+    alert(m);
+  }
+
+  function verificarCicloSemanal() {
+      let inicio = localStorage.getItem('polar_semana_inicio');
+      let ahora = new Date().getTime();
+      if(!inicio) {
+          localStorage.setItem('polar_semana_inicio', ahora);
+          return ahora;
+      }
+      let tiempoPasado = ahora - parseInt(inicio);
+      if(tiempoPasado >= 604800000) {
+          localStorage.setItem('polar_semana_inicio', ahora);
+          return ahora;
+      }
+      return parseInt(inicio);
+  }
+
+  function verificarCicloMensual() {
+      let inicio = localStorage.getItem('polar_mes_inicio');
+      if(!inicio) {
+          inicio = new Date().getTime();
+          localStorage.setItem('polar_mes_inicio', inicio);
+      }
+      return parseInt(inicio);
+  }
+
+  window.limpiarCicloMensual = function() {
+      if(confirm("¿Seguro que quieres borrar el ciclo de promedios mensuales y empezar uno nuevo? (Solo limpia las barras, tu historial se mantiene intacto).")) {
+          localStorage.setItem('polar_mes_inicio', new Date().getTime());
+          renderGraficoPicos();
+          alert("Ciclo mensual reiniciado desde cero. A dominar el nuevo mes.");
+      }
+  };
+
+  window.copiarStatsMensuales = function(baja, media, alta) {
+      const texto = `📊 ESTADÍSTICAS MENSUALES POLAR\n\n📉 Baja (<= 60): ${baja}%\n✅ Media (61-180): ${media}%\n📈 Alta (200-500): ${alta}%\n\nLiderazgo y control absoluto.`;
+      navigator.clipboard.writeText(texto).then(() => alert("Estadísticas del mes copiadas. Listas para enviar."));
+  };
+
+  function renderGraficoPicos() {
+    const canvas = document.getElementById('graficoPicos'); 
+    if (!canvas) return; 
+    
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.parentElement.clientWidth || 350;
+    const height = 260;
+    
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
+    
+    const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+    let inicioSemana = verificarCicloSemanal();
+
+    const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
+    const textCol = isDarkBg ? '#FFFFFF' : '#000000';
+
+    const paddingX = 40; const paddingY = 30; const gridW = width - paddingX * 2; const gridH = height - paddingY * 2;
+
+    ctx.strokeStyle = 'rgba(44, 58, 64, 0.15)'; 
+    ctx.lineWidth = 1;
+    for(let i=0; i<=4; i++) { ctx.beginPath(); let y = paddingY + (i * (gridH/4)); ctx.moveTo(paddingX, y); ctx.lineTo(width - paddingX, y); ctx.stroke(); }
+    for(let i=0; i<=6; i++) { ctx.beginPath(); let x = paddingX + (i * (gridW/6)); ctx.moveTo(x, paddingY); ctx.lineTo(x, height - paddingY); ctx.stroke(); }
+
+    ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 12px Nunito'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('400', paddingX - 8, paddingY); ctx.fillText('200', paddingX - 8, paddingY + (gridH/2)); ctx.fillText('0', paddingX - 8, paddingY + gridH);
+
+    // SE LLAMA LA NUEVA FUNCIÓN PARA DIBUJAR BARRAS DE PORCENTAJE INTERACTIVAS
+    renderBarrasPorcentaje();
+
+    const parseItemTime = (item) => {
+        if (item.timestamp) return item.timestamp;
+        if(!item.iso) return 0;
+        return new Date(item.iso + 'T00:00:00').getTime(); 
+    };
+
+    const historialSemana = historialCompleto.filter(item => {
+        return parseItemTime(item) >= inicioSemana;
+    });
+
+    if (historialSemana.length === 0) {
+        ctx.fillStyle = textCol; ctx.font = '800 15px Nunito'; ctx.textAlign = 'center';
+        ctx.fillText('Nueva semana iniciada. Registra para ver puntos.', width / 2, height / 2);
+        return;
+    }
+
+    const puntos = historialSemana.slice(-15);
+    const maxVal = 400; const minVal = 0; const stepX = gridW / Math.max(puntos.length - 1, 1);
+
+    const coords = puntos.map((item, index) => {
+        let val = parseFloat(item.glucosa) || 100;
+        if (isNaN(val) || String(item.glucosa).toUpperCase() === 'HI') val = 600;
+        let pX = paddingX + (index * stepX);
+        let pY = paddingY + gridH - ((val - minVal) / (maxVal - minVal)) * gridH;
+        if (pY < paddingY) pY = paddingY; 
+        return {x: pX, y: pY, val: val, originalStr: item.glucosa};
+    });
+
+    window.graficoCoordsGlobal = coords.map((c, i) => {
+        const item = puntos[i];
+        const timePart = item.fecha.split(', ')[1] || item.fecha; 
+        return { x: c.x, y: c.y, val: c.val, time: timePart };
+    });
+
+    ctx.strokeStyle = (config.tema === 'oscuro' || config.tema === 'halloween' || config.tema === 'neon') ? '#FFFFFF' : '#2C3A40';
+    ctx.lineWidth = 3; ctx.beginPath();
+    coords.forEach((c, i) => { if (i === 0) ctx.moveTo(c.x, c.y); else ctx.lineTo(c.x, c.y); });
+    ctx.stroke();
+
+    coords.forEach((c, i) => {
+        let colorNodo = '#4CAF50'; 
+        if (c.val < 55) colorNodo = '#FF3B30';
+        else if (c.val < 81) colorNodo = '#FF9F0A';
+        else if (c.val < 181) colorNodo = '#4CAF50';
+        else if (c.val < 301) colorNodo = '#1B5E20';
+        else colorNodo = '#FF3B30';
+
+        ctx.fillStyle = colorNodo; ctx.beginPath(); ctx.arc(c.x, c.y, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+    });
+
+    if(!tooltipListenerAdded) {
+        // FIX: Unificando eventos con pointerdown para iPhone y Mac
+        const manejarToqueGrafico = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+            
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            let closest = null; 
+            let minDist = 40; 
+
+            if (window.graficoCoordsGlobal) {
+                window.graficoCoordsGlobal.forEach(c => {
+                    const cssX = c.x / dpr; 
+                    const cssY = c.y / dpr;
+                    const dist = Math.hypot(cssX - x, cssY - y);
+                    if (dist < minDist) { 
+                        minDist = dist; 
+                        closest = c; 
+                    }
+                });
+            }
+
+            const tooltip = document.getElementById('grafico-tooltip');
+            if (closest) {
+                tooltip.innerHTML = `Nivel: ${closest.val} mg/dL<br>Hora: ${closest.time}`;
+                tooltip.style.left = (closest.x / dpr) + 'px';
+                tooltip.style.top = (closest.y / dpr) + 'px';
+                tooltip.style.display = 'block';
+                setTimeout(() => tooltip.style.display = 'none', 4000); 
+            } else { 
+                tooltip.style.display = 'none'; 
+            }
+        };
+
+        canvas.addEventListener('pointerdown', manejarToqueGrafico);
+        tooltipListenerAdded = true;
+    }
+  }
+
+  function ciclarEjercicio() {
+    estadoEjercicio = (estadoEjercicio + 1) % 3; const btn = document.getElementById('btn-ejercicio'); const input = document.getElementById('ejercicio');
+    if (estadoEjercicio === 0) { btn.innerText = "No, estará tranquilo"; btn.style.background = "#4CAF50"; btn.style.color = "#FFFFFF"; input.value = "1"; } 
+    else if (estadoEjercicio === 1) { btn.innerText = "Sí, un poco (Menos energía)"; btn.style.background = "#FF9F0A"; btn.style.color = "#FFFFFF"; input.value = "0.66"; } 
+    else { btn.innerText = "Sí, muchísimo (Mitad energía)"; btn.style.background = "#FF3B30"; btn.style.color = "#FFFFFF"; input.value = "0.5"; }
+    dormirPolar(); 
+  }
+
+  function navegarCalculos(dir) {
+    let nP = calcPosicion + dir;
+    if (nP >= 0 && nP < calcHistoria.length) { 
+        calcPosicion = nP; 
+        let est = calcHistoria[calcPosicion]; 
+        document.getElementById('glucosa').value = est.glucosa; 
+        document.getElementById('carbos').value = est.carbos; 
+        document.getElementById('comida').value = est.comida; 
+        document.getElementById('meta').value = est.meta; 
+        estadoEjercicio = est.estadoEjercicio - 1; 
+        ciclarEjercicio(); 
+        calcular(true); 
+    }
+  }
+
+  function calcular(esNav = false) {
+    const glucosaInput = document.getElementById('glucosa').value; 
+    const carbosInput = document.getElementById('carbos').value;
+    const glucosa = parseFloat(glucosaInput) || 0; 
+    const carbos = parseFloat(carbosInput) || 0;
+    const comidaKey = document.getElementById('comida').value; 
+    const metaRestar = parseFloat(document.getElementById('meta').value);
+    const peso = parseFloat(document.getElementById('cfg-peso') ? document.getElementById('cfg-peso').value : 50) || 50;
+
+    if (!esNav) { 
+      const estA = { glucosa: glucosaInput, carbos: carbosInput, comida: comidaKey, meta: metaRestar, estadoEjercicio: estadoEjercicio }; 
+      calcHistoria = calcHistoria.slice(0, calcPosicion + 1); 
+      calcHistoria.push(estA); 
+      calcPosicion++; 
+    }
+
+    const inputRatio = document.getElementById('cfg-r-' + comidaKey);
+    const ratio = inputRatio ? parseFloat(inputRatio.value) : (config.ratios[comidaKey] || 0);
+    const factorEj = parseFloat(document.getElementById('ejercicio').value); 
+    const inputFc = document.getElementById('cfg-fc');
+    const fc = inputFc ? parseFloat(inputFc.value) : config.fc; 
+    const resDiv = document.getElementById('resultado');
+
+    // 1. CÁLCULO BASE
+    let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
+    let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : dosisComidaExacta;
+    let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
+    let dosisCorreccion = usoRedondeoElite ? Math.floor(dosisCorreccionExacta) : dosisCorreccionExacta;
+
+    let dosisTotal = (dosisComida + dosisCorreccion) * factorEj;
+    if (glucosa <= 70 && glucosa > 54) { dosisTotal -= 2; }
+    if (dosisTotal < 0) dosisTotal = 0; 
+    let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotal) : Math.round(dosisTotal * 10) / 10;
+
+    // 3. TEXTOS CLÍNICOS Y UMBRALES DE EMERGENCIA
+    let protocoloClinicoHTML = "";
+    let colorNumeroGemas = "var(--turquoise-strong)";
+
+    if (glucosa > 0 && glucosa < 70) {
+      colorNumeroGemas = "#FF3B30";
+      protocoloClinicoHTML = `
+        <div style="text-align: left; font-size: 14px; background: rgba(255, 59, 48, 0.1); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; border-left: 4px solid #FF3B30;">
+          <strong>• ¡Tu energía está bajita!</strong><br>
+          <strong>Toma algo dulce YA:</strong> Bebe medio vaso de jugo o agua con 3 cucharaditas de azúcar.<br>
+          <strong>Modo estatua:</strong> Siéntate y descansa. Cero correr o jugar.<br>
+          <strong>Espera y revisa:</strong> Quédate tranquilo 15 minutos y vuelve a medirte. Si sigue baja, toma otro poquito de jugo.
+        </div>`;
+    } 
+    else {
+      // Rangos Normales y Altos
+      if (glucosa >= 70 && glucosa <= 130) {
+        protocoloClinicoHTML = `
+          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+            Estás en los valores recomendados. Realiza tus comidas o actividades con normalidad.
+          </div>`;
+      }
+      else if (glucosa >= 140 && glucosa <= 180) {
+        protocoloClinicoHTML = `
+          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+            Un poquito alta. Una caminata ligera de 10 a 15 minutos ayuda a bajarla. Bebe un vaso de agua.
+          </div>`;
+      }
+      else if (glucosa >= 181 && glucosa <= 249) {
+        protocoloClinicoHTML = `
+          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+            Aplica tu corrección. Toma agua pura y descansa o camina muy suave. Mide de nuevo en 2 horas.
+          </div>`;
+      }
+      else if (glucosa >= 250 && glucosa < 400) {
+        protocoloClinicoHTML = `
+          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+            <strong>• Actividad:</strong> Cero ejercicio. El esfuerzo físico puede empeorar el cuadro.<br>
+            <strong>• Hidratación:</strong> Bebe medio litro de agua en la próxima hora.
+          </div>`;
+      }
+      else if (glucosa >= 400) {
+        colorNumeroGemas = "#FF3B30";
+        protocoloClinicoHTML = `
+          <div style="text-align: left; font-size: 14px; background: rgba(255, 59, 48, 0.1); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; border-left: 4px solid #FF3B30;">
+            <strong>⚠️ Cifra crítica de ${glucosa} mg/dl.</strong><br>
+            Puedes acudir a un médico si sigues así o verifica tu catéter a ver si está fallando.
+          </div>`;
+      }
+    }
+
+    let alternativaSaludable = "";
+    if (carbos > 50) {
+        alternativaSaludable = "Carga pesada detectada. Sugerencia: Cambia la mitad de esa porción por brócoli al vapor o ensalada verde.";
+    } else if (carbos > 20 && carbos <= 50) {
+        alternativaSaludable = "Asegúrate de que esos CHO vengan acompañados de proteína para estabilizar el índice glucémico.";
+    } else if (carbos > 0) {
+        alternativaSaludable = "Comida táctica limpia. Impacto mínimo en la glucosa.";
+    } else {
+        alternativaSaludable = "Evaluación limpia.";
+    }
+
+    document.getElementById('recomendacion-comida').innerHTML = `
+      <h4>Sugerencia de Nutrición</h4>
+      <p>${alternativaSaludable}</p>
+      <div style="background: var(--white); padding: 14px; border-radius: 14px; margin-top: 14px; border-left: 4px solid var(--turquoise-strong); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        <strong style="color: var(--turquoise-strong); font-size: 14px; display: block; margin-bottom: 6px;">Protocolo Clínico Actual:</strong>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">${protocoloClinicoHTML}</span>
+      </div>`;
+
+    let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
+    let btnAdel = `<button class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
+
+    resDiv.className = "result-box";
+    resDiv.innerHTML = `
+      <h2>¡Gemas Calculadas!</h2>
+      <div class="result-number" style="color: ${colorNumeroGemas} !important;">${dosisFinal}</div>
+      <div class="result-unit">Gemas Ultra para Polar</div>
+      <div class="result-details">
+        Por Comida: <strong>${dosisComida} U</strong> (R${ratio})<br>
+        Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar})
+        ${protocoloClinicoHTML}
+      </div>
+      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">${btnAtras}${btnAdel}</div>
+      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 24px; font-size: 20px; padding: 18px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" onclick="guardarDosisAplicada(${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar dosis aplicada</button>`;
+    resDiv.style.display = "block"; resDiv.scrollIntoView({ behavior: 'smooth' }); despertarPolar();
+  }
+
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); }); }
+</script>
+</body>
+</html>
