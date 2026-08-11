@@ -262,7 +262,6 @@
     
     <!-- BOTÓN DE CERRAR SESIÓN -->
     <button class="btn-save" style="background: #FF3B30; color: var(--white); margin-top: 24px; box-shadow: 0 6px 15px rgba(255,59,48,0.2);" onclick="cerrarSesion()">  Cerrar Sesión</button>
-    <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleMenuPanel()">Cerrar Menú</button>
   </div>
 
   <div id="panel-recetas" class="side-panel right-panel">
@@ -292,6 +291,9 @@
       </div>
       <div class="top-actions">
         <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
+        
+        <!-- BOTÓN DE USUARIO -->
+        <button id="btn-usuario-nombre" class="icon-btn" onclick="togglePanel('panel-usuario')">Líder</button>
         
         <!-- BOTÓN TEMPORIZADOR EN LETRAS -->
         <button id="btn-alarmas" class="icon-btn" onclick="togglePanel('panel-alarmas')">Temporizador</button>
@@ -438,6 +440,21 @@
       <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-bottom: 10px;" onclick="togglePanel('panel-alarmas')">Cerrar Ajustes</button>
     </div>
 
+    <!-- PANEL DE USUARIO -->
+    <div class="card card-settings card-full" id="panel-usuario">
+      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+        Perfil de Líder
+        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; padding:0;" onclick="togglePanel('panel-usuario')">×</button>
+      </h3>
+      <label>Cambiar Nombre Visible</label>
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <input type="text" id="input-nuevo-nombre" placeholder="Ej: Deivis" style="margin-bottom: 0; flex: 1;">
+        <button class="btn-accent" style="margin-top: 0; width: auto; padding: 0 20px; background: var(--turquoise-strong);" onclick="guardarNombreUsuario()">Guardar</button>
+      </div>
+      
+      <button class="btn-save" style="background: #FF3B30; color: white; margin-top: 0;" onclick="cerrarSesion()">Cerrar Sesión Segura</button>
+    </div>
+
     <!-- PANEL DE CONFIGURACIÓN -->
     <div class="card card-settings card-full" id="panel-config">
       <!-- TÍTULO DE CONFIGURACIÓN -->
@@ -562,8 +579,12 @@
       </h3>
       <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
       <div id="lista-historial"></div>
-      <button id="btn-borrar-historial" class="btn-save" style="background: #FF3B30; color: white; margin-top: 18px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(255,59,48,0.2);" onclick="borrarHistorialCompleto()">  Borrar Todo el Historial</button>
-      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleHistorial()">  Cerrar Guardados</button>
+      
+      <!-- BOTONES COMPACTOS LADO A LADO -->
+      <div style="display: flex; gap: 12px; margin-top: 18px;">
+        <button id="btn-borrar-historial" class="btn-save" style="background: #FF3B30; color: white; margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px; box-shadow: 0 4px 15px rgba(255,59,48,0.2);" onclick="borrarHistorialCompleto()">Borrar</button>
+        <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="toggleHistorial()">Cerrar</button>
+      </div>
     </div>
 
   </div> <!-- Cierre App Container -->
@@ -714,6 +735,9 @@
       
       // Luego revisamos si hay datos viejos que limpiar
       await revisarRegistrosAntiguos();
+
+      // Cargar nombre del usuario individual
+      cargarNombreUsuario();
       
       document.getElementById('login-screen').style.opacity = '0';
       setTimeout(() => {
@@ -725,13 +749,46 @@
 
   async function cerrarSesion() {
     await polarDb.auth.signOut();
+    
+    // Aislamiento Total - Destruimos memoria de la sesión local
     localStorage.removeItem('polar_session_activa');
     localStorage.removeItem('polar_rol');
     localStorage.removeItem('polar_user_id');
+    localStorage.removeItem('historial_polar'); 
+    localStorage.removeItem('polar_timers_elite');
+    localStorage.removeItem('citas_polar');
+    
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
-    toggleMenuPanel();
+    document.getElementById('lista-historial').innerHTML = '';
+    document.getElementById('btn-usuario-nombre').innerText = 'Líder';
+    
+    if(document.getElementById('panel-usuario').style.display === 'block') {
+      togglePanel('panel-usuario');
+    }
+    
+    const panelMenu = document.getElementById('panel-menu');
+    if (panelMenu.classList.contains('open')) toggleMenuPanel();
     verificarSesion();
+  }
+
+  /* =================================================== */
+  /* GESTIÓN NOMBRE LÍDER AISLADA                        */
+  /* =================================================== */
+  function guardarNombreUsuario() {
+    const nuevoNombre = document.getElementById('input-nuevo-nombre').value.trim();
+    const userId = localStorage.getItem('polar_user_id') || 'default';
+    if(nuevoNombre) {
+      localStorage.setItem('polar_nombre_lider_' + userId, nuevoNombre);
+      document.getElementById('btn-usuario-nombre').innerText = nuevoNombre;
+      togglePanel('panel-usuario');
+    }
+  }
+
+  function cargarNombreUsuario() {
+    const userId = localStorage.getItem('polar_user_id') || 'default';
+    const nombreGuardado = localStorage.getItem('polar_nombre_lider_' + userId) || 'Líder';
+    document.getElementById('btn-usuario-nombre').innerText = nombreGuardado;
   }
 
   /* =================================================== */
@@ -1132,16 +1189,19 @@
     metas: { antes: 100, correccion: 150 }
   };
 
+  /* =================================================== */
+  /* SVGs DE AVATARES CON COLORES REALES                 */
+  /* =================================================== */
   const svgOso = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>`;
-  const svgZorro = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="15,50 35,20 45,50" fill="#FFFFFF"/><polygon points="85,50 65,20 55,50" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#2C3A40"/></svg>`;
+  const svgZorro = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="15,50 35,20 45,50" fill="#E67E22"/><polygon points="85,50 65,20 55,50" fill="#E67E22"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#D35400"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#2C3A40"/></svg>`;
   const svgPinguino = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 5 95 A 45 45 0 0 1 95 95 Z" fill="#2C3A40"/><path d="M 20 95 A 30 40 0 0 1 80 95 Z" fill="#FFFFFF"/><polygon points="45,65 55,65 50,75" fill="#F3C623"/><circle cx="40" cy="55" r="4" fill="#2C3A40"/><circle cx="60" cy="55" r="4" fill="#2C3A40"/></svg>`;
-  const svgFoca = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 10 95 A 40 30 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="70" r="5" fill="#2C3A40"/><circle cx="65" cy="70" r="5" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="3" fill="#2C3A40"/></svg>`;
-  const svgBuho = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,40 35,15 50,40" fill="#5B9BD5"/><polygon points="80,40 65,15 50,40" fill="#5B9BD5"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="65" r="15" fill="#FFFFFF"/><circle cx="65" cy="65" r="15" fill="#FFFFFF"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><polygon points="47,72 53,72 50,82" fill="#F3C623"/></svg>`;
-  const svgLobo = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,45 35,15 45,45" fill="#E8F4F8"/><polygon points="80,45 65,15 55,45" fill="#E8F4F8"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E8F4F8"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="4" fill="#2C3A40"/></svg>`;
-  const svgTigre = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="45" r="12" fill="#FFFFFF"/><circle cx="75" cy="45" r="12" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><path d="M 30 55 Q 50 65 70 55" stroke="#2C3A40" stroke-width="3" fill="none"/><path d="M 25 65 Q 50 75 75 65" stroke="#2C3A40" stroke-width="3" fill="none"/><circle cx="38" cy="75" r="4" fill="#2C3A40"/><circle cx="62" cy="75" r="4" fill="#2C3A40"/><ellipse cx="50" cy="85" rx="5" ry="3" fill="#F05A4A"/></svg>`;
+  const svgFoca = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 10 95 A 40 30 0 0 1 90 95 Z" fill="#95A5A6"/><circle cx="35" cy="70" r="5" fill="#2C3A40"/><circle cx="65" cy="70" r="5" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="3" fill="#2C3A40"/></svg>`;
+  const svgBuho = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,40 35,15 50,40" fill="#8E44AD"/><polygon points="80,40 65,15 50,40" fill="#8E44AD"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#C39BD3"/><circle cx="35" cy="65" r="15" fill="#FFFFFF"/><circle cx="65" cy="65" r="15" fill="#FFFFFF"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><polygon points="47,72 53,72 50,82" fill="#F3C623"/></svg>`;
+  const svgLobo = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,45 35,15 45,45" fill="#7F8C8D"/><polygon points="80,45 65,15 55,45" fill="#7F8C8D"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#BDC3C7"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="4" fill="#2C3A40"/></svg>`;
+  const svgTigre = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="45" r="12" fill="#F39C12"/><circle cx="75" cy="45" r="12" fill="#F39C12"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E67E22"/><path d="M 30 55 Q 50 65 70 55" stroke="#2C3A40" stroke-width="3" fill="none"/><path d="M 25 65 Q 50 75 75 65" stroke="#2C3A40" stroke-width="3" fill="none"/><circle cx="38" cy="75" r="4" fill="#2C3A40"/><circle cx="62" cy="75" r="4" fill="#2C3A40"/><ellipse cx="50" cy="85" rx="5" ry="3" fill="#C0392B"/></svg>`;
   const svgPanda = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="14" fill="#2C3A40"/><circle cx="72" cy="40" r="14" fill="#2C3A40"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><ellipse cx="35" cy="70" rx="10" ry="14" fill="#2C3A40"/><ellipse cx="65" cy="70" rx="10" ry="14" fill="#2C3A40"/><circle cx="35" cy="68" r="3" fill="#FFFFFF"/><circle cx="65" cy="68" r="3" fill="#FFFFFF"/><ellipse cx="50" cy="85" rx="6" ry="3" fill="#2C3A40"/></svg>`;
-  const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="40,45 50,10 60,45" fill="#F3C623"/><path d="M 20 95 Q 10 60 30 45" stroke="#5B9BD5" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 80 95 Q 90 60 70 45" stroke="#F05A4A" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 15 95 A 35 35 0 0 1 85 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4" fill="#2C3A40"/><circle cx="62" cy="70" r="4" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#F05A4A"/></svg>`;
-  const svgDragon = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="30,45 50,20 70,45" fill="#F05A4A"/><polygon points="10,60 25,35 40,60" fill="#F05A4A"/><polygon points="90,60 75,35 60,60" fill="#F05A4A"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#088387"/><circle cx="35" cy="70" r="5" fill="#FFFFFF"/><circle cx="65" cy="70" r="5" fill="#FFFFFF"/><circle cx="35" cy="70" r="2" fill="#2C3A40"/><circle cx="65" cy="70" r="2" fill="#2C3A40"/><rect x="42" y="85" width="4" height="4" fill="#2C3A40"/><rect x="54" y="85" width="4" height="4" fill="#2C3A40"/></svg>`;
+  const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="40,45 50,10 60,45" fill="#F3C623"/><path d="M 20 95 Q 10 60 30 45" stroke="#5B9BD5" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 80 95 Q 90 60 70 45" stroke="#F05A4A" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 15 95 A 35 35 0 0 1 85 95 Z" fill="#FDFEFE"/><circle cx="38" cy="70" r="4" fill="#2C3A40"/><circle cx="62" cy="70" r="4" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#F05A4A"/></svg>`;
+  const svgDragon = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="30,45 50,20 70,45" fill="#F05A4A"/><polygon points="10,60 25,35 40,60" fill="#F05A4A"/><polygon points="90,60 75,35 60,60" fill="#F05A4A"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#27AE60"/><circle cx="35" cy="70" r="5" fill="#F1C40F"/><circle cx="65" cy="70" r="5" fill="#F1C40F"/><circle cx="35" cy="70" r="2" fill="#2C3A40"/><circle cx="65" cy="70" r="2" fill="#2C3A40"/><rect x="42" y="85" width="4" height="4" fill="#2C3A40"/><rect x="54" y="85" width="4" height="4" fill="#2C3A40"/></svg>`;
 
   const avatares = [
     { icon: svgOso, name: 'Oso Polar (Líder)', req: 0, desc: 'Líder desde el día 1.' },
@@ -1231,6 +1291,9 @@
     if (localStorage.getItem('polar_session_activa') === 'true') {
       sincronizarDatosNube();
     }
+
+    // CARGAR NOMBRE DEL LÍDER
+    cargarNombreUsuario();
     
     // Iniciar el temporizador y auto-comida
     iniciarMotorTemporizadores();
@@ -1299,13 +1362,13 @@
   }
 
   function cerrarTodosPanelesSecundarios() {
-    ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico'].forEach(p => {
+    ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'].forEach(p => {
       document.getElementById(p).style.display = 'none';
     });
   }
 
   function togglePanel(idPanel) {
-    const paneles = ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico'];
+    const paneles = ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'];
     paneles.forEach(p => {
       if(p === idPanel) {
         const el = document.getElementById(p); const mostrando = el.style.display === 'block'; el.style.display = mostrando ? 'none' : 'block';
@@ -1521,23 +1584,17 @@
   function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
 
   async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
-    // 1. EXCELENCIA 100%: Verificamos con Supabase si la sesión es válida y real AHORA MISMO.
-    const { data: sessionData, error: sessionError } = await polarDb.auth.getSession();
-
-    if (sessionError || !sessionData.session) {
-      alert("Líder, por la seguridad de los datos, la conexión caducó. Reconectando el sistema...");
-      cerrarSesion(); // Expulsamos al muro élite para renovar credenciales limpias
-      return;
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) {
+        alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
+        return;
     }
-
-    // Tomamos el ID real, fresco y autorizado directamente de la sesión verificada
-    const userId = sessionData.session.user.id;
 
     const ahora = new Date(); 
     const fecha = ahora.toLocaleString('es-CL'); 
     const isoFecha = obtenerFechaLocalISO(); 
 
-    // 2. Inyección a la Bóveda de Supabase
+    // 1. Inyección de Excelencia: Mandar a la Bóveda de Supabase
     const { data, error } = await polarDb
       .from('historial_polar')
       .insert([
@@ -1555,7 +1612,7 @@
       return;
     }
 
-    // 3. Respaldo Visual Rápido para que la app reaccione al instante sin lag
+    // 2. Respaldo Visual Rápido para que la app reaccione al instante sin lag
     let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
     historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
     localStorage.setItem('historial_polar', JSON.stringify(historial));
@@ -1589,7 +1646,7 @@
     localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
     if(typeof renderTemporizadores === 'function') renderTemporizadores();
 
-    alert(`polar guardó ${dosis}u con excelencia`);
+    alert(`polar guardo ${dosis}u con excelencia`);
     autoSeleccionarComida(); 
   }
 
@@ -1607,7 +1664,15 @@
       let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
       let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
 
-      html += `<div class="historial-item" style="background: var(--bg-polar); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 10px; border: 1px solid var(--input-border);"><div style="width: 100%;"><div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">${hS}</div><div style="font-size: 17px; font-weight: 900; color: var(--turquoise-strong); margin-top: 4px;">${nom}</div><div style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-top: 4px;">${det}</div><div style="margin-top: 8px;">${dos}</div></div></div>`;
+      html += `<div class="historial-item" style="background: var(--bg-polar); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 6px; border: 1px solid var(--input-border);">
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">${hS} - <span style="color: var(--turquoise-strong);">${nom}</span></div>
+            <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">${det}</div>
+          </div>
+          <div style="text-align: right;">${dos}</div>
+        </div>
+      </div>`;
     });
     lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
   }
@@ -1652,32 +1717,24 @@
   }
 
   function verificarCicloSemanal() {
-      let inicio = localStorage.getItem('polar_semana_inicio');
-      let ahora = new Date().getTime();
-      if(!inicio) {
-          localStorage.setItem('polar_semana_inicio', ahora);
-          return ahora;
-      }
-      let tiempoPasado = ahora - parseInt(inicio);
-      if(tiempoPasado >= 604800000) {
-          localStorage.setItem('polar_semana_inicio', ahora);
-          return ahora;
-      }
-      return parseInt(inicio);
+      // Excelencia: ventana dinámica de 7 días. Así apenas descargas la data, se ve de inmediato.
+      return new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
   }
 
   function verificarCicloMensual() {
-      let inicio = localStorage.getItem('polar_mes_inicio');
+      const userId = localStorage.getItem('polar_user_id') || 'default';
+      let inicio = localStorage.getItem('polar_mes_inicio_' + userId);
       if(!inicio) {
           inicio = new Date().getTime();
-          localStorage.setItem('polar_mes_inicio', inicio);
+          localStorage.setItem('polar_mes_inicio_' + userId, inicio);
       }
       return parseInt(inicio);
   }
 
   window.limpiarCicloMensual = function() {
       if(confirm("¿Seguro que quieres borrar el ciclo de promedios mensuales y empezar uno nuevo? (Solo limpia las barras, tu historial se mantiene intacto).")) {
-          localStorage.setItem('polar_mes_inicio', new Date().getTime());
+          const userId = localStorage.getItem('polar_user_id') || 'default';
+          localStorage.setItem('polar_mes_inicio_' + userId, new Date().getTime());
           renderGraficoPicos();
           alert("Ciclo mensual reiniciado desde cero. A dominar el nuevo mes.");
       }
@@ -1965,6 +2022,29 @@
   }
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); }); }
+
+  /* =================================================== */
+  /* SWIPE & DRAG PARA CERRAR EL MENÚ LATERAL            */
+  /* =================================================== */
+  let startX = 0;
+  const panelMenu = document.getElementById('panel-menu');
+
+  // Para celulares (Táctil)
+  panelMenu.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  panelMenu.addEventListener('touchmove', e => {
+    if (startX - e.touches[0].clientX > 50) { 
+      if (panelMenu.classList.contains('open')) toggleMenuPanel();
+    }
+  });
+
+  // Para Mouse
+  panelMenu.addEventListener('mousedown', e => startX = e.clientX);
+  panelMenu.addEventListener('mousemove', e => {
+    if (e.buttons === 1 && startX - e.clientX > 50) {
+      if (panelMenu.classList.contains('open')) toggleMenuPanel();
+    }
+  });
+
 </script>
 </body>
 </html>
