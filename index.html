@@ -623,6 +623,54 @@
     }
   }
 
+  // === REVISIÓN DE REGISTROS ANTIGUOS (30 DÍAS) ===
+  async function revisarRegistrosAntiguos() {
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) return;
+
+    // Calculamos la fecha límite (hace 30 días)
+    const fechaLimite = new Date();
+    fechaLimite.setDate(fechaLimite.getDate() - 30);
+    const isoFechaLimite = fechaLimite.toISOString().split('T')[0];
+
+    // Consultamos si hay registros más antiguos que 30 días
+    const { data: registrosViejos, error: errorSelect } = await polarDb
+      .from('historial_polar')
+      .select('id, created_at')
+      .eq('paciente_id', userId)
+      .lt('created_at', isoFechaLimite);
+
+    if (errorSelect) {
+      console.error("Error al buscar registros antiguos:", errorSelect);
+      return;
+    }
+
+    if (registrosViejos && registrosViejos.length > 0) {
+      // Avisamos al líder y damos la opción de enviar reporte antes de borrar
+      if (confirm(`Líder, tienes ${registrosViejos.length} registros con más de 30 días de antigüedad. ¿Deseas enviar el reporte mensual ahora antes de que se borren automáticamente para mantener el sistema optimizado?`)) {
+          enviarReporte();
+      }
+
+      // Procedemos a borrar los registros en la nube
+      const idsBorrar = registrosViejos.map(r => r.id);
+      const { error: errorDelete } = await polarDb
+        .from('historial_polar')
+        .delete()
+        .in('id', idsBorrar);
+
+      if (errorDelete) {
+         console.error("Error al borrar registros antiguos en la nube:", errorDelete);
+         alert("Fallo al limpiar registros antiguos en la nube.");
+      } else {
+         // Notificamos el éxito y sincronizamos la app local
+         alert("Registros antiguos limpiados con excelencia. Tu bóveda está optimizada.");
+         
+         // Forzamos una nueva sincronización para que el teléfono refleje los cambios de la nube
+         await sincronizarDatosNube();
+      }
+    }
+  }
+
 
   /* ====== LÓGICA DE ACCESO (AHORA 100% REAL) ====== */
   function verificarSesion() {
@@ -664,6 +712,9 @@
       // ¡AQUÍ INYECTAMOS LA EXCELENCIA! Descargamos los datos antes de entrar
       await sincronizarDatosNube();
       
+      // Luego revisamos si hay datos viejos que limpiar
+      await revisarRegistrosAntiguos();
+      
       document.getElementById('login-screen').style.opacity = '0';
       setTimeout(() => {
         verificarSesion();
@@ -703,6 +754,7 @@
         renderCitas(); 
     } 
     else if (backupData.tipo === 'historial') { 
+        // El deshacer del historial completo local se mantiene por si fallara la conexión
         localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
         actualizarVistaHistorial(); 
         renderGraficoPicos(); 
@@ -1554,9 +1606,26 @@
     lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
   }
 
-  function borrarHistorialCompleto() { 
+  async function borrarHistorialCompleto() { 
     if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) { 
       const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      const userId = localStorage.getItem('polar_user_id');
+
+      // 1. Impacto directo a la raíz: Borrar en la bóveda de Supabase
+      if (userId) {
+        const { error } = await polarDb
+          .from('historial_polar')
+          .delete()
+          .eq('paciente_id', userId);
+
+        if (error) {
+          console.error("Error al borrar en la nube:", error);
+          alert("Fallo en la conexión. No se pudo borrar de la nube.");
+          return; // Si falla la nube, detenemos todo para no desincronizar
+        }
+      }
+
+      // 2. Limpiar la memoria del teléfono
       localStorage.removeItem('historial_polar'); 
       actualizarVistaHistorial(); 
       renderGraficoPicos();
