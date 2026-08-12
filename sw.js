@@ -1,4 +1,4 @@
-const CACHE_NAME = 'polar-elite-cache-v2';
+const CACHE_NAME = 'polar-elite-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -32,10 +32,36 @@ self.addEventListener('activate', (event) => {
 // 3. ESTRATEGIA DE CACHÉ (FETCH)
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // Nada de la API se guarda en caché: el historial siempre se pide en vivo.
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(fetch(event.request));
     return;
   }
+
+  // Sólo cacheamos lecturas; un POST nunca puede guardarse.
+  if (event.request.method !== 'GET') return;
+
+  // La app (HTML) va primero a la red: así ningún equipo se queda con una
+  // versión antigua sin las correcciones de sincronización.
+  const esDocumento = event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') || '').includes('text/html');
+
+  if (esDocumento) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copia = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copia));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request).then((r) => r || caches.match('./index.html')))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
