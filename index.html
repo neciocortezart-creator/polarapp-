@@ -108,7 +108,7 @@
     .card-glucose { background: var(--bg-card-glucose); color: var(--text-card-glucose); transition: background 0.4s ease, color 0.4s ease; }
     .card-carbs { background: var(--bg-card-carbs); color: var(--text-card-carbs); transition: background 0.4s ease, color 0.4s ease; }
     
-    .card-settings, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
+    .card-settings, .card-avatars, .card-citas, .card-panel-grafico, .card-temporizador { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
 
     .avatar-frame { background: var(--turquoise-strong); border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(8,131,135,0.2); height: 130px; width: 130px; margin: 0 auto; transition: all 0.3s ease; }
 
@@ -123,10 +123,10 @@
     input:focus, select:focus, textarea:focus { border-color: var(--turquoise-strong); box-shadow: 0 0 0 4px rgba(8, 131, 135, 0.15); transform: translateY(-2px); }
     select.select-small { padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--input-text) !important; font-weight: 700; }
 
-    .card-settings input, .card-citas input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
-    .card-settings select { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
-    .card-settings label, .card-citas label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
-    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
+    .card-settings input, .card-citas input, .card-temporizador input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
+    .card-settings select, .card-temporizador select { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
+    .card-settings label, .card-citas label, .card-temporizador label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
+    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3, .card-temporizador h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
     .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
 
     .btn-main { background: var(--turquoise-strong); color: var(--btn-text); border: none; width: 100%; padding: 20px; border-radius: 100px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(8,131,135,0.25); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-top: 8px; }
@@ -210,11 +210,11 @@
     .bg-rojo-alerta { background: #FF3B30 !important; color: white !important; box-shadow: 0 4px 10px rgba(255,59,48,0.2); }
     .bg-blanco-sombra { background: #FFFFFF; color: #1A1A1A !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    .cita-card { background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .cita-titulo { color: var(--turquoise-strong); font-weight: 900; font-size: 16px; }
-    .cita-fecha { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
-    .btn-borrar-cita { background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
-    .btn-borrar-cita:active { transform: scale(0.95); }
+    .cita-card, .timer-card { background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .cita-titulo, .timer-titulo { color: var(--turquoise-strong); font-weight: 900; font-size: 16px; }
+    .cita-fecha, .timer-tiempo { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
+    .btn-borrar-cita, .btn-borrar-timer { background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
+    .btn-borrar-cita:active, .btn-borrar-timer:active { transform: scale(0.95); }
     
     .historial-fecha-bloque { background: var(--turquoise-strong); color: #FFFFFF; padding: 12px 16px; border-radius: 14px; margin-top: 18px; margin-bottom: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase; }
     .historial-registro { background: var(--bg-polar); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 6px; border: 1px solid var(--input-border); }
@@ -318,6 +318,19 @@
       <div class="top-actions">
         <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
         
+        <!-- BOTÓN DE TEMPORIZADOR AL LADO DEL CORAZÓN -->
+        <button class="icon-btn" style="background: var(--turquoise-strong); color: var(--text-inverse); position: relative; padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-temporizador')">
+          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="55" r="35" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+              <line x1="50" y1="55" x2="50" y2="30" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+              <line x1="50" y1="55" x2="68" y2="55" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+              <line x1="38" y1="15" x2="62" y2="15" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+              <line x1="50" y1="15" x2="50" y2="20" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </button>
+
         <!-- BOTÓN DE USUARIO -->
         <button id="btn-usuario-nombre" class="icon-btn" onclick="togglePanel('panel-usuario')">Líder</button>
         
@@ -360,6 +373,35 @@
           </div>
         </button>
       </div>
+    </div>
+
+    <!-- PANEL DE TEMPORIZADOR FÁCIL -->
+    <div class="card card-temporizador card-full" id="panel-temporizador">
+      <h3 class="panel-header-small">
+        <div class="title-flex">
+          <div class="icon-26">
+             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="55" r="35" fill="none" stroke="#2C3A40" stroke-width="8"/>
+              <line x1="50" y1="55" x2="50" y2="30" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
+              <line x1="50" y1="55" x2="68" y2="55" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
+              <line x1="38" y1="15" x2="62" y2="15" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
+              <line x1="50" y1="15" x2="50" y2="20" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          Gestión de Temporizadores
+        </div>
+        <button class="btn-close-panel" onclick="togglePanel('panel-temporizador')">×</button>
+      </h3>
+      <label>Nombre del Temporizador</label>
+      <input type="text" id="timer-nombre" placeholder="Ej: Revisión Post-Comida">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div><label>Minutos</label><input type="number" id="timer-minutos" placeholder="Ej: 30" inputmode="numeric"></div>
+        <div style="display: flex; align-items: flex-end;"><button class="btn-accent" style="margin-bottom: 15px; background: var(--turquoise-strong); height: 50px;" onclick="agregarTemporizadorPersonalizado()">Agregar</button></div>
+      </div>
+      
+      <h4 style="font-size: 15px; margin-bottom: 12px; color: var(--turquoise-strong); font-weight: 900;">Temporizadores Activos y Guardados:</h4>
+      <div id="lista-temporizadores"></div>
     </div>
 
     <!-- PANEL GRÁFICO ÉLITE -->
@@ -485,6 +527,8 @@
       
       <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
       
+      <button class="btn-save" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900;" onclick="solicitarPermisoNotificaciones()">  Activar Notificaciones Push</button>
+
       <label>  Peso de Polar (kg)</label>
       <input type="number" id="cfg-peso" value="50" inputmode="numeric" style="margin-bottom: 18px;">
       
@@ -742,6 +786,7 @@
     localStorage.removeItem('polar_user_id');
     localStorage.removeItem('historial_polar'); 
     localStorage.removeItem('citas_polar');
+    localStorage.removeItem('temporizadores_polar');
     
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
@@ -798,6 +843,10 @@
         localStorage.setItem('citas_polar', JSON.stringify(backupData.datos)); 
         renderCitas(); 
     } 
+    else if (backupData.tipo === 'temporizadores') {
+        localStorage.setItem('temporizadores_polar', JSON.stringify(backupData.datos));
+        renderTemporizadores();
+    }
     else if (backupData.tipo === 'historial') { 
         localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
         actualizarVistaHistorial(); 
@@ -1104,7 +1153,7 @@
     actualizarDropdownMetas(); 
 
     actualizarRecordatoriosUI();
-    actualizarTextosComida(); renderCitas(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
+    actualizarTextosComida(); renderCitas(); renderTemporizadores(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
     autoSeleccionarComida(); 
 
     document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
@@ -1131,18 +1180,19 @@
   }
 
   function cerrarTodosPanelesSecundarios() {
-    ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'].forEach(p => {
+    ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario', 'panel-temporizador'].forEach(p => {
       document.getElementById(p).style.display = 'none';
     });
   }
 
   function togglePanel(idPanel) {
-    const paneles = ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'];
+    const paneles = ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario', 'panel-temporizador'];
     paneles.forEach(p => {
       if(p === idPanel) {
         const el = document.getElementById(p); const mostrando = el.style.display === 'block'; el.style.display = mostrando ? 'none' : 'block';
         if (!mostrando && idPanel === 'panel-grafico') renderGraficoPicos();
         if (idPanel === 'panel-avatars') renderAvatarPanel();
+        if (idPanel === 'panel-temporizador') renderTemporizadores();
       } else { document.getElementById(p).style.display = 'none'; }
     });
   }
@@ -1186,6 +1236,109 @@
     }).join('');
   }
 
+  /* =================================================== */
+  /* GESTIÓN DE TEMPORIZADORES PERSONALIZADOS           */
+  /* =================================================== */
+  function agregarTemporizadorPersonalizado() {
+    const nombre = document.getElementById('timer-nombre').value.trim();
+    const minutos = parseFloat(document.getElementById('timer-minutos').value);
+    if (!nombre || isNaN(minutos) || minutos <= 0) {
+      alert("Ingresa un nombre válido y los minutos para el temporizador.");
+      return;
+    }
+    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
+    timers.push({ id: Date.now(), nombre: nombre, minutos: minutos });
+    localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
+    document.getElementById('timer-nombre').value = '';
+    document.getElementById('timer-minutos').value = '';
+    renderTemporizadores();
+  }
+
+  function borrarTemporizador(id) {
+    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
+    const tv = timers;
+    timers = timers.filter(t => t.id !== id);
+    localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
+    renderTemporizadores();
+    activarDeshacer('temporizadores', tv);
+  }
+
+  function renderTemporizadores() {
+    const lista = document.getElementById('lista-temporizadores');
+    if (!lista) return;
+    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
+    
+    // Si no hay temporizadores guardados, mostramos predeterminados útiles
+    if (timers.length === 0) {
+      timers = [
+        { id: 1, nombre: 'Revisión Azúcar Baja', minutos: 15 },
+        { id: 2, nombre: 'Control de 2 Horas', minutos: 120 }
+      ];
+      localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
+    }
+
+    lista.innerHTML = timers.map(t => `
+      <div class="timer-card">
+        <div>
+          <div class="timer-titulo">${t.nombre}</div>
+          <div class="timer-tiempo">${t.minutos} minutos</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-small" style="background: var(--turquoise-strong); color: white; font-weight: 900;" onclick="iniciarTemporizadorPolar(${t.minutos})">Iniciar</button>
+          <button class="btn-borrar-timer" onclick="borrarTemporizador(${t.id})">Borrar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ====== EXCELENCIA: SOLICITAR PERMISO Y NOTIFICACIONES PUSH REALES ====== */
+  async function solicitarPermisoNotificaciones() {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      alert("Tu navegador no soporta notificaciones push nativas.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification("¡Polar Élite Conectado!", {
+          body: "Las alertas y avisos del sistema están activos con éxito.",
+          icon: "polar-logo.png",
+          vibrate: [200, 100, 200]
+        });
+      });
+      console.log("Permiso de notificaciones concedido.");
+    } else {
+      alert("Has denegado los permisos de notificación. Las alertas automáticas no sonarán.");
+    }
+  }
+
+  /* ====== TEMPORIZADOR ÉLITE CON NOTIFICACIÓN ====== */
+  function iniciarTemporizadorPolar(minutos) {
+    const milisegundos = minutos * 60 * 1000;
+    
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    alert(`¡Temporizador activado! Te avisaremos en ${minutos} minutos.`);
+
+    setTimeout(() => {
+      if ("Notification" in window && Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification("¡Tiempo cumplido, Líder!", {
+            body: `Ya pasaron los ${minutos} minutos. Es momento de revisar la energía de Polar.`,
+            icon: "polar-logo.png",
+            vibrate: [300, 100, 300, 100, 300],
+            tag: 'polar-timer'
+          });
+        });
+      } else {
+        alert(`¡Tiempo cumplido! Han pasado los ${minutos} minutos.`);
+      }
+    }, milisegundos);
+  }
+
   function verificarCitasProximas() {
     const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
     if (citas.length === 0) return;
@@ -1196,8 +1349,19 @@
         const keyNotif = `notif_cita_${cita.fecha}_${cita.hora}`;
         if (!localStorage.getItem(keyNotif)) {
           const pF = cita.fecha.split('-'); const fechaExacta = `${pF[2]}/${pF[1]}/${pF[0]}`;
+          
+          if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+          }
+
           if ("Notification" in window && Notification.permission === "granted") {
-            new Notification("¡Presta atención!", { body: `Mañana tienes cita agendada con ${cita.especialista} el ${fechaExacta} a las ${cita.hora}`, icon: "polar-logo.png" });
+            navigator.serviceWorker.ready.then(registration => {
+              registration.showNotification("¡Atención líder!", {
+                body: `Mañana tienes cita agendada con ${cita.especialista} el ${fechaExacta} a las ${cita.hora}`,
+                icon: "polar-logo.png",
+                vibrate: [200, 100, 200, 100, 200]
+              });
+            });
           }
           localStorage.setItem(keyNotif, 'enviada');
         }
@@ -1426,6 +1590,13 @@
     historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
     localStorage.setItem('historial_polar', JSON.stringify(historial));
 
+    // CRONÓMETRO AUTOMÁTICO SOLICITADO: 2 horas por defecto, o 15 minutos si la glucosa está por debajo de 60
+    let minutosTemporizador = 120;
+    if (glucosa > 0 && glucosa < 60) {
+        minutosTemporizador = 15;
+    }
+    iniciarTemporizadorPolar(minutosTemporizador);
+
     try {
         const { data, error } = await polarDb
           .from('historial_polar')
@@ -1463,7 +1634,7 @@
     delete document.getElementById('comida').dataset.manual; 
     dormirPolar(); 
 
-    alert(`polar guardo ${dosis}u con excelencia`);
+    alert(`polar guardo ${dosis}u con excelencia. Se activó temporizador automático de ${minutosTemporizador} minutos.`);
     autoSeleccionarComida(); 
   }
 
@@ -1802,7 +1973,10 @@
         ${protocoloClinicoHTML}
       </div>
       <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">${btnAtras}${btnAdel}</div>
-      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 24px; font-size: 20px; padding: 18px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" onclick="guardarDosisAplicada(${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar dosis aplicada</button>`;
+      
+      <!-- BOTÓN ÚNICO DE GUARDADO (INICIA EL TEMPORIZADOR AUTOMÁTICAMENTE) -->
+      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 20px; font-size: 18px; padding: 16px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" onclick="guardarDosisAplicada(${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar dosis aplicada</button>`;
+      
     resDiv.style.display = "block"; resDiv.scrollIntoView({ behavior: 'smooth' }); despertarPolar();
   }
 
