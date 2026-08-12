@@ -14,6 +14,8 @@
 
   <!-- CONEXIÓN SUPABASE ÉLITE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- LIBRERÍA PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap');
@@ -106,7 +108,7 @@
     .card-glucose { background: var(--bg-card-glucose); color: var(--text-card-glucose); transition: background 0.4s ease, color 0.4s ease; }
     .card-carbs { background: var(--bg-card-carbs); color: var(--text-card-carbs); transition: background 0.4s ease, color 0.4s ease; }
     
-    .card-settings, .card-alarmas, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
+    .card-settings, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
 
     .avatar-frame { background: var(--turquoise-strong); border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(8,131,135,0.2); height: 130px; width: 130px; margin: 0 auto; transition: all 0.3s ease; }
 
@@ -121,11 +123,11 @@
     input:focus, select:focus, textarea:focus { border-color: var(--turquoise-strong); box-shadow: 0 0 0 4px rgba(8, 131, 135, 0.15); transform: translateY(-2px); }
     select.select-small { padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--input-text) !important; font-weight: 700; }
 
-    .card-settings input, .card-alarmas input, .card-citas input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
+    .card-settings input, .card-citas input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
     .card-settings select { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
-    .card-settings label, .card-alarmas label, .card-citas label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
-    .card-settings h3, .card-alarmas h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
-    .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-alarmas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
+    .card-settings label, .card-citas label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
+    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
+    .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
 
     .btn-main { background: var(--turquoise-strong); color: var(--btn-text); border: none; width: 100%; padding: 20px; border-radius: 100px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(8,131,135,0.25); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-top: 8px; }
     .btn-main:active { transform: scale(0.95); box-shadow: 0 5px 15px rgba(8,131,135,0.2); }
@@ -156,9 +158,7 @@
     .btn-papa { background: var(--text-primary); color: var(--text-inverse); }
 
     .historial-box { background: var(--white); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: none; margin-top: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); animation: popIn 0.4s ease-out; border: 1px solid rgba(0,0,0,0.03); }
-    .historial-item { padding: 14px 10px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-    .historial-item:last-child { border-bottom: none; }
-
+    
     .side-panel { position: fixed; top: 0; width: 320px; height: 100%; background: var(--bg-polar); box-shadow: -10px 0 40px rgba(0,0,0,0.15); z-index: 2000; padding: 40px 24px; display: flex; flex-direction: column; overflow-y: auto; }
     .left-panel { left: -340px; transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .left-panel.open { left: 0; }
@@ -192,12 +192,39 @@
     .avatar-bg { border-radius: 14px; width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; padding: 10px; }
     .avatar-card h4 { font-size: 13px; font-weight: 900; color: var(--text-primary); margin: 0 0 4px 0; line-height: 1.2; }
     .avatar-card p { font-size: 11px; font-weight: 900; color: var(--turquoise-strong); margin: 0; text-transform: uppercase; }
+
+    /* =========================================
+       CLASES ÉLITE (LIMPIEZA DE ESPAGUETI)
+       ========================================= */
+    .panel-header-elite { font-size: 26px; font-weight: 900; color: var(--turquoise-strong); display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; margin-bottom: 24px; }
+    .panel-header-small { font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
+    .title-flex { display: flex; align-items: center; gap: 10px; }
+    .icon-24 { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+    .icon-26 { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+    .btn-close-panel { background: none; border: none; color: var(--text-primary); font-size: 28px; font-weight: 900; cursor: pointer; line-height: 1; padding: 0; }
+    
+    .btn-menu-lateral { background: var(--white); color: var(--text-primary); margin: 0 0 16px 0; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s; }
+    .btn-menu-lateral:active { transform: scale(0.95); }
+    
+    .input-emergencia { border-radius: 14px; border: none; padding: 16px; font-weight: 900; margin-bottom: 18px; width: 100%; display: block; }
+    .bg-rojo-alerta { background: #FF3B30 !important; color: white !important; box-shadow: 0 4px 10px rgba(255,59,48,0.2); }
+    .bg-blanco-sombra { background: #FFFFFF; color: #1A1A1A !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+    .cita-card { background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .cita-titulo { color: var(--turquoise-strong); font-weight: 900; font-size: 16px; }
+    .cita-fecha { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
+    .btn-borrar-cita { background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
+    .btn-borrar-cita:active { transform: scale(0.95); }
+    
+    .historial-fecha-bloque { background: var(--turquoise-strong); color: #FFFFFF; padding: 12px 16px; border-radius: 14px; margin-top: 18px; margin-bottom: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase; }
+    .historial-registro { background: var(--bg-polar); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 6px; border: 1px solid var(--input-border); }
+    
+    .protocolo-box { text-align: left; font-size: 14px; padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; color: var(--text-primary); }
+    .protocolo-alerta { background: rgba(255, 59, 48, 0.1); border-left: 4px solid #FF3B30; }
+    .protocolo-normal { background: var(--bg-polar); }
   </style>
 </head>
 <body>
-
-<!-- Audio para alarma de fondo -->
-<audio id="audio-alarma" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
 <div id="splash-screen">
   <img src="polar-logo.png" alt="Cargando App Polar...">
@@ -229,16 +256,17 @@
   <div id="toast-undo"><span>  Elemento borrado</span><button class="btn-undo" onclick="deshacerBorrado()">Deshacer</button></div>
 
   <div id="panel-menu" class="side-panel left-panel">
-    <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 24px; font-size: 26px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px;">☰ Menú Polar</h2>
-    <button class="btn-save" style="background: var(--white); color: var(--text-primary); margin-top: 0; margin-bottom: 12px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);" onclick="abrirDesdeMenu('panel')">
-      <div style="width: 24px; height: 24px; display: flex; align-items: center;">
+    <h2 class="panel-header-elite">☰ Menú Polar</h2>
+    
+    <button class="btn-menu-lateral" onclick="abrirDesdeMenu('panel')">
+      <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
       </div>
       Panel Analítico
     </button>
     
-    <button class="btn-save" style="background: var(--white); color: var(--text-primary); margin-top: 0; margin-bottom: 16px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);" onclick="abrirDesdeMenu('historial')">
-      <div style="width: 24px; height: 24px; display: flex; align-items: center;">
+    <button class="btn-menu-lateral" onclick="abrirDesdeMenu('historial')">
+      <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
       </div>
       Guardados
@@ -255,13 +283,11 @@
     </div>
 
     <div style="margin-top: 28px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 24px;">
-      <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 12px; font-size: 22px;">Reporte Médico  </h2>
-      <button class="btn-main" style="padding: 14px; font-size: 16px; margin-bottom: 12px; border-radius: 14px;" onclick="enviarReporte()">  Enviar por WhatsApp / Mail</button>
-      <button class="btn-save" style="background: var(--white); color: var(--text-primary); border: 2px solid var(--turquoise-soft); margin-bottom: 12px; margin-top: 0; box-shadow: 0 4px 10px rgba(8,131,135,0.1);" onclick="copiarReporte()">  Copiar al Portapapeles</button>
+      <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 12px; font-size: 22px;">Reporte Médico Élite</h2>
+      <button class="btn-main bg-rojo-alerta" style="padding: 14px; font-size: 16px; margin-bottom: 12px; border-radius: 14px;" onclick="generarPDFElite()">Descargar PDF Analítico</button>
     </div>
     
-    <!-- BOTÓN DE CERRAR SESIÓN -->
-    <button class="btn-save" style="background: #FF3B30; color: var(--white); margin-top: 24px; box-shadow: 0 6px 15px rgba(255,59,48,0.2);" onclick="cerrarSesion()">  Cerrar Sesión</button>
+    <button class="btn-save" style="background: var(--text-primary); color: var(--white); margin-top: 24px; box-shadow: 0 6px 15px rgba(255,59,48,0.2);" onclick="cerrarSesion()">  Cerrar Sesión</button>
   </div>
 
   <div id="panel-recetas" class="side-panel right-panel">
@@ -294,9 +320,6 @@
         
         <!-- BOTÓN DE USUARIO -->
         <button id="btn-usuario-nombre" class="icon-btn" onclick="togglePanel('panel-usuario')">Líder</button>
-        
-        <!-- BOTÓN TEMPORIZADOR EN LETRAS -->
-        <button id="btn-alarmas" class="icon-btn" onclick="togglePanel('panel-alarmas')">Temporizador</button>
         
         <!-- BOTÓN AGENDAR CITAS -->
         <button class="icon-btn" style="background: var(--text-primary); color: var(--text-inverse); position: relative; padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-citas')">
@@ -339,18 +362,18 @@
       </div>
     </div>
 
-    <!-- PANEL GRÁFICO ÉLITE CON ARREGLO DE PUNTERO (pointerdown) -->
+    <!-- PANEL GRÁFICO ÉLITE -->
     <div class="card card-panel-grafico card-full" id="panel-grafico">
-      <h3 style="display:flex; justify-content:space-between; align-items: center;">
-        <span style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 28px; height: 28px; display: flex; align-items: center;">
+      <h3 class="panel-header-small">
+        <span class="title-flex">
+          <div class="icon-26">
             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
           </div>
           Panel Analítico
         </span> 
-        <div style="display:flex; gap: 10px; align-items:center;">
+        <div class="title-flex">
           <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Semana Actual</span>
-          <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-grafico')">×</button>
+          <button class="btn-close-panel" onclick="togglePanel('panel-grafico')">×</button>
         </div>
       </h3>
       <p style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;">Ciclo de visualización. Los puntos se agregan solos. (Toca los puntos para ver el nivel y la hora exactos):</p>
@@ -360,7 +383,6 @@
         <div id="grafico-tooltip" style="display:none; position:absolute; background:var(--text-primary); color:var(--text-inverse); padding:8px 14px; border-radius:10px; font-size:13px; font-weight:900; pointer-events:none; transform:translate(-50%, -120%); box-shadow:0 8px 20px rgba(0,0,0,0.25); z-index:10; white-space:nowrap;"></div>
       </div>
       
-      <!-- BARRAS DE PORCENTAJE MENSUAL -->
       <div id="barras-mensuales" style="margin-top: 28px; padding-top: 24px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
 
       <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 24px;" onclick="togglePanel('panel-grafico')">  Cerrar Panel</button>
@@ -368,9 +390,9 @@
 
     <!-- PANEL DE CITAS -->
     <div class="card card-citas card-full" id="panel-citas">
-      <h3 style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+      <h3 class="panel-header-small">
+        <div class="title-flex">
+          <div class="icon-26">
              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
               <circle cx="50" cy="85" r="8" fill="#E85D75"/>
@@ -380,7 +402,7 @@
           </div>
           Agregar cita
         </div>
-        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-citas')">×</button>
+        <button class="btn-close-panel" onclick="togglePanel('panel-citas')">×</button>
       </h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
         <div><label>Fecha</label><input type="date" id="cita-fecha"></div>
@@ -388,7 +410,7 @@
       </div>
       <label>Especialista</label><input type="text" id="cita-especialista" placeholder="Endocrinólogo, Pediatra...">
       <button class="btn-accent" style="margin-bottom: 24px; background: var(--turquoise-strong); display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px;" onclick="agregarCita()">
-        <div style="width: 22px; height: 22px; display: flex; align-items: center;">
+        <div class="icon-24">
           <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="50" cy="85" r="8" fill="#E85D75"/>
@@ -404,47 +426,22 @@
 
     <!-- AVATARES (CUADRÍCULA ÉLITE) -->
     <div class="card card-avatars card-full" id="panel-avatars">
-      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 class="panel-header-small">
         <span>  Bestias de Poder</span>
-        <div style="display:flex; gap: 10px; align-items:center;">
+        <div class="title-flex">
           <span style="font-size: 13px; color: var(--text-primary); font-weight: 800; background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: 12px;">Recompensas</span>
-          <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-avatars')">×</button>
+          <button class="btn-close-panel" onclick="togglePanel('panel-avatars')">×</button>
         </div>
       </h3>
       <div id="avatars-grid-container" class="avatars-grid"></div>
       <p style="font-size: 13px; text-align:center; color: var(--text-primary); margin-bottom:10px; font-weight: 800; margin-top: 18px;">Nota: El líder equipa la excelencia.</p>
     </div>
 
-    <!-- SECCIÓN DE TEMPORIZADOR CRUD -->
-    <div class="card card-alarmas card-full" id="panel-alarmas">
-      <h3 style="display: flex; justify-content: space-between; align-items: center;">
-        Temporizador Élite
-        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-alarmas')">×</button>
-      </h3>
-      <p style="font-size: 14px; color: var(--text-primary); margin-bottom: 18px; font-weight: 700; line-height: 1.4;">Programa tu tiempo. Al iniciar, se mostrará en la barra principal abajo.</p>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-        <div><label>Horas</label><input type="number" id="temp-horas" value="0" min="0" inputmode="numeric"></div>
-        <div><label>Mins</label><input type="number" id="temp-minutos" value="5" min="0" max="59" inputmode="numeric"></div>
-        <div><label>Segs</label><input type="number" id="temp-segundos" value="0" min="0" max="59" inputmode="numeric"></div>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label>Nombre</label>
-        <input type="text" id="temp-nombre" placeholder="Ej: Chequeo 2H, Cocina...">
-      </div>
-
-      <button class="btn-main" id="btn-guardar-temp" style="padding: 16px; font-size: 18px; margin-bottom: 20px; border-radius: 16px;" onclick="guardarTemporizador()">Añadir Temporizador</button>
-
-      <div id="lista-temporizadores" style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;"></div>
-      
-      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-bottom: 10px;" onclick="togglePanel('panel-alarmas')">Cerrar Ajustes</button>
-    </div>
-
     <!-- PANEL DE USUARIO -->
     <div class="card card-settings card-full" id="panel-usuario">
-      <h3 style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 class="panel-header-small">
         Perfil de Líder
-        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; padding:0;" onclick="togglePanel('panel-usuario')">×</button>
+        <button class="btn-close-panel" onclick="togglePanel('panel-usuario')">×</button>
       </h3>
       <label>Cambiar Nombre Visible</label>
       <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -452,15 +449,14 @@
         <button class="btn-accent" style="margin-top: 0; width: auto; padding: 0 20px; background: var(--turquoise-strong);" onclick="guardarNombreUsuario()">Guardar</button>
       </div>
       
-      <button class="btn-save" style="background: #FF3B30; color: white; margin-top: 0;" onclick="cerrarSesion()">Cerrar Sesión Segura</button>
+      <button class="btn-save bg-rojo-alerta" style="margin-top: 0;" onclick="cerrarSesion()">Cerrar Sesión Segura</button>
     </div>
 
     <!-- PANEL DE CONFIGURACIÓN -->
     <div class="card card-settings card-full" id="panel-config">
-      <!-- TÍTULO DE CONFIGURACIÓN -->
-      <h3 style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+      <h3 class="panel-header-small">
+        <div class="title-flex">
+          <div class="icon-26">
             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <circle cx="50" cy="50" r="6" fill="#2C3A40"/>
               <circle cx="50" cy="50" r="18" fill="none" stroke="#2C3A40" stroke-width="6"/>
@@ -484,10 +480,9 @@
           </div>
           Esquema actual
         </div>
-        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="togglePanel('panel-config')">×</button>
+        <button class="btn-close-panel" onclick="togglePanel('panel-config')">×</button>
       </h3>
       
-      <!-- BOTÓN PEQUEÑO DE REDONDEO -->
       <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
       
       <label>  Peso de Polar (kg)</label>
@@ -511,7 +506,6 @@
         <div style="grid-column: span 2;"><label>  Cena</label><input type="number" id="cfg-r-cena" value="14" inputmode="numeric" onchange="actualizarTextosComida()"></div>
       </div>
 
-      <!-- TEMAS VISUALES CON CONTRASTE DINÁMICO -->
       <select id="cfg-tema" onchange="cambiarTema()" style="margin-top: 24px; margin-bottom: 24px; font-weight: 800;">
         <option value="elite">  Polar Élite (Oficial V5)</option>
         <option value="original">  Polar Ice (Clásico)</option>
@@ -529,8 +523,8 @@
       <a href="tel:973808283" id="btn-llamar-papa" class="btn-papa" style="margin-top: 0; margin-bottom: 24px; padding: 18px; font-size: 18px;">LLAMAR PAPÁ O MAMÁ</a>
 
       <h3 style="font-size: 16px; margin-top:24px;">  Números de Emergencia</h3>
-      <label>  Ambulancia / Rescate</label><input type="tel" id="cfg-tel-emergencia" value="131" style="background: #FF3B30 !important; color: white !important; border-radius: 14px; margin-bottom: 18px; border:none; padding: 16px; font-weight: 900; box-shadow: 0 4px 10px rgba(255,59,48,0.2);">
-      <label>  Teléfono Papá</label><input type="tel" id="cfg-tel-papa" value="973808283" style="background: #FFFFFF; color: #1A1A1A !important; border-radius: 14px; font-weight: 900; margin-bottom: 18px; border:none; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      <label>  Ambulancia / Rescate</label><input type="tel" id="cfg-tel-emergencia" value="131" class="input-emergencia bg-rojo-alerta">
+      <label>  Teléfono Papá</label><input type="tel" id="cfg-tel-papa" value="973808283" class="input-emergencia bg-blanco-sombra">
       
       <button id="btn-guardar-config" class="btn-accent" style="margin-top: 18px; background: var(--turquoise-strong); padding: 16px; font-size: 18px; border-radius: 16px;" onclick="guardarConfig()">  Guardar</button>
     </div>
@@ -562,27 +556,24 @@
 
     <button class="btn-main" onclick="calcular()">  Medir gemas</button>
 
-    <!-- AQUÍ SE PONE LA BARRITA DE TEMPORIZADORES ACTIVOS -->
-    <div id="active-timers-banner" style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px; margin-bottom: 18px;"></div>
-
     <div id="resultado" class="result-box"></div>
 
     <div id="panel-historial" class="historial-box">
-      <h3 style="color: var(--turquoise-strong); margin-bottom: 18px; font-size: 22px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-           <div style="width: 26px; height: 26px; display: flex; align-items: center;">
+      <h3 class="panel-header-small" style="font-size: 22px;">
+        <div class="title-flex">
+           <div class="icon-26">
              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
            </div>
            Guardados
         </div>
-        <button style="background:none; border:none; color:var(--text-primary); font-size:28px; font-weight:900; cursor:pointer; line-height: 1; padding:0;" onclick="toggleHistorial()">×</button>
+        <button class="btn-close-panel" onclick="toggleHistorial()">×</button>
       </h3>
       <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
       <div id="lista-historial"></div>
       
       <!-- BOTONES COMPACTOS LADO A LADO -->
       <div style="display: flex; gap: 12px; margin-top: 18px;">
-        <button id="btn-borrar-historial" class="btn-save" style="background: #FF3B30; color: white; margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px; box-shadow: 0 4px 15px rgba(255,59,48,0.2);" onclick="borrarHistorialCompleto()">Borrar</button>
+        <button id="btn-borrar-historial" class="btn-save bg-rojo-alerta" style="margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="borrarHistorialCompleto()">Borrar</button>
         <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="toggleHistorial()">Cerrar</button>
       </div>
     </div>
@@ -599,18 +590,18 @@
   
   const polarDb = createClient(supabaseUrl, supabaseKey);
 
-  /* ====== NUEVA FUNCIÓN DE EXCELENCIA: Traer los datos de la bóveda al teléfono ====== */
+  /* ====== EXCELENCIA: GESTIÓN DE COLA OFFLINE Y SINCRONIZACIÓN ====== */
   async function sincronizarDatosNube() {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
 
-    console.log("Líder: Sincronizando con Supabase...");
+    await procesarColaOffline();
 
     const { data, error } = await polarDb
       .from('historial_polar')
       .select('*')
       .eq('paciente_id', userId)
-      .order('created_at', { ascending: true }); // Traemos todo ordenado
+      .order('created_at', { ascending: true }); 
 
     if (error) {
       console.error("Fallo en la sincronización:", error.message);
@@ -618,7 +609,6 @@
     }
 
     if (data && data.length > 0) {
-      // Reconstruimos los datos para que el teléfono los entienda como antes
       const historialDescargado = data.map(dbItem => {
         const d = new Date(dbItem.created_at);
         return {
@@ -632,10 +622,8 @@
         };
       });
 
-      // Inyectamos la data fresca en la memoria del teléfono actual
       localStorage.setItem('historial_polar', JSON.stringify(historialDescargado));
 
-      // Refrescamos la UI para que la magia suceda en pantalla
       if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
       const panelHistorial = document.getElementById('panel-historial');
       if (panelHistorial && panelHistorial.style.display === 'block') {
@@ -644,56 +632,54 @@
     }
   }
 
+  async function procesarColaOffline() {
+    if(!navigator.onLine) return;
+    let cola = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
+    if(cola.length === 0) return;
+    
+    const { error } = await polarDb.from('historial_polar').insert(cola);
+    if(!error) {
+       localStorage.removeItem('polar_cola_sync');
+       console.log("Datos offline subidos con éxito.");
+    }
+  }
+  window.addEventListener('online', procesarColaOffline);
+
   // === REVISIÓN DE REGISTROS ANTIGUOS (30 DÍAS) ===
   async function revisarRegistrosAntiguos() {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
 
-    // Calculamos la fecha límite (hace 30 días)
     const fechaLimite = new Date();
     fechaLimite.setDate(fechaLimite.getDate() - 30);
     const isoFechaLimite = fechaLimite.toISOString().split('T')[0];
 
-    // Consultamos si hay registros más antiguos que 30 días
     const { data: registrosViejos, error: errorSelect } = await polarDb
       .from('historial_polar')
       .select('id, created_at')
       .eq('paciente_id', userId)
       .lt('created_at', isoFechaLimite);
 
-    if (errorSelect) {
-      console.error("Error al buscar registros antiguos:", errorSelect);
-      return;
-    }
+    if (errorSelect) return;
 
     if (registrosViejos && registrosViejos.length > 0) {
-      // Avisamos al líder y damos la opción de enviar reporte antes de borrar
-      if (confirm(`Líder, tienes ${registrosViejos.length} registros con más de 30 días de antigüedad. ¿Deseas enviar el reporte mensual ahora antes de que se borren automáticamente para mantener el sistema optimizado?`)) {
-          enviarReporte();
+      if (confirm(`Líder, tienes ${registrosViejos.length} registros con más de 30 días de antigüedad. ¿Deseas descargar el PDF mensual ahora antes de que se borren automáticamente para mantener el sistema optimizado?`)) {
+          generarPDFElite();
       }
 
-      // Procedemos a borrar los registros en la nube
       const idsBorrar = registrosViejos.map(r => r.id);
       const { error: errorDelete } = await polarDb
         .from('historial_polar')
         .delete()
         .in('id', idsBorrar);
 
-      if (errorDelete) {
-         console.error("Error al borrar registros antiguos en la nube:", errorDelete);
-         alert("Fallo al limpiar registros antiguos en la nube.");
-      } else {
-         // Notificamos el éxito y sincronizamos la app local
-         alert("Registros antiguos limpiados con excelencia. Tu bóveda está optimizada.");
-         
-         // Forzamos una nueva sincronización para que el teléfono refleje los cambios de la nube
+      if (!errorDelete) {
          await sincronizarDatosNube();
       }
     }
   }
 
-
-  /* ====== LÓGICA DE ACCESO (AHORA 100% REAL) ====== */
+  /* ====== LÓGICA DE ACCESO ====== */
   function verificarSesion() {
     const session = localStorage.getItem('polar_session_activa'); 
     if (session === 'true') {
@@ -714,7 +700,6 @@
       return;
     }
 
-    // Aquí sucede la magia de seguridad: conectamos con la bóveda
     const { data, error } = await polarDb.auth.signInWithPassword({
       email: user,
       password: pass,
@@ -722,40 +707,40 @@
 
     if (error) {
       alert("Acceso Denegado. Verifica el correo o la contraseña.");
-      console.error(error);
       document.getElementById('login-pass').value = '';
     } else {
-      // Todo correcto, guardamos la sesión
       localStorage.setItem('polar_session_activa', 'true');
       localStorage.setItem('polar_rol', data.user.email);
       localStorage.setItem('polar_user_id', data.user.id); 
       
-      // ¡AQUÍ INYECTAMOS LA EXCELENCIA! Descargamos los datos antes de entrar
-      await sincronizarDatosNube();
+      const meta = data.user.user_metadata || {};
+      if(meta.nombre_lider) {
+          localStorage.setItem('polar_nombre_lider_' + data.user.id, meta.nombre_lider);
+      }
+      if(meta.config_elite) {
+          config = meta.config_elite;
+          localStorage.setItem('polar_config', JSON.stringify(config));
+      }
       
-      // Luego revisamos si hay datos viejos que limpiar
+      await sincronizarDatosNube();
       await revisarRegistrosAntiguos();
-
-      // Cargar nombre del usuario individual
       cargarNombreUsuario();
       
       document.getElementById('login-screen').style.opacity = '0';
       setTimeout(() => {
         verificarSesion();
         document.getElementById('login-screen').style.opacity = '1';
+        window.location.reload(); 
       }, 400);
     }
   }
 
   async function cerrarSesion() {
     await polarDb.auth.signOut();
-    
-    // Aislamiento Total - Destruimos memoria de la sesión local
     localStorage.removeItem('polar_session_activa');
     localStorage.removeItem('polar_rol');
     localStorage.removeItem('polar_user_id');
     localStorage.removeItem('historial_polar'); 
-    localStorage.removeItem('polar_timers_elite');
     localStorage.removeItem('citas_polar');
     
     document.getElementById('login-user').value = '';
@@ -773,14 +758,17 @@
   }
 
   /* =================================================== */
-  /* GESTIÓN NOMBRE LÍDER AISLADA                        */
+  /* GESTIÓN NOMBRE LÍDER SINCRONIZADA                   */
   /* =================================================== */
-  function guardarNombreUsuario() {
+  async function guardarNombreUsuario() {
     const nuevoNombre = document.getElementById('input-nuevo-nombre').value.trim();
     const userId = localStorage.getItem('polar_user_id') || 'default';
     if(nuevoNombre) {
       localStorage.setItem('polar_nombre_lider_' + userId, nuevoNombre);
       document.getElementById('btn-usuario-nombre').innerText = nuevoNombre;
+      
+      polarDb.auth.updateUser({ data: { nombre_lider: nuevoNombre } });
+      
       togglePanel('panel-usuario');
     }
   }
@@ -811,7 +799,6 @@
         renderCitas(); 
     } 
     else if (backupData.tipo === 'historial') { 
-        // El deshacer del historial completo local se mantiene por si fallara la conexión
         localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
         actualizarVistaHistorial(); 
         renderGraficoPicos(); 
@@ -847,215 +834,6 @@
     const root = document.documentElement; 
     for (const [key, value] of Object.entries(paleta)) { root.style.setProperty(key, value); } 
   }
-
-  /* =================================================== */
-  /* TEMPORIZADOR CRUD + ALERTA + CEREBRO AUTO-COMIDA    */
-  /* =================================================== */
-  let timerGlobalInterval = null;
-  let idTempEnEdicion = null;
-  let tickAutoComida = 0;
-
-  function iniciarMotorTemporizadores() {
-    if (timerGlobalInterval) clearInterval(timerGlobalInterval);
-    timerGlobalInterval = setInterval(() => {
-      let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-      let cambiado = false;
-
-      timers = timers.map(t => {
-        if (t.activo && t.restante > 0) {
-          t.restante--;
-          cambiado = true;
-          if (t.restante <= 0) {
-            t.activo = false;
-            dispararAlertaTemporizador(t.nombre);
-          }
-        }
-        return t;
-      });
-
-      if (cambiado) {
-        localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-        renderTemporizadores();
-      }
-
-      // El cerebro verificando la comida en segundo plano
-      tickAutoComida++;
-      if (tickAutoComida >= 5) { // Revisa cada 5 segundos
-        tickAutoComida = 0;
-        if (typeof autoSeleccionarComida === 'function') {
-          autoSeleccionarComida();
-        }
-      }
-    }, 1000);
-  }
-
-  function dispararAlertaTemporizador(nombre) {
-    const audio = document.getElementById('audio-alarma');
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play().catch(e => console.log('Audio error:', e));
-    }
-    
-    let mensaje = `¡Tiempo terminado en tu temporizador: ${nombre}!`;
-    
-    if (nombre.includes("A medir energía")) {
-        mensaje = `¡Líder, el tiempo ha terminado! Es momento de medir la energía de Polar para asegurar la excelencia.`;
-    }
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("¡Misión Polar!", { body: mensaje, icon: "polar-logo.png" });
-    } else {
-      alert(mensaje);
-    }
-  }
-
-  function guardarTemporizador() {
-    const horas = parseInt(document.getElementById('temp-horas').value) || 0;
-    const minutos = parseInt(document.getElementById('temp-minutos').value) || 0;
-    const segundos = parseInt(document.getElementById('temp-segundos').value) || 0;
-    const nombre = document.getElementById('temp-nombre').value.trim() || 'Temporizador';
-
-    const totalSegs = (horas * 3600) + (minutos * 60) + segundos;
-    if (totalSegs <= 0) {
-      alert("Líder, ingresa un tiempo válido mayor a 0.");
-      return;
-    }
-
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-
-    if (idTempEnEdicion !== null) {
-      timers = timers.map(t => t.id === idTempEnEdicion ? { ...t, nombre, total: totalSegs, restante: totalSegs, activo: false } : t);
-      idTempEnEdicion = null;
-      document.getElementById('btn-guardar-temp').innerText = "Añadir Temporizador";
-    } else {
-      timers.push({
-        id: Date.now(),
-        nombre,
-        total: totalSegs,
-        restante: totalSegs,
-        activo: false
-      });
-    }
-
-    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-    document.getElementById('temp-horas').value = 0;
-    document.getElementById('temp-minutos').value = 5;
-    document.getElementById('temp-segundos').value = 0;
-    document.getElementById('temp-nombre').value = '';
-    renderTemporizadores();
-  }
-
-  function toggleRunTimer(id) {
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    timers = timers.map(t => {
-      if (t.id === id) {
-        t.activo = !t.activo;
-        if (t.restante <= 0) t.restante = t.total;
-      }
-      return t;
-    });
-    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-    renderTemporizadores();
-  }
-
-  function resetTimer(id) {
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    timers = timers.map(t => {
-      if (t.id === id) {
-        t.restante = t.total;
-        t.activo = false;
-      }
-      return t;
-    });
-    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-    renderTemporizadores();
-  }
-
-  function editarTemporizador(id) {
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    const t = timers.find(item => item.id === id);
-    if (t) {
-      document.getElementById('temp-horas').value = Math.floor(t.total / 3600);
-      document.getElementById('temp-minutos').value = Math.floor((t.total % 3600) / 60);
-      document.getElementById('temp-segundos').value = t.total % 60;
-      document.getElementById('temp-nombre').value = t.nombre;
-      idTempEnEdicion = t.id;
-      document.getElementById('btn-guardar-temp').innerText = "Actualizar Temporizador";
-    }
-  }
-
-  function borrarTemporizador(id) {
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    timers = timers.filter(t => t.id !== id);
-    if (idTempEnEdicion === id) {
-      idTempEnEdicion = null;
-      document.getElementById('btn-guardar-temp').innerText = "Añadir Temporizador";
-    }
-    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-    renderTemporizadores();
-  }
-
-  function formatTime(segs) {
-    const h = Math.floor(segs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
-    const s = (segs % 60).toString().padStart(2, '0');
-    return h === "00" ? `${m}:${s}` : `${h}:${m}:${s}`;
-  }
-
-  function renderTemporizadores() {
-    const lista = document.getElementById('lista-temporizadores');
-    const banner = document.getElementById('active-timers-banner');
-    if (!lista || !banner) return;
-
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    
-    if (timers.length === 0) {
-      lista.innerHTML = '<p style="font-size:13px; color:var(--text-primary); text-align: center;">Aún no hay temporizadores configurados.</p>';
-    } else {
-      lista.innerHTML = timers.map(t => {
-        const timeStr = formatTime(t.restante);
-        const btnStateText = t.activo ? 'Pausar' : 'Iniciar';
-        const btnStateColor = t.activo ? '#FF9F0A' : 'var(--turquoise-strong)';
-
-        return `
-          <div style="background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong style="color: var(--turquoise-strong); font-size: 15px;">${t.nombre}</strong>
-              <span style="font-size: 22px; font-weight: 900; color: var(--text-primary);">${timeStr}</span>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn-small" style="background: ${btnStateColor}; color: white; border:none; flex: 1;" onclick="toggleRunTimer(${t.id})">${btnStateText}</button>
-              <button class="btn-small" style="background: var(--blue-ice-light); color: white; border:none;" onclick="resetTimer(${t.id})">Reiniciar</button>
-              <button class="btn-small" style="background: var(--turquoise-soft); color: white; border:none;" onclick="editarTemporizador(${t.id})">Editar</button>
-              <button class="btn-small" style="background: #FF3B30; color: white; border:none;" onclick="borrarTemporizador(${t.id})">Borrar</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    const runningTimers = timers.filter(t => t.activo);
-    if (runningTimers.length === 0) {
-      banner.innerHTML = '';
-    } else {
-      banner.innerHTML = runningTimers.map(t => {
-        const timeStr = formatTime(t.restante);
-        return `
-          <div style="background: var(--text-primary); color: var(--text-inverse); border-radius: 18px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px;">
-            <div style="display: flex; flex-direction: column;">
-              <span style="font-size: 12px; font-weight: 800; color: var(--turquoise-soft); text-transform: uppercase; margin-bottom: 2px;">${t.nombre}</span>
-              <span style="font-size: 28px; font-weight: 900; line-height: 1; letter-spacing: 1px;">${timeStr}</span>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button style="background: #FF9F0A; color: white; border: none; border-radius: 12px; padding: 12px 18px; font-weight: 900; font-size: 14px; cursor: pointer; transition: transform 0.2s;" onclick="toggleRunTimer(${t.id})" onactive="this.style.transform='scale(0.95)'">Pausar</button>
-              <button style="background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 12px; padding: 12px 16px; font-weight: 900; font-size: 15px; cursor: pointer; transition: transform 0.2s;" onclick="resetTimer(${t.id})" onactive="this.style.transform='scale(0.95)'">X</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-  }
-
 
   /* =================================================== */
   /* REDONDEO ESTRICTO Y DINÁMICO                        */
@@ -1234,8 +1012,6 @@
       let lecturas = glucosasPorDia[fecha].filter(g => !isNaN(g)); 
       if (lecturas.length === 0) continue;
       
-      // Una evaluación más justa para el esfuerzo diario:
-      // Se considera día estable si no hay crisis severas (hipo < 65 o hiper > 250)
       let crisis = lecturas.find(g => g < 65 || g > 250);
       if (!crisis) { 
           estables++; 
@@ -1287,17 +1063,11 @@
     setTimeout(() => { document.getElementById('splash-screen').classList.add('splash-oculto'); }, 1500);
     verificarSesion();
     
-    // AQUÍ: Si hay sesión activa, jalamos los datos más recientes de la nube
     if (localStorage.getItem('polar_session_activa') === 'true') {
       sincronizarDatosNube();
     }
 
-    // CARGAR NOMBRE DEL LÍDER
     cargarNombreUsuario();
-    
-    // Iniciar el temporizador y auto-comida
-    iniciarMotorTemporizadores();
-    renderTemporizadores();
 
     const configGuardada = localStorage.getItem('polar_config');
     if (configGuardada) { 
@@ -1335,9 +1105,8 @@
 
     actualizarRecordatoriosUI();
     actualizarTextosComida(); renderCitas(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
-    autoSeleccionarComida(); // Asegurar que inicie en la comida perfecta
+    autoSeleccionarComida(); 
 
-    // Actualizar botones de llamada rápida al inicio
     document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
     document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
@@ -1362,13 +1131,13 @@
   }
 
   function cerrarTodosPanelesSecundarios() {
-    ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'].forEach(p => {
+    ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'].forEach(p => {
       document.getElementById(p).style.display = 'none';
     });
   }
 
   function togglePanel(idPanel) {
-    const paneles = ['panel-config', 'panel-alarmas', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'];
+    const paneles = ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario'];
     paneles.forEach(p => {
       if(p === idPanel) {
         const el = document.getElementById(p); const mostrando = el.style.display === 'block'; el.style.display = mostrando ? 'none' : 'block';
@@ -1407,12 +1176,12 @@
     if (citas.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">No hay citas pendientes.</p>'; return; }
     lista.innerHTML = citas.map(cita => {
       const pF = cita.fecha.split('-'); const fechaLimpia = `${pF[2]}/${pF[1]}/${pF[0]}`;
-      return `<div class="cita-item" style="background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+      return `<div class="cita-card">
         <div>
-          <div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">${cita.especialista}</div>
-          <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px;">${fechaLimpia} | ${cita.hora}</div>
+          <div class="cita-titulo">${cita.especialista}</div>
+          <div class="cita-fecha">${fechaLimpia} | ${cita.hora}</div>
         </div>
-        <button style="background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s;" onactive="this.style.transform='scale(0.95)'" onclick="borrarCita(${cita.id})">Borrar</button>
+        <button class="btn-borrar-cita" onclick="borrarCita(${cita.id})">Borrar</button>
       </div>`;
     }).join('');
   }
@@ -1441,16 +1210,80 @@
       if (txtToujeo) { txtToujeo.innerText = config.toujeo; }
   }
 
-  function armarTextoReporte() {
-    const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); let texto = "REPORTE MÉDICO - APP POLAR\n\nESQUEMA ACTUAL:\n";
-    texto += `- Basal (Toujeo): ${config.toujeo} U\n- Factor Corrección: 1 U baja ${config.fc} mg/dL\n- Ratios -> Desayuno:R${config.ratios.desayuno} | Once:R${config.ratios.mam} | Alm:R${config.ratios.almuerzo} | PM:R${config.ratios.mpm} | Cena:R${config.ratios.cena}\n\nHISTORIAL:\n`;
-    if (historial.length === 0) texto += "Sin registros.\n"; else historial.forEach(item => texto += `• ${item.fecha} -> Dosis: ${item.dosis} U | Glucosa: ${item.glucosa ? item.glucosa : 'N/A'} | CHO: ${item.carbos || 0}g\n`);
-    return texto;
-  }
-  function enviarReporte() { if (navigator.share) navigator.share({ title: 'Reporte Mensual Polar', text: armarTextoReporte() }).catch(e => console.log(e)); else copiarReporte(); }
-  function copiarReporte() { navigator.clipboard.writeText(armarTextoReporte()).then(() => alert("Reporte copiado.")); }
+  /* ====== EXCELENCIA: GENERACIÓN DE PDF ÉLITE (TABLA CLÍNICA) ====== */
+  function generarPDFElite() {
+      const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      
+      const opt = {
+        margin:       15,
+        filename:     'Reporte_Diario_Polar.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-  function guardarConfig() {
+      const divPDF = document.createElement('div');
+      divPDF.style.padding = '10px';
+      divPDF.style.fontFamily = 'Nunito, sans-serif';
+      divPDF.style.color = '#2C3A40';
+      
+      let html = `<h1 style="color: #088387; text-align: center; font-size: 26px; margin-bottom: 5px; font-weight: 900; text-transform: uppercase;">Reporte Clínico Polar</h1>`;
+      html += `<p style="text-align: center; font-size: 13px; margin-bottom: 25px; color: #555;">Generado el: ${new Date().toLocaleDateString()}</p>`;
+      
+      html += `<div style="background: #F0F6F7; padding: 16px; border-radius: 12px; margin-bottom: 25px; border-left: 6px solid #088387;">
+        <h3 style="color: #088387; margin-bottom: 12px; font-size: 18px; margin-top:0; font-weight: 900;">Esquema Médico Actual</h3>
+        <ul style="font-size: 14px; line-height: 1.6; list-style: none; padding: 0; margin: 0; font-weight: 700;">
+          <li><strong>Basal (Toujeo):</strong> ${config.toujeo} U</li>
+          <li><strong>Factor Corrección:</strong> 1 U baja ${config.fc} mg/dL</li>
+          <li><strong>Ratios:</strong> Desayuno R${config.ratios.desayuno} | Once R${config.ratios.mam} | Almuerzo R${config.ratios.almuerzo} | PM R${config.ratios.mpm} | Cena R${config.ratios.cena}</li>
+        </ul>
+      </div>`;
+
+      html += `<h3 style="color: #088387; border-bottom: 2px solid #088387; padding-bottom: 6px; margin-bottom: 15px; font-size: 18px; font-weight: 900;">Registro Diario de Mediciones</h3>`;
+      
+      if (historial.length === 0) {
+        html += "<p style='font-size: 14px; text-align:center; font-weight: 700;'>Sin registros en la bóveda.</p>";
+      } else {
+        html += `<table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+          <thead>
+            <tr style="background-color: #088387; color: white;">
+              <th style="padding: 12px; border-radius: 8px 0 0 0;">Fecha / Hora</th>
+              <th style="padding: 12px;">Comida</th>
+              <th style="padding: 12px;">Glucosa</th>
+              <th style="padding: 12px;">CHO</th>
+              <th style="padding: 12px; border-radius: 0 8px 0 0;">Dosis</th>
+            </tr>
+          </thead>
+          <tbody>`;
+          
+        const historialReverso = historial.slice().reverse();
+        const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda PM', 'cena': 'Cena', 'corroborar': 'Revisión', 'post-comida': '2H Post' };
+
+        historialReverso.forEach((item, index) => {
+          const bgRow = index % 2 === 0 ? '#FFFFFF' : '#F9F9F9';
+          const evento = item.tipoComida ? dict[item.tipoComida] : 'Manual';
+          
+          let colorGlucosa = '#2C3A40';
+          let pesoGlucosa = '700';
+          if(item.glucosa < 70) { colorGlucosa = '#FF3B30'; pesoGlucosa = '900'; }
+          else if (item.glucosa > 180) { colorGlucosa = '#FF9F0A'; pesoGlucosa = '900'; }
+
+          html += `<tr style="background-color: ${bgRow}; border-bottom: 1px solid #EAEAEA;">
+            <td style="padding: 12px; font-weight: 700;">${item.fecha}</td>
+            <td style="padding: 12px; font-weight: 700;">${evento}</td>
+            <td style="padding: 12px; font-weight: ${pesoGlucosa}; color: ${colorGlucosa};">${item.glucosa || '-'}</td>
+            <td style="padding: 12px; font-weight: 700;">${item.carbos || 0}g</td>
+            <td style="padding: 12px; font-weight: 900; color: #088387;">${item.dosis} U</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+      }
+
+      divPDF.innerHTML = html;
+      html2pdf().set(opt).from(divPDF).save();
+  }
+
+  async function guardarConfig() {
     config.peso = parseFloat(document.getElementById('cfg-peso').value) || 50;
     config.toujeo = parseFloat(document.getElementById('cfg-toujeo').value) || 0; 
     config.fc = parseFloat(document.getElementById('cfg-fc').value) || 1; 
@@ -1474,11 +1307,12 @@
     
     localStorage.setItem('polar_config', JSON.stringify(config));
     
+    polarDb.auth.updateUser({ data: { config_elite: config } });
+    
     actualizarRecordatoriosUI();
     actualizarDropdownMetas();
     actualizarTextosComida(); 
     
-    // Actualizar href de los botones de llamada en tiempo real
     document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
     document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
@@ -1504,17 +1338,14 @@
     const hoyIso = obtenerFechaLocalISO();
     const registrosHoy = historial.filter(r => r.iso === hoyIso);
 
-    // Si el día empieza limpio, el rey es el desayuno
     if (registrosHoy.length === 0) return 'desayuno';
 
-    // Filtramos las comidas principales reales
     const principales = registrosHoy.filter(r => ['desayuno', 'mam', 'almuerzo', 'mpm', 'cena'].includes(r.tipoComida));
     if (principales.length === 0) return 'desayuno';
 
     const ultimaPrincipal = principales[principales.length - 1];
     const timestampUltima = ultimaPrincipal.timestamp;
 
-    // ¿Ya hicimos una corrección después de la última comida?
     const corroboracionesPost = registrosHoy.filter(r => (r.tipoComida === 'corroborar' || r.tipoComida === 'post-comida') && r.timestamp > timestampUltima);
     const yaCorroborado = corroboracionesPost.length > 0;
 
@@ -1524,13 +1355,11 @@
     const nextMeal = secuencia[(idx + 1) % secuencia.length];
 
     if (!yaCorroborado) {
-        // Ventana crítica: a las 2 horas exactas (1.98 para precisión del intervalo) y hasta 3.5 horas
         if (horasPasadas >= 1.98 && horasPasadas <= 3.5) {
             return 'corroborar';
         }
     }
 
-    // Si ya corroboró, o el tiempo pasó de largo, o recién comió, se pone directo la siguiente comida
     return nextMeal;
   }
 
@@ -1538,7 +1367,6 @@
     const select = document.getElementById('comida');
     if (!select) return;
     
-    // Respetar el pilar de excelencia: si el líder lo tocó manualmente, no interferimos
     if (select.dataset.manual === 'true') return;
     
     const sugerida = determinarComidaAutomatica();
@@ -1547,7 +1375,6 @@
         actualizarTextosComida();
     }
   }
-  /* ============================================== */
 
   function actualizarTextosComida() {
     const s = document.getElementById('comida');
@@ -1583,6 +1410,7 @@
   function despertarPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('sleeping'); b.classList.add('awake'); }
   function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
 
+  /* ====== EXCELENCIA: GUARDADO OFFLINE INQUEBRANTABLE ====== */
   async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) {
@@ -1594,57 +1422,46 @@
     const fecha = ahora.toLocaleString('es-CL'); 
     const isoFecha = obtenerFechaLocalISO(); 
 
-    // 1. Inyección de Excelencia: Mandar a la Bóveda de Supabase
-    const { data, error } = await polarDb
-      .from('historial_polar')
-      .insert([
-        { 
-          paciente_id: userId,
-          glucosa: glucosa, 
-          carbos: carbos, 
-          dosis: dosis, 
-          tipo_comida: tipoComida 
-        }
-      ]);
-
-    if (error) {
-      alert("Error al guardar en la nube: " + error.message);
-      return;
-    }
-
-    // 2. Respaldo Visual Rápido para que la app reaccione al instante sin lag
     let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
     historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
     localStorage.setItem('historial_polar', JSON.stringify(historial));
+
+    try {
+        const { data, error } = await polarDb
+          .from('historial_polar')
+          .insert([
+            { 
+              paciente_id: userId,
+              glucosa: glucosa, 
+              carbos: carbos, 
+              dosis: dosis, 
+              tipo_comida: tipoComida 
+            }
+          ]);
+
+        if (error) throw error;
+    } catch (e) {
+        console.warn("Offline guardado en cola: ", e);
+        let colaSync = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
+        colaSync.push({ 
+            paciente_id: userId,
+            glucosa: glucosa, 
+            carbos: carbos, 
+            dosis: dosis, 
+            tipo_comida: tipoComida,
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('polar_cola_sync', JSON.stringify(colaSync));
+    }
     
     if (document.getElementById('panel-historial').style.display === 'block') actualizarVistaHistorial(); 
     renderGraficoPicos();
     
-    // Limpiamos la UI
     document.getElementById('glucosa').value = ''; 
     document.getElementById('carbos').value = ''; 
     document.getElementById('resultado').style.display = 'none'; 
     delete document.getElementById('comida').dataset.manual; 
     dormirPolar(); 
-    
-    // TEMPORIZADOR AUTOMÁTICO POST-REGISTRO ÉLITE
-    let tiempoTimer = 7200; // 2 horas por defecto
-    let textoTimer = "2H";
-    if (glucosa < 70 || glucosa >= 250) {
-        tiempoTimer = 900; // 15 minutos exactos
-        textoTimer = "15 min";
-    }
-
-    let timers = JSON.parse(localStorage.getItem('polar_timers_elite') || '[]');
-    timers.push({
-        id: Date.now(),
-        nombre: `¡A medir energía! (Control)`,
-        total: tiempoTimer, 
-        restante: tiempoTimer,
-        activo: true
-    });
-    localStorage.setItem('polar_timers_elite', JSON.stringify(timers));
-    if(typeof renderTemporizadores === 'function') renderTemporizadores();
 
     alert(`polar guardo ${dosis}u con excelencia`);
     autoSeleccionarComida(); 
@@ -1660,11 +1477,11 @@
     
     hOrd.forEach(item => {
       const nom = item.tipoComida ? dict[item.tipoComida] : 'Manual'; const partes = item.fecha.split(', '); const dS = partes[0]; const hS = partes[1] || item.fecha;
-      if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div style="background: var(--turquoise-strong); color: #FFFFFF; padding: 12px 16px; border-radius: 14px; margin-top: 18px; margin-bottom: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase;">${dS}</div>`; }
+      if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div class="historial-fecha-bloque">${dS}</div>`; }
       let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
       let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
 
-      html += `<div class="historial-item" style="background: var(--bg-polar); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 6px; border: 1px solid var(--input-border);">
+      html += `<div class="historial-registro">
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
           <div>
             <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">${hS} - <span style="color: var(--turquoise-strong);">${nom}</span></div>
@@ -1682,7 +1499,6 @@
       const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
       const userId = localStorage.getItem('polar_user_id');
 
-      // 1. Impacto directo a la raíz: Borrar en la bóveda de Supabase
       if (userId) {
         const { error } = await polarDb
           .from('historial_polar')
@@ -1692,11 +1508,10 @@
         if (error) {
           console.error("Error al borrar en la nube:", error);
           alert("Fallo en la conexión. No se pudo borrar de la nube.");
-          return; // Si falla la nube, detenemos todo para no desincronizar
+          return;
         }
       }
 
-      // 2. Limpiar la memoria del teléfono
       localStorage.removeItem('historial_polar'); 
       actualizarVistaHistorial(); 
       renderGraficoPicos();
@@ -1717,33 +1532,8 @@
   }
 
   function verificarCicloSemanal() {
-      // Excelencia: ventana dinámica de 7 días. Así apenas descargas la data, se ve de inmediato.
       return new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
   }
-
-  function verificarCicloMensual() {
-      const userId = localStorage.getItem('polar_user_id') || 'default';
-      let inicio = localStorage.getItem('polar_mes_inicio_' + userId);
-      if(!inicio) {
-          inicio = new Date().getTime();
-          localStorage.setItem('polar_mes_inicio_' + userId, inicio);
-      }
-      return parseInt(inicio);
-  }
-
-  window.limpiarCicloMensual = function() {
-      if(confirm("¿Seguro que quieres borrar el ciclo de promedios mensuales y empezar uno nuevo? (Solo limpia las barras, tu historial se mantiene intacto).")) {
-          const userId = localStorage.getItem('polar_user_id') || 'default';
-          localStorage.setItem('polar_mes_inicio_' + userId, new Date().getTime());
-          renderGraficoPicos();
-          alert("Ciclo mensual reiniciado desde cero. A dominar el nuevo mes.");
-      }
-  };
-
-  window.copiarStatsMensuales = function(baja, media, alta) {
-      const texto = `📊 ESTADÍSTICAS MENSUALES POLAR\n\n📉 Baja (<= 60): ${baja}%\n✅ Media (61-180): ${media}%\n📈 Alta (200-500): ${alta}%\n\nLiderazgo y control absoluto.`;
-      navigator.clipboard.writeText(texto).then(() => alert("Estadísticas del mes copiadas. Listas para enviar."));
-  };
 
   function renderGraficoPicos() {
     const canvas = document.getElementById('graficoPicos'); 
@@ -1778,7 +1568,6 @@
     ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 12px Nunito'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText('400', paddingX - 8, paddingY); ctx.fillText('200', paddingX - 8, paddingY + (gridH/2)); ctx.fillText('0', paddingX - 8, paddingY + gridH);
 
-    // SE LLAMA LA NUEVA FUNCIÓN PARA DIBUJAR BARRAS DE PORCENTAJE INTERACTIVAS
     renderBarrasPorcentaje();
 
     const parseItemTime = (item) => {
@@ -1833,7 +1622,6 @@
     });
 
     if(!tooltipListenerAdded) {
-        // FIX: Unificando eventos con pointerdown para iPhone y Mac
         const manejarToqueGrafico = (e) => {
             const rect = canvas.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
@@ -1922,7 +1710,6 @@
     const fc = inputFc ? parseFloat(inputFc.value) : config.fc; 
     const resDiv = document.getElementById('resultado');
 
-    // 1. CÁLCULO BASE
     let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
     let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : dosisComidaExacta;
     let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
@@ -1933,14 +1720,13 @@
     if (dosisTotal < 0) dosisTotal = 0; 
     let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotal) : Math.round(dosisTotal * 10) / 10;
 
-    // 3. TEXTOS CLÍNICOS Y UMBRALES DE EMERGENCIA
     let protocoloClinicoHTML = "";
     let colorNumeroGemas = "var(--turquoise-strong)";
 
     if (glucosa > 0 && glucosa < 70) {
       colorNumeroGemas = "#FF3B30";
       protocoloClinicoHTML = `
-        <div style="text-align: left; font-size: 14px; background: rgba(255, 59, 48, 0.1); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; border-left: 4px solid #FF3B30;">
+        <div class="protocolo-box protocolo-alerta">
           <strong>• ¡Tu energía está bajita!</strong><br>
           <strong>Toma algo dulce YA:</strong> Bebe medio vaso de jugo o agua con 3 cucharaditas de azúcar.<br>
           <strong>Modo estatua:</strong> Siéntate y descansa. Cero correr o jugar.<br>
@@ -1948,28 +1734,27 @@
         </div>`;
     } 
     else {
-      // Rangos Normales y Altos
       if (glucosa >= 70 && glucosa <= 130) {
         protocoloClinicoHTML = `
-          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+          <div class="protocolo-box protocolo-normal">
             Estás en los valores recomendados. Realiza tus comidas o actividades con normalidad.
           </div>`;
       }
       else if (glucosa >= 140 && glucosa <= 180) {
         protocoloClinicoHTML = `
-          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+          <div class="protocolo-box protocolo-normal">
             Un poquito alta. Una caminata ligera de 10 a 15 minutos ayuda a bajarla. Bebe un vaso de agua.
           </div>`;
       }
       else if (glucosa >= 181 && glucosa <= 249) {
         protocoloClinicoHTML = `
-          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+          <div class="protocolo-box protocolo-normal">
             Aplica tu corrección. Toma agua pura y descansa o camina muy suave. Mide de nuevo en 2 horas.
           </div>`;
       }
       else if (glucosa >= 250 && glucosa < 400) {
         protocoloClinicoHTML = `
-          <div style="text-align: left; font-size: 14px; background: var(--bg-polar); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5;">
+          <div class="protocolo-box protocolo-normal">
             <strong>• Actividad:</strong> Cero ejercicio. El esfuerzo físico puede empeorar el cuadro.<br>
             <strong>• Hidratación:</strong> Bebe medio litro de agua en la próxima hora.
           </div>`;
@@ -1977,7 +1762,7 @@
       else if (glucosa >= 400) {
         colorNumeroGemas = "#FF3B30";
         protocoloClinicoHTML = `
-          <div style="text-align: left; font-size: 14px; background: rgba(255, 59, 48, 0.1); color: var(--text-primary); padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; border-left: 4px solid #FF3B30;">
+          <div class="protocolo-box protocolo-alerta">
             <strong>⚠️ Cifra crítica de ${glucosa} mg/dl.</strong><br>
             Puedes acudir a un médico si sigues así o verifica tu catéter a ver si está fallando.
           </div>`;
@@ -2029,7 +1814,6 @@
   let startX = 0;
   const panelMenu = document.getElementById('panel-menu');
 
-  // Para celulares (Táctil)
   panelMenu.addEventListener('touchstart', e => startX = e.touches[0].clientX);
   panelMenu.addEventListener('touchmove', e => {
     if (startX - e.touches[0].clientX > 50) { 
@@ -2037,7 +1821,6 @@
     }
   });
 
-  // Para Mouse
   panelMenu.addEventListener('mousedown', e => startX = e.clientX);
   panelMenu.addEventListener('mousemove', e => {
     if (e.buttons === 1 && startX - e.clientX > 50) {
