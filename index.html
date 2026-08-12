@@ -613,10 +613,12 @@
         <button class="btn-close-panel" onclick="toggleHistorial()">×</button>
       </h3>
       <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
+      <div id="estado-sync" onclick="sincronizarAhora()" style="cursor: pointer; text-align: center; font-size: 13px; font-weight: 800; padding: 10px 12px; margin-bottom: 14px; border-radius: 14px; background: rgba(0,0,0,0.05); color: var(--text-primary);">Toca para sincronizar con la nube.</div>
       <div id="lista-historial"></div>
-      
+
       <!-- BOTONES COMPACTOS LADO A LADO -->
       <div style="display: flex; gap: 12px; margin-top: 18px;">
+        <button class="btn-save" style="background: var(--turquoise-strong); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="sincronizarAhora()">Sincronizar</button>
         <button id="btn-borrar-historial" class="btn-save bg-rojo-alerta" style="margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="borrarHistorialCompleto()">Borrar</button>
         <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="toggleHistorial()">Cerrar</button>
       </div>
@@ -635,63 +637,270 @@
   const polarDb = createClient(supabaseUrl, supabaseKey);
 
   /* ====== EXCELENCIA: GESTIÓN DE COLA OFFLINE Y SINCRONIZACIÓN ====== */
-  async function sincronizarDatosNube() {
-    const userId = localStorage.getItem('polar_user_id');
-    if (!userId) return;
+  const CLAVE_HISTORIAL = 'historial_polar';
+  const CLAVE_COLA = 'polar_cola_sync';
+  const DIAS_MAX_SUBIDA = 30; // no resucitamos registros que la limpieza mensual ya borró de la nube
+  let sincronizandoAhora = false;
+  let ultimoErrorSync = '';
 
-    await procesarColaOffline();
+  function leerJSON(clave, porDefecto) {
+    try { return JSON.parse(localStorage.getItem(clave) || porDefecto); }
+    catch (e) { return JSON.parse(porDefecto); }
+  }
 
-    const { data, error } = await polarDb
-      .from('historial_polar')
-      .select('*')
-      .eq('paciente_id', userId)
-      .order('created_at', { ascending: true }); 
+  function fechaLocalISODesde(fecha) {
+    const tzOffset = fecha.getTimezoneOffset() * 60000;
+    return new Date(fecha.getTime() - tzOffset).toISOString().split('T')[0];
+  }
 
-    if (error) {
-      console.error("Fallo en la sincronización:", error.message);
-      return;
+  function tiempoDeRegistro(item) {
+    if (item.timestamp) return Number(item.timestamp);
+    if (item.created_at) return new Date(item.created_at).getTime();
+    if (item.iso) return new Date(item.iso + 'T00:00:00').getTime();
+    return 0;
+  }
+
+  // Identidad de un registro sin depender de columnas nuevas en la base de datos.
+  function huellaRegistro(item, minutoForzado) {
+    const minuto = (typeof minutoForzado === 'number') ? minutoForzado : Math.floor(tiempoDeRegistro(item) / 60000);
+    const comida = item.tipoComida || item.tipo_comida || '';
+    return [minuto, comida, Number(item.glucosa) || 0, Number(item.carbos) || 0, Number(item.dosis) || 0].join('|');
+  }
+
+  // El reloj del equipo y el del servidor nunca son idénticos: toleramos ±1 minuto.
+  function existeEnNube(item, huellasNube) {
+    const minuto = Math.floor(tiempoDeRegistro(item) / 60000);
+    return huellasNube.has(huellaRegistro(item, minuto - 1)) ||
+           huellasNube.has(huellaRegistro(item, minuto)) ||
+           huellasNube.has(huellaRegistro(item, minuto + 1));
+  }
+
+  function registrarHuella(huellas, item) {
+    const minuto = Math.floor(tiempoDeRegistro(item) / 60000);
+    huellas.add(huellaRegistro(item, minuto));
+  }
+
+  function registroDesdeNube(fila) {
+    const d = new Date(fila.created_at);
+    return {
+      fecha: d.toLocaleString('es-CL'),
+      iso: fechaLocalISODesde(d),
+      dosis: fila.dosis,
+      glucosa: fila.glucosa,
+      carbos: fila.carbos,
+      tipoComida: fila.tipo_comida,
+      timestamp: d.getTime(),
+      subido: true
+    };
+  }
+
+  function filaParaNube(item, userId) {
+    const d = new Date(tiempoDeRegistro(item));
+    return {
+      paciente_id: userId,
+      glucosa: item.glucosa,
+      carbos: item.carbos,
+      dosis: item.dosis,
+      tipo_comida: item.tipoComida || item.tipo_comida || null,
+      created_at: d.toISOString()
+    };
+  }
+
+  function contarPendientes() {
+    const historial = leerJSON(CLAVE_HISTORIAL, '[]');
+    return historial.filter(r => r.subido !== true).length;
+  }
+
+  /* La sesión real vive en Supabase, no en la bandera de localStorage.
+     Si el token expiró, la app parecía conectada pero la nube rechazaba
+     cada registro en silencio: ese es el origen del historial que no viaja. */
+  async function obtenerSesionValida() {
+    try {
+      const { data, error } = await polarDb.auth.getSession();
+      if (error) return null;
+      const sesion = data ? data.session : null;
+      if (sesion && sesion.user && sesion.user.id) {
+        localStorage.setItem('polar_user_id', sesion.user.id);
+        return sesion;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
+  }
 
-    if (data && data.length > 0) {
-      const historialDescargado = data.map(dbItem => {
-        const d = new Date(dbItem.created_at);
-        return {
-          fecha: d.toLocaleString('es-CL'),
-          iso: d.toISOString().split('T')[0],
-          dosis: dbItem.dosis,
-          glucosa: dbItem.glucosa,
-          carbos: dbItem.carbos,
-          tipoComida: dbItem.tipo_comida,
-          timestamp: d.getTime()
-        };
-      });
+  function pintarEstadoSync(texto, color) {
+    const caja = document.getElementById('estado-sync');
+    if (!caja) return;
+    caja.innerHTML = texto;
+    caja.style.color = color || 'var(--text-primary)';
+  }
 
-      localStorage.setItem('historial_polar', JSON.stringify(historialDescargado));
+  function actualizarEstadoSync(estado, detalle) {
+    const pendientes = contarPendientes();
+    const motivo = detalle || ultimoErrorSync;
+    if (estado === 'sincronizando') return pintarEstadoSync('Sincronizando con la nube...', 'var(--turquoise-strong)');
+    if (estado === 'sin-sesion') return pintarEstadoSync('Sesión caducada: vuelve a iniciar sesión para sincronizar.', '#D64545');
+    if (estado === 'sin-conexion') return pintarEstadoSync(`Sin conexión. ${pendientes} registro(s) esperan para subir.`, '#D68A45');
+    if (estado === 'error') return pintarEstadoSync(`No se pudo sincronizar${motivo ? ': ' + motivo : ''}. Toca para reintentar.`, '#D64545');
+    if (pendientes > 0) return pintarEstadoSync(`${pendientes} registro(s) sin subir. Toca para reintentar.`, '#D68A45');
+    return pintarEstadoSync('Todo sincronizado en la nube. Toca para actualizar.', 'var(--turquoise-strong)');
+  }
 
-      if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
-      const panelHistorial = document.getElementById('panel-historial');
-      if (panelHistorial && panelHistorial.style.display === 'block') {
-        if (typeof actualizarVistaHistorial === 'function') actualizarVistaHistorial();
+  function refrescarVistasHistorial() {
+    if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
+    const panelHistorial = document.getElementById('panel-historial');
+    if (panelHistorial && panelHistorial.style.display === 'block') {
+      if (typeof actualizarVistaHistorial === 'function') actualizarVistaHistorial();
+    }
+  }
+
+  // Sube la cola offline registro por registro: un dato malo ya no bloquea a los demás.
+  async function procesarColaOffline(userId) {
+    if (!navigator.onLine) return;
+    const cola = leerJSON(CLAVE_COLA, '[]');
+    if (cola.length === 0) return;
+
+    const quedanEnCola = [];
+    for (const fila of cola) {
+      const filaConDueno = Object.assign({}, fila, { paciente_id: fila.paciente_id || userId });
+      const { error } = await polarDb.from('historial_polar').insert([filaConDueno]);
+      if (error) {
+        console.warn('Registro en cola no pudo subirse:', error.message);
+        ultimoErrorSync = error.message;
+        quedanEnCola.push(fila);
       }
     }
+
+    if (quedanEnCola.length === 0) localStorage.removeItem(CLAVE_COLA);
+    else localStorage.setItem(CLAVE_COLA, JSON.stringify(quedanEnCola));
   }
 
-  async function procesarColaOffline() {
-    if(!navigator.onLine) return;
-    let cola = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
-    if(cola.length === 0) return;
-    
-    const { error } = await polarDb.from('historial_polar').insert(cola);
-    if(!error) {
-       localStorage.removeItem('polar_cola_sync');
-       console.log("Datos offline subidos con éxito.");
+  /* Recupera los registros que quedaron sólo en este equipo (guardados mientras la
+     nube rechazaba la escritura o antes de que existiera la sincronización). */
+  async function subirRegistrosHuerfanos(userId, historialLocal, huellasNube) {
+    const limite = Date.now() - (DIAS_MAX_SUBIDA * 24 * 60 * 60 * 1000);
+    const candidatos = historialLocal.filter(r =>
+      r.subido !== true &&
+      tiempoDeRegistro(r) >= limite &&
+      !existeEnNube(r, huellasNube)
+    );
+
+    const subidos = [];
+    for (const item of candidatos) {
+      const { error } = await polarDb.from('historial_polar').insert([filaParaNube(item, userId)]);
+      if (error) {
+        console.warn('No se pudo subir un registro local:', error.message);
+        ultimoErrorSync = error.message;
+        continue;
+      }
+      const subido = Object.assign({}, item, { subido: true });
+      subidos.push(subido);
+      registrarHuella(huellasNube, subido);
+    }
+    if (subidos.length > 0) console.log(`Se recuperaron ${subidos.length} registro(s) locales hacia la nube.`);
+    return subidos;
+  }
+
+  async function sincronizarDatosNube() {
+    if (sincronizandoAhora) return;
+    sincronizandoAhora = true;
+    try {
+      const sesion = await obtenerSesionValida();
+      if (!sesion) { actualizarEstadoSync('sin-sesion'); return; }
+      const userId = sesion.user.id;
+
+      if (!navigator.onLine) { actualizarEstadoSync('sin-conexion'); return; }
+      actualizarEstadoSync('sincronizando');
+
+      await procesarColaOffline(userId);
+
+      const { data, error } = await polarDb
+        .from('historial_polar')
+        .select('*')
+        .eq('paciente_id', userId)
+        .order('created_at', { ascending: true });
+
+      // Si la descarga falla no tocamos nada: jamás borramos lo que sí está en el equipo.
+      if (error) {
+        console.error('Fallo en la sincronización:', error.message);
+        ultimoErrorSync = error.message;
+        actualizarEstadoSync('error', error.message);
+        return;
+      }
+
+      const historialLocal = leerJSON(CLAVE_HISTORIAL, '[]');
+      const registrosNube = (data || []).map(registroDesdeNube);
+      const huellasNube = new Set();
+      registrosNube.forEach(r => registrarHuella(huellasNube, r));
+
+      const recuperados = await subirRegistrosHuerfanos(userId, historialLocal, huellasNube);
+
+      // Fusión: la nube manda sobre lo ya subido (así se propagan los borrados),
+      // y lo que todavía no viajó se conserva marcado como pendiente.
+      // Dos seguros para no perder nunca una medición:
+      //  - si la nube responde vacía, no borramos nada de este equipo;
+      //  - lo recién subido se respeta unos minutos por si la nube aún no lo devuelve.
+      const nubeRespondioConDatos = registrosNube.length > 0;
+      const margenReciente = Date.now() - (5 * 60 * 1000);
+
+      const fusion = new Map();
+      registrosNube.concat(recuperados).forEach(r => fusion.set(huellaRegistro(r), r));
+      historialLocal.forEach(r => {
+        if (existeEnNube(r, huellasNube)) return;
+        const clave = huellaRegistro(r);
+        if (fusion.has(clave)) return;
+        if (r.subido === true) {
+          const esReciente = tiempoDeRegistro(r) >= margenReciente;
+          if (nubeRespondioConDatos && !esReciente) return; // borrado desde otro equipo
+          fusion.set(clave, r);
+          return;
+        }
+        fusion.set(clave, Object.assign({}, r, { subido: false }));
+      });
+
+      const historialFusionado = Array.from(fusion.values())
+        .sort((a, b) => tiempoDeRegistro(a) - tiempoDeRegistro(b));
+
+      localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historialFusionado));
+
+      if (contarPendientes() === 0) ultimoErrorSync = '';
+      refrescarVistasHistorial();
+      actualizarEstadoSync('ok');
+    } catch (e) {
+      console.error('Error inesperado al sincronizar:', e);
+      actualizarEstadoSync('error', e && e.message);
+    } finally {
+      sincronizandoAhora = false;
     }
   }
-  window.addEventListener('online', procesarColaOffline);
+
+  async function sincronizarAhora() {
+    await sincronizarDatosNube();
+    refrescarVistasHistorial();
+  }
+
+  window.addEventListener('online', () => sincronizarDatosNube());
+  window.addEventListener('focus', () => { if (localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube();
+  });
+  setInterval(() => {
+    if (document.visibilityState === 'visible' && localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube();
+  }, 60000);
+
+  // Mantiene el identificador del líder alineado con la sesión real de Supabase.
+  polarDb.auth.onAuthStateChange((evento, sesion) => {
+    if (sesion && sesion.user) {
+      localStorage.setItem('polar_user_id', sesion.user.id);
+      if (evento === 'TOKEN_REFRESHED') sincronizarDatosNube();
+    }
+  });
 
   // === REVISIÓN DE REGISTROS ANTIGUOS (30 DÍAS) ===
   async function revisarRegistrosAntiguos() {
-    const userId = localStorage.getItem('polar_user_id');
+    const sesion = await obtenerSesionValida();
+    const userId = sesion ? sesion.user.id : null;
     if (!userId) return;
 
     const fechaLimite = new Date();
@@ -725,7 +934,7 @@
 
   /* ====== LÓGICA DE ACCESO ====== */
   function verificarSesion() {
-    const session = localStorage.getItem('polar_session_activa'); 
+    const session = localStorage.getItem('polar_session_activa');
     if (session === 'true') {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('main-app').style.display = 'block';
@@ -733,6 +942,28 @@
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('main-app').style.display = 'none';
     }
+  }
+
+  /* Comprueba que la sesión de Supabase siga viva. Sin esto la app podía verse
+     conectada durante semanas mientras la nube rechazaba cada registro. */
+  async function verificarSesionSegura() {
+    if (localStorage.getItem('polar_session_activa') !== 'true') { verificarSesion(); return; }
+
+    const sesion = await obtenerSesionValida();
+    if (!sesion) {
+      // Nunca borramos el historial local aquí: los registros sin subir deben sobrevivir.
+      localStorage.removeItem('polar_session_activa');
+      verificarSesion();
+      const pendientes = contarPendientes();
+      alert(pendientes > 0
+        ? `Líder, tu sesión caducó en este equipo. Vuelve a iniciar sesión: tienes ${pendientes} registro(s) guardados aquí que se subirán a la nube al entrar.`
+        : 'Líder, tu sesión caducó en este equipo. Vuelve a iniciar sesión para recuperar tu historial de la nube.');
+      return;
+    }
+
+    verificarSesion();
+    cargarNombreUsuario();
+    await sincronizarDatosNube();
   }
 
   async function validarAcceso() {
@@ -753,9 +984,18 @@
       alert("Acceso Denegado. Verifica el correo o la contraseña.");
       document.getElementById('login-pass').value = '';
     } else {
+      // Si en este equipo estuvo otra de las cuentas, su historial local no debe
+      // mezclarse ni subirse bajo el nuevo líder.
+      const idAnterior = localStorage.getItem('polar_user_id');
+      if (idAnterior && idAnterior !== data.user.id) {
+        localStorage.removeItem('historial_polar');
+        localStorage.removeItem('citas_polar');
+        localStorage.removeItem('temporizadores_polar');
+      }
+
       localStorage.setItem('polar_session_activa', 'true');
       localStorage.setItem('polar_rol', data.user.email);
-      localStorage.setItem('polar_user_id', data.user.id); 
+      localStorage.setItem('polar_user_id', data.user.id);
       
       const meta = data.user.user_metadata || {};
       if(meta.nombre_lider) {
@@ -780,14 +1020,23 @@
   }
 
   async function cerrarSesion() {
+    const pendientes = contarPendientes();
+    if (pendientes > 0) {
+      if (navigator.onLine) await sincronizarDatosNube();
+      if (contarPendientes() > 0) {
+        if (!confirm(`Líder, quedan ${contarPendientes()} registro(s) sin subir a la nube. Si cierras sesión ahora se perderán. ¿Cerrar de todas formas?`)) return;
+      }
+    }
+
     await polarDb.auth.signOut();
     localStorage.removeItem('polar_session_activa');
     localStorage.removeItem('polar_rol');
     localStorage.removeItem('polar_user_id');
-    localStorage.removeItem('historial_polar'); 
+    localStorage.removeItem('historial_polar');
     localStorage.removeItem('citas_polar');
     localStorage.removeItem('temporizadores_polar');
-    
+    localStorage.removeItem('polar_cola_sync');
+
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
     document.getElementById('lista-historial').innerHTML = '';
@@ -847,10 +1096,13 @@
         localStorage.setItem('temporizadores_polar', JSON.stringify(backupData.datos));
         renderTemporizadores();
     }
-    else if (backupData.tipo === 'historial') { 
-        localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
-        actualizarVistaHistorial(); 
-        renderGraficoPicos(); 
+    else if (backupData.tipo === 'historial') {
+        // Se borraron también de la nube: al restaurarlos vuelven a viajar hacia arriba.
+        const restaurados = backupData.datos.map(r => Object.assign({}, r, { subido: false }));
+        localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(restaurados));
+        actualizarVistaHistorial();
+        renderGraficoPicos();
+        sincronizarDatosNube();
     }
     document.getElementById('toast-undo').classList.remove('show'); backupData = null;
   }
@@ -1111,10 +1363,9 @@
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { document.getElementById('splash-screen').classList.add('splash-oculto'); }, 1500);
     verificarSesion();
-    
-    if (localStorage.getItem('polar_session_activa') === 'true') {
-      sincronizarDatosNube();
-    }
+
+    // Valida la sesión real de Supabase y baja/sube todo lo que falte.
+    verificarSesionSegura();
 
     cargarNombreUsuario();
 
@@ -1576,19 +1827,23 @@
 
   /* ====== EXCELENCIA: GUARDADO OFFLINE INQUEBRANTABLE ====== */
   async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
-    const userId = localStorage.getItem('polar_user_id');
+    const sesion = await obtenerSesionValida();
+    const userId = sesion ? sesion.user.id : null;
     if (!userId) {
-        alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
+        alert("Líder, tu sesión caducó y este registro no llegaría a la nube. Vuelve a iniciar sesión para guardarlo con seguridad.");
+        localStorage.removeItem('polar_session_activa');
+        verificarSesion();
         return;
     }
 
-    const ahora = new Date(); 
-    const fecha = ahora.toLocaleString('es-CL'); 
-    const isoFecha = obtenerFechaLocalISO(); 
+    const ahora = new Date();
+    const fecha = ahora.toLocaleString('es-CL');
+    const isoFecha = obtenerFechaLocalISO();
 
-    let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
-    historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
-    localStorage.setItem('historial_polar', JSON.stringify(historial));
+    const registroLocal = { fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime(), subido: false };
+    let historial = leerJSON(CLAVE_HISTORIAL, '[]');
+    historial.push(registroLocal);
+    localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historial));
 
     // CRONÓMETRO AUTOMÁTICO SOLICITADO: 2 horas por defecto, o 15 minutos si la glucosa está por debajo de 60
     let minutosTemporizador = 120;
@@ -1597,51 +1852,54 @@
     }
     iniciarTemporizadorPolar(minutosTemporizador);
 
+    // La hora la fija el equipo: así el registro es el mismo en todos los computadores.
+    const filaNube = filaParaNube(registroLocal, userId);
+    let subidoAlaNube = false;
+
     try {
-        const { data, error } = await polarDb
+        const { error } = await polarDb
           .from('historial_polar')
-          .insert([
-            { 
-              paciente_id: userId,
-              glucosa: glucosa, 
-              carbos: carbos, 
-              dosis: dosis, 
-              tipo_comida: tipoComida 
-            }
-          ]);
+          .insert([filaNube]);
 
         if (error) throw error;
+        subidoAlaNube = true;
+
+        historial = leerJSON(CLAVE_HISTORIAL, '[]');
+        const indice = historial.findIndex(r => r.timestamp === registroLocal.timestamp);
+        if (indice !== -1) {
+          historial[indice].subido = true;
+          localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historial));
+        }
     } catch (e) {
         console.warn("Offline guardado en cola: ", e);
-        let colaSync = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
-        colaSync.push({ 
-            paciente_id: userId,
-            glucosa: glucosa, 
-            carbos: carbos, 
-            dosis: dosis, 
-            tipo_comida: tipoComida,
-            created_at: new Date().toISOString()
-        });
-        localStorage.setItem('polar_cola_sync', JSON.stringify(colaSync));
+        ultimoErrorSync = (e && e.message) ? e.message : 'sin conexión';
+        let colaSync = leerJSON(CLAVE_COLA, '[]');
+        colaSync.push(filaNube);
+        localStorage.setItem(CLAVE_COLA, JSON.stringify(colaSync));
     }
-    
-    if (document.getElementById('panel-historial').style.display === 'block') actualizarVistaHistorial(); 
-    renderGraficoPicos();
-    
-    document.getElementById('glucosa').value = ''; 
-    document.getElementById('carbos').value = ''; 
-    document.getElementById('resultado').style.display = 'none'; 
-    delete document.getElementById('comida').dataset.manual; 
-    dormirPolar(); 
 
-    alert(`polar guardo ${dosis}u con excelencia. Se activó temporizador automático de ${minutosTemporizador} minutos.`);
-    autoSeleccionarComida(); 
+    actualizarEstadoSync(subidoAlaNube ? 'ok' : (navigator.onLine ? 'error' : 'sin-conexion'));
+    if (document.getElementById('panel-historial').style.display === 'block') actualizarVistaHistorial();
+    renderGraficoPicos();
+
+    document.getElementById('glucosa').value = '';
+    document.getElementById('carbos').value = '';
+    document.getElementById('resultado').style.display = 'none';
+    delete document.getElementById('comida').dataset.manual;
+    dormirPolar();
+
+    const avisoNube = subidoAlaNube
+      ? 'Ya está en la nube: lo verás en tus otros equipos.'
+      : 'Quedó guardado en este equipo y se subirá a la nube en cuanto vuelva la conexión.';
+    alert(`polar guardo ${dosis}u con excelencia. Se activó temporizador automático de ${minutosTemporizador} minutos.\n\n${avisoNube}`);
+    autoSeleccionarComida();
   }
 
-  function toggleHistorial() { const p = document.getElementById('panel-historial'); if (p.style.display === 'block') p.style.display = 'none'; else { actualizarVistaHistorial(); p.style.display = 'block'; setTimeout(() => p.scrollIntoView({behavior: "smooth"}), 100); } }
-  
+  function toggleHistorial() { const p = document.getElementById('panel-historial'); if (p.style.display === 'block') p.style.display = 'none'; else { actualizarVistaHistorial(); p.style.display = 'block'; sincronizarDatosNube(); setTimeout(() => p.scrollIntoView({behavior: "smooth"}), 100); } }
+
   function actualizarVistaHistorial() {
-    const lista = document.getElementById('lista-historial'); const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+    const lista = document.getElementById('lista-historial'); const historial = leerJSON(CLAVE_HISTORIAL, '[]');
+    actualizarEstadoSync(navigator.onLine ? 'ok' : 'sin-conexion');
     if (historial.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; return; }
     const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'Corroboración', 'post-comida': '2 Horas Post-Comida' };
     let html = ''; let fechaAgrupada = ''; const hOrd = historial.slice(); 
@@ -1651,12 +1909,14 @@
       if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div class="historial-fecha-bloque">${dS}</div>`; }
       let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
       let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
+      const marcaNube = item.subido === true ? '' : `<div style="font-size: 11px; font-weight: 800; color: #D68A45; margin-top: 3px;">Pendiente de subir a la nube</div>`;
 
       html += `<div class="historial-registro">
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
           <div>
             <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">${hS} - <span style="color: var(--turquoise-strong);">${nom}</span></div>
             <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">${det}</div>
+            ${marcaNube}
           </div>
           <div style="text-align: right;">${dos}</div>
         </div>
@@ -1665,29 +1925,35 @@
     lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
   }
 
-  async function borrarHistorialCompleto() { 
-    if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) { 
-      const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
-      const userId = localStorage.getItem('polar_user_id');
+  async function borrarHistorialCompleto() {
+    if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) {
+      const hV = leerJSON(CLAVE_HISTORIAL, '[]');
+      const sesion = await obtenerSesionValida();
+      const userId = sesion ? sesion.user.id : null;
 
-      if (userId) {
-        const { error } = await polarDb
-          .from('historial_polar')
-          .delete()
-          .eq('paciente_id', userId);
-
-        if (error) {
-          console.error("Error al borrar en la nube:", error);
-          alert("Fallo en la conexión. No se pudo borrar de la nube.");
-          return;
-        }
+      if (!userId) {
+        alert("Líder, tu sesión caducó. Vuelve a iniciar sesión antes de borrar para que el cambio también viaje a tus otros equipos.");
+        return;
       }
 
-      localStorage.removeItem('historial_polar'); 
-      actualizarVistaHistorial(); 
+      const { error } = await polarDb
+        .from('historial_polar')
+        .delete()
+        .eq('paciente_id', userId);
+
+      if (error) {
+        console.error("Error al borrar en la nube:", error);
+        alert("Fallo en la conexión. No se pudo borrar de la nube.");
+        return;
+      }
+
+      localStorage.removeItem(CLAVE_HISTORIAL);
+      localStorage.removeItem(CLAVE_COLA);
+      actualizarVistaHistorial();
       renderGraficoPicos();
+      actualizarEstadoSync('ok');
       activarDeshacer('historial', hV);
-    } 
+    }
   }
 
   function sugerirEsquema() {
