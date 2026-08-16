@@ -74,9 +74,10 @@
     /* CONTENEDOR PRINCIPAL OCULTO INICIALMENTE */
     #main-app { display: none; }
 
-    .app-container { max-width: 450px; margin: 0 auto; padding-bottom: 40px; }
+    /* EXCELENCIA: Estabilidad añadida al contenedor principal y espacio para la barra de nav */
+    .app-container { max-width: 450px; margin: 0 auto; padding-bottom: 100px; min-height: 85vh; display: flex; flex-direction: column; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
-    .logo-container { display: flex; align-items: center; gap: 12px; }
+    .logo-container { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 
     .hamburger-btn { background: none; border: none; font-size: 28px; color: var(--text-primary); font-weight: 900; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2001; }
     .hamburger-btn:active { transform: scale(0.85); }
@@ -108,7 +109,7 @@
     .card-glucose { background: var(--bg-card-glucose); color: var(--text-card-glucose); transition: background 0.4s ease, color 0.4s ease; }
     .card-carbs { background: var(--bg-card-carbs); color: var(--text-card-carbs); transition: background 0.4s ease, color 0.4s ease; }
     
-    .card-settings, .card-avatars, .card-citas, .card-panel-grafico, .card-temporizador { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
+    .card-settings, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
 
     .avatar-frame { background: var(--turquoise-strong); border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(8,131,135,0.2); height: 130px; width: 130px; margin: 0 auto; transition: all 0.3s ease; }
 
@@ -123,10 +124,11 @@
     input:focus, select:focus, textarea:focus { border-color: var(--turquoise-strong); box-shadow: 0 0 0 4px rgba(8, 131, 135, 0.15); transform: translateY(-2px); }
     select.select-small { padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--input-text) !important; font-weight: 700; }
 
-    .card-settings input, .card-citas input, .card-temporizador input { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
-    .card-settings select, .card-temporizador select { margin-bottom: 15px; padding: 10px; font-size: 15px; border-color: var(--input-border); color: var(--input-text) !important; }
-    .card-settings label, .card-citas label, .card-temporizador label { font-size: 13px; margin-bottom: 5px; color: var(--label-color); font-weight: 800; }
-    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3, .card-temporizador h3 { font-size: 18px; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
+    /* Compactado para la configuración */
+    .card-settings input, .card-citas input { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
+    .card-settings select { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
+    .card-settings label, .card-citas label { font-size: 12px; margin-bottom: 4px; color: var(--label-color); font-weight: 800; }
+    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 16px; margin-bottom: 10px; color: var(--turquoise-strong); font-weight: 900; }
     .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
 
     .btn-main { background: var(--turquoise-strong); color: var(--btn-text); border: none; width: 100%; padding: 20px; border-radius: 100px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(8,131,135,0.25); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-top: 8px; }
@@ -139,25 +141,42 @@
     .btn-small:active { transform: scale(0.92); }
     .btn-small:disabled { background: #E0E0E0; color: #999; cursor: not-allowed; border: none; }
 
-    .result-box { margin-top: 24px; background: var(--white); border-radius: var(--radius); padding: 35px 20px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.06); display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); }
+    /* EXCELENCIA: CAJA DE RESULTADOS ESTABLE Y NO ATRAVESADA */
+    .result-box { 
+      margin-top: 16px; 
+      background: var(--white); 
+      border-radius: var(--radius); 
+      padding: 20px 15px; 
+      text-align: center; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+      display: none; 
+      position: relative; /* Ya no es fixed */
+      width: 100%; 
+      z-index: 10; 
+      border: 2px solid var(--turquoise-strong); 
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      overflow: hidden; 
+      grid-column: span 2;
+    }
+    
     .result-box::after { content: ""; position: absolute; bottom: -30px; left: -30px; width: 120px; height: 120px; background: var(--turquoise-strong); opacity: 0.04; border-radius: 40% 60% 70% 30%; pointer-events: none; }
-    @keyframes popIn { 0% { opacity: 0; transform: scale(0.92) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .result-box h2 { font-size: 18px; color: var(--text-primary); font-weight: 900; margin-bottom: 12px; position: relative; z-index: 2; }
-    .result-number { font-size: 72px; font-weight: 900; line-height: 1; margin-bottom: 8px; position: relative; z-index: 2; letter-spacing: -2px; }
-    .result-unit { font-size: 18px; font-weight: 800; color: var(--text-primary); position: relative; z-index: 2; opacity: 0.7; text-transform: uppercase; }
-    .result-details { font-size: 14px; color: var(--text-primary); font-weight: 700; margin-top: 20px; background: var(--bg-polar); padding: 16px; border-radius: 16px; position: relative; z-index: 2; text-align: left; line-height: 1.5; border: 1px solid rgba(0,0,0,0.04); }
+    .result-box h2 { font-size: 18px; color: var(--text-primary); font-weight: 900; margin-bottom: 8px; position: relative; z-index: 2; }
+    .result-number { font-size: 65px; font-weight: 900; line-height: 1; margin-bottom: 4px; position: relative; z-index: 2; letter-spacing: -2px; }
+    .result-unit { font-size: 16px; font-weight: 800; color: var(--text-primary); position: relative; z-index: 2; opacity: 0.7; text-transform: uppercase; margin-bottom: 12px; }
+    .result-details { font-size: 14px; color: var(--text-primary); font-weight: 700; margin-top: 10px; background: var(--bg-polar); padding: 14px; border-radius: 16px; position: relative; z-index: 2; text-align: left; line-height: 1.5; border: 1px solid rgba(0,0,0,0.04); }
 
     /* ALERTAS EN ROJO PURO */
     .alert-box { background: #FF3B30 !important; color: #FFFFFF !important; }
     .alert-box h2, .alert-box .result-number, .alert-box p, .alert-box .result-unit, .alert-box .result-details { color: #FFFFFF !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
     
-    .btn-emergency, .btn-papa { display: block; text-decoration: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 18px; margin-top: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; z-index: 2; text-align: center; transition: transform 0.2s; }
+    .btn-emergency, .btn-papa { display: block; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 15px; margin-top: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; z-index: 2; text-align: center; transition: transform 0.2s; }
     .btn-emergency:active, .btn-papa:active { transform: scale(0.95); }
     .btn-emergency { background: #FFFFFF; color: #FF3B30; }
     .btn-papa { background: var(--text-primary); color: var(--text-inverse); }
 
-    .historial-box { background: var(--white); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: none; margin-top: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); animation: popIn 0.4s ease-out; border: 1px solid rgba(0,0,0,0.03); }
+    .historial-box { background: var(--white); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); animation: popIn 0.4s ease-out; border: 1px solid rgba(0,0,0,0.03); }
     
     .side-panel { position: fixed; top: 0; width: 320px; height: 100%; background: var(--bg-polar); box-shadow: -10px 0 40px rgba(0,0,0,0.15); z-index: 2000; padding: 40px 24px; display: flex; flex-direction: column; overflow-y: auto; }
     .left-panel { left: -340px; transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -165,7 +184,6 @@
     .right-panel { right: -340px; transition: right 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .right-panel.open { right: 0; }
 
-    /* Efecto Glassmorphism Élite para el fondo */
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 38, 43, 0.5); z-index: 1999; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.4s ease; }
     .overlay.active { display: block; opacity: 1; }
 
@@ -174,7 +192,7 @@
     .receta-item p { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.5; }
 
     #toast-undo { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--text-inverse); padding: 14px 28px; border-radius: 30px; display: flex; align-items: center; gap: 15px; font-weight: 800; font-size: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
-    #toast-undo.show { bottom: 40px; }
+    #toast-undo.show { bottom: 100px; }
     .btn-undo { background: var(--turquoise-strong); color: var(--btn-text); border: none; padding: 8px 18px; border-radius: 20px; font-weight: 900; cursor: pointer; transition: transform 0.2s; }
     .btn-undo:active { transform: scale(0.9); }
     
@@ -193,9 +211,6 @@
     .avatar-card h4 { font-size: 13px; font-weight: 900; color: var(--text-primary); margin: 0 0 4px 0; line-height: 1.2; }
     .avatar-card p { font-size: 11px; font-weight: 900; color: var(--turquoise-strong); margin: 0; text-transform: uppercase; }
 
-    /* =========================================
-       CLASES ÉLITE (LIMPIEZA DE ESPAGUETI)
-       ========================================= */
     .panel-header-elite { font-size: 26px; font-weight: 900; color: var(--turquoise-strong); display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; margin-bottom: 24px; }
     .panel-header-small { font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
     .title-flex { display: flex; align-items: center; gap: 10px; }
@@ -206,15 +221,15 @@
     .btn-menu-lateral { background: var(--white); color: var(--text-primary); margin: 0 0 16px 0; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s; }
     .btn-menu-lateral:active { transform: scale(0.95); }
     
-    .input-emergencia { border-radius: 14px; border: none; padding: 16px; font-weight: 900; margin-bottom: 18px; width: 100%; display: block; }
+    .input-emergencia { border-radius: 10px; border: none; padding: 10px; font-weight: 900; margin-bottom: 10px; width: 100%; display: block; font-size: 14px;}
     .bg-rojo-alerta { background: #FF3B30 !important; color: white !important; box-shadow: 0 4px 10px rgba(255,59,48,0.2); }
     .bg-blanco-sombra { background: #FFFFFF; color: #1A1A1A !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    .cita-card, .timer-card { background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .cita-titulo, .timer-titulo { color: var(--turquoise-strong); font-weight: 900; font-size: 16px; }
-    .cita-fecha, .timer-tiempo { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
-    .btn-borrar-cita, .btn-borrar-timer { background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
-    .btn-borrar-cita:active, .btn-borrar-timer:active { transform: scale(0.95); }
+    .cita-card { background: var(--bg-polar); border: 1px solid var(--input-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .cita-titulo { color: var(--turquoise-strong); font-weight: 900; font-size: 16px; }
+    .cita-fecha { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
+    .btn-borrar-cita { background: #FF3B30; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
+    .btn-borrar-cita:active { transform: scale(0.95); }
     
     .historial-fecha-bloque { background: var(--turquoise-strong); color: #FFFFFF; padding: 12px 16px; border-radius: 14px; margin-top: 18px; margin-bottom: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase; }
     .historial-registro { background: var(--bg-polar); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 6px; border: 1px solid var(--input-border); }
@@ -222,6 +237,51 @@
     .protocolo-box { text-align: left; font-size: 14px; padding: 16px; border-radius: 14px; margin-top: 15px; line-height: 1.5; color: var(--text-primary); }
     .protocolo-alerta { background: rgba(255, 59, 48, 0.1); border-left: 4px solid #FF3B30; }
     .protocolo-normal { background: var(--bg-polar); }
+
+    /* BARRA DE NAVEGACIÓN ÉLITE (PÍLDORA FLOTANTE) 5 ÍTEMS */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1A2126; /* Oscuro elegante */
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 15px;
+      border-radius: 50px;
+      width: 90%;
+      max-width: 420px;
+      z-index: 9999;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+    .nav-item {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .nav-item.active {
+      background: #FFFFFF;
+      color: #1A2126;
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
   </style>
 </head>
 <body>
@@ -258,14 +318,20 @@
   <div id="panel-menu" class="side-panel left-panel">
     <h2 class="panel-header-elite">☰ Menú Polar</h2>
     
-    <button class="btn-menu-lateral" onclick="abrirDesdeMenu('panel')">
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <button class="btn-small bg-rojo-alerta" style="flex: 1; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; border: none; cursor: pointer; color: white;" onclick="generarPDFElite()">PDF Analítico</button>
+      <button class="btn-small" style="flex: 1; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; background: var(--text-primary); color: white; border: none; cursor: pointer;" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+
+    <!-- Redirigidos a la nueva barra de navegación dividida -->
+    <button class="btn-menu-lateral" onclick="switchTab('graficas'); toggleMenuPanel();">
       <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
       </div>
       Panel Analítico
     </button>
     
-    <button class="btn-menu-lateral" onclick="abrirDesdeMenu('historial')">
+    <button class="btn-menu-lateral" onclick="switchTab('historial'); toggleMenuPanel();">
       <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
       </div>
@@ -275,19 +341,12 @@
     <div class="rules-menu">
       <h3>  Recordatorios Importantes</h3>
       <ul>
-        <li><strong>Toujeo / Baja:</strong> <span id="txt-toujeo" style="color: var(--turquoise-strong); font-weight: 900; font-size: 15px;">56</span> U configuradas.</li>
-        <li><strong style="color:#FF3B30;">Crítica (&lt;= 54):</strong> NO inyectar. Agua con azúcar según peso, esperar 15 min.</li>
-        <li><strong>Alta (&gt;= 250):</strong> Si hay muchos picos de azúcar altos, se recomienda medir cetonas.</li>
-        <li><strong style="color:#FF3B30;">Extrema (&gt;= 400):</strong> Riesgo inminente. Llamar a emergencias / Papá.</li>
+        <li><strong>Toujeo / Baja:</strong> <span id="txt-toujeo" style="color: var(--turquoise-strong); font-weight: 900; font-size: 15px;">56</span> U config.</li>
+        <li><strong style="color:#FF3B30;">Crítica (&lt;= 54):</strong> NO inyectar.</li>
+        <li><strong>Alta (&gt;= 250):</strong> Revisa posibles picos altos seguidos.</li>
+        <li><strong style="color:#FF3B30;">Extrema (&gt;= 400):</strong> Llamar a emergencias / Papá.</li>
       </ul>
     </div>
-
-    <div style="margin-top: 28px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 24px;">
-      <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 12px; font-size: 22px;">Reporte Médico Élite</h2>
-      <button class="btn-main bg-rojo-alerta" style="padding: 14px; font-size: 16px; margin-bottom: 12px; border-radius: 14px;" onclick="generarPDFElite()">Descargar PDF Analítico</button>
-    </div>
-    
-    <button class="btn-save" style="background: var(--text-primary); color: var(--white); margin-top: 24px; box-shadow: 0 6px 15px rgba(255,59,48,0.2);" onclick="cerrarSesion()">  Cerrar Sesión</button>
   </div>
 
   <div id="panel-recetas" class="side-panel right-panel">
@@ -302,13 +361,12 @@
   <div class="app-container">
     
     <div class="header">
-      <div class="logo-container">
-        <!-- BOTÓN DE LAS TRES RAYITAS -->
-        <button class="hamburger-btn" onclick="toggleMenuPanel()">☰</button>
+      <div class="logo-container" onclick="switchTab('avatars')">
+        <button class="hamburger-btn" onclick="event.stopPropagation(); toggleMenuPanel()">☰</button>
         <div style="display: flex; flex-direction: column; align-items: flex-start;">
           <h1>Polar</h1>
         </div>
-        <div id="polar-bear" class="sleeping" onclick="togglePanel('panel-avatars')">
+        <div id="polar-bear" class="sleeping">
           <span class="bear-icon" id="main-bear-icon" style="display: block; width: 100%; height: 100%;">
             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>
           </span>
@@ -317,590 +375,339 @@
       </div>
       <div class="top-actions">
         <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
-        
-        <!-- BOTÓN DE TEMPORIZADOR AL LADO DEL CORAZÓN -->
-        <button class="icon-btn" style="background: var(--turquoise-strong); color: var(--text-inverse); position: relative; padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-temporizador')">
-          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="55" r="35" fill="none" stroke="#FFFFFF" stroke-width="8"/>
-              <line x1="50" y1="55" x2="50" y2="30" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-              <line x1="50" y1="55" x2="68" y2="55" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-              <line x1="38" y1="15" x2="62" y2="15" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-              <line x1="50" y1="15" x2="50" y2="20" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </button>
-
-        <!-- BOTÓN DE USUARIO -->
-        <button id="btn-usuario-nombre" class="icon-btn" onclick="togglePanel('panel-usuario')">Líder</button>
-        
-        <!-- BOTÓN AGENDAR CITAS -->
-        <button class="icon-btn" style="background: var(--text-primary); color: var(--text-inverse); position: relative; padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-citas')">
-          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="50" cy="85" r="8" fill="#E85D75"/>
-              <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
-              <circle cx="80" cy="45" r="8" fill="#FFFFFF"/>
-            </svg>
-          </div>
-          <span id="badge-citas" style="position: absolute; top: -6px; right: -6px; background: #FF3B30 !important; color: white !important; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: 900; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.25);">0</span>
-        </button>
-        
-        <!-- BOTÓN DE CONFIGURACIÓN -->
-        <button class="icon-btn settings" style="padding: 10px; display: flex; justify-content: center; align-items: center;" onclick="togglePanel('panel-config')">
-          <div style="width: 22px; height: 22px; display: flex; align-items: center;">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="6" fill="#FFFFFF"/>
-              <circle cx="50" cy="50" r="18" fill="none" stroke="#FFFFFF" stroke-width="6"/>
-              <line x1="50" y1="32" x2="50" y2="15" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="63" y1="37" x2="75" y2="25" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="68" y1="50" x2="85" y2="50" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="63" y1="63" x2="75" y2="75" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="50" y1="68" x2="50" y2="85" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="37" y1="63" x2="25" y2="75" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="32" y1="50" x2="15" y2="50" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <line x1="37" y1="37" x2="25" y2="25" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="50" cy="15" r="7" fill="#FF5A4D"/>
-              <circle cx="75" cy="25" r="7" fill="#FFFFFF"/>
-              <circle cx="85" cy="50" r="7" fill="#FCA311"/>
-              <circle cx="75" cy="75" r="7" fill="#2C3A40" stroke="#FFFFFF" stroke-width="2"/>
-              <circle cx="50" cy="85" r="7" fill="#FF5A4D"/>
-              <circle cx="25" cy="75" r="7" fill="#FCA311"/>
-              <circle cx="15" cy="50" r="7" fill="#FFFFFF"/>
-              <circle cx="25" cy="25" r="7" fill="#2C3A40" stroke="#FFFFFF" stroke-width="2"/>
-            </svg>
-          </div>
-        </button>
+        <!-- BOTÓN DE USUARIO QUE ABRE PESTAÑA COMPLETA -->
+        <button id="btn-usuario-nombre" class="icon-btn" onclick="switchTab('usuario')">Líder</button>
       </div>
     </div>
 
-    <!-- PANEL DE TEMPORIZADOR FÁCIL -->
-    <div class="card card-temporizador card-full" id="panel-temporizador">
-      <h3 class="panel-header-small">
-        <div class="title-flex">
-          <div class="icon-26">
-             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="55" r="35" fill="none" stroke="#2C3A40" stroke-width="8"/>
-              <line x1="50" y1="55" x2="50" y2="30" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
-              <line x1="50" y1="55" x2="68" y2="55" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
-              <line x1="38" y1="15" x2="62" y2="15" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
-              <line x1="50" y1="15" x2="50" y2="20" stroke="#2C3A40" stroke-width="8" stroke-linecap="round"/>
-            </svg>
-          </div>
-          Gestión de Temporizadores
-        </div>
-        <button class="btn-close-panel" onclick="togglePanel('panel-temporizador')">×</button>
-      </h3>
-      <label>Nombre del Temporizador</label>
-      <input type="text" id="timer-nombre" placeholder="Ej: Revisión Post-Comida">
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-        <div><label>Minutos</label><input type="number" id="timer-minutos" placeholder="Ej: 30" inputmode="numeric"></div>
-        <div style="display: flex; align-items: flex-end;"><button class="btn-accent" style="margin-bottom: 15px; background: var(--turquoise-strong); height: 50px;" onclick="agregarTemporizadorPersonalizado()">Agregar</button></div>
-      </div>
-      
-      <h4 style="font-size: 15px; margin-bottom: 12px; color: var(--turquoise-strong); font-weight: 900;">Temporizadores Activos y Guardados:</h4>
-      <div id="lista-temporizadores"></div>
-    </div>
-
-    <!-- PANEL GRÁFICO ÉLITE -->
-    <div class="card card-panel-grafico card-full" id="panel-grafico">
-      <h3 class="panel-header-small">
-        <span class="title-flex">
-          <div class="icon-26">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
-          </div>
-          Panel Analítico
-        </span> 
-        <div class="title-flex">
-          <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Semana Actual</span>
-          <button class="btn-close-panel" onclick="togglePanel('panel-grafico')">×</button>
-        </div>
-      </h3>
-      <p style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;">Ciclo de visualización. Los puntos se agregan solos. (Toca los puntos para ver el nivel y la hora exactos):</p>
-      
-      <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 12px; text-align: center; overflow-x: auto; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
-        <canvas id="graficoPicos" style="width: 100%; height: 260px; display: block; cursor: pointer;"></canvas>
-        <div id="grafico-tooltip" style="display:none; position:absolute; background:var(--text-primary); color:var(--text-inverse); padding:8px 14px; border-radius:10px; font-size:13px; font-weight:900; pointer-events:none; transform:translate(-50%, -120%); box-shadow:0 8px 20px rgba(0,0,0,0.25); z-index:10; white-space:nowrap;"></div>
-      </div>
-      
-      <div id="barras-mensuales" style="margin-top: 28px; padding-top: 24px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
-
-      <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 24px;" onclick="togglePanel('panel-grafico')">  Cerrar Panel</button>
-    </div>
-
-    <!-- PANEL DE CITAS -->
-    <div class="card card-citas card-full" id="panel-citas">
-      <h3 class="panel-header-small">
-        <div class="title-flex">
-          <div class="icon-26">
-             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="50" cy="85" r="8" fill="#E85D75"/>
-              <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
-              <circle cx="80" cy="45" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/>
-            </svg>
-          </div>
-          Agregar cita
-        </div>
-        <button class="btn-close-panel" onclick="togglePanel('panel-citas')">×</button>
-      </h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-        <div><label>Fecha</label><input type="date" id="cita-fecha"></div>
-        <div><label>Hora</label><input type="time" id="cita-hora"></div>
-      </div>
-      <label>Especialista</label><input type="text" id="cita-especialista" placeholder="Endocrinólogo, Pediatra...">
-      <button class="btn-accent" style="margin-bottom: 24px; background: var(--turquoise-strong); display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px;" onclick="agregarCita()">
-        <div class="icon-24">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="50" cy="85" r="8" fill="#E85D75"/>
-            <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
-            <circle cx="80" cy="45" r="8" fill="#FFFFFF"/>
-          </svg>
-        </div>
-        Agendar
-      </button>
-      <h4 style="font-size: 15px; margin-bottom: 12px; color: var(--turquoise-soft); font-weight: 900;">Citas pendientes:</h4>
-      <div id="lista-citas"></div>
-    </div>
-
-    <!-- AVATARES (CUADRÍCULA ÉLITE) -->
-    <div class="card card-avatars card-full" id="panel-avatars">
-      <h3 class="panel-header-small">
-        <span>  Bestias de Poder</span>
-        <div class="title-flex">
-          <span style="font-size: 13px; color: var(--text-primary); font-weight: 800; background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: 12px;">Recompensas</span>
-          <button class="btn-close-panel" onclick="togglePanel('panel-avatars')">×</button>
-        </div>
-      </h3>
-      <div id="avatars-grid-container" class="avatars-grid"></div>
-      <p style="font-size: 13px; text-align:center; color: var(--text-primary); margin-bottom:10px; font-weight: 800; margin-top: 18px;">Nota: El líder equipa la excelencia.</p>
-    </div>
-
-    <!-- PANEL DE USUARIO -->
-    <div class="card card-settings card-full" id="panel-usuario">
-      <h3 class="panel-header-small">
-        Perfil de Líder
-        <button class="btn-close-panel" onclick="togglePanel('panel-usuario')">×</button>
-      </h3>
-      <label>Cambiar Nombre Visible</label>
-      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-        <input type="text" id="input-nuevo-nombre" placeholder="Ej: Deivis" style="margin-bottom: 0; flex: 1;">
-        <button class="btn-accent" style="margin-top: 0; width: auto; padding: 0 20px; background: var(--turquoise-strong);" onclick="guardarNombreUsuario()">Guardar</button>
-      </div>
-      
-      <button class="btn-save bg-rojo-alerta" style="margin-top: 0;" onclick="cerrarSesion()">Cerrar Sesión Segura</button>
-    </div>
-
-    <!-- PANEL DE CONFIGURACIÓN -->
-    <div class="card card-settings card-full" id="panel-config">
-      <h3 class="panel-header-small">
-        <div class="title-flex">
-          <div class="icon-26">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="6" fill="#2C3A40"/>
-              <circle cx="50" cy="50" r="18" fill="none" stroke="#2C3A40" stroke-width="6"/>
-              <line x1="50" y1="32" x2="50" y2="15" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="63" y1="37" x2="75" y2="25" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="68" y1="50" x2="85" y2="50" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="63" y1="63" x2="75" y2="75" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="50" y1="68" x2="50" y2="85" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="37" y1="63" x2="25" y2="75" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="32" y1="50" x2="15" y2="50" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <line x1="37" y1="37" x2="25" y2="25" stroke="#2C3A40" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="50" cy="15" r="7" fill="#FF5A4D"/>
-              <circle cx="75" cy="25" r="7" fill="#FFFFFF" stroke="#2C3A40" stroke-width="1.5"/>
-              <circle cx="85" cy="50" r="7" fill="#FCA311"/>
-              <circle cx="75" cy="75" r="7" fill="#2C3A40"/>
-              <circle cx="50" cy="85" r="7" fill="#FF5A4D"/>
-              <circle cx="25" cy="75" r="7" fill="#FCA311"/>
-              <circle cx="15" cy="50" r="7" fill="#FFFFFF" stroke="#2C3A40" stroke-width="1.5"/>
-              <circle cx="25" cy="25" r="7" fill="#2C3A40"/>
-            </svg>
-          </div>
-          Esquema actual
-        </div>
-        <button class="btn-close-panel" onclick="togglePanel('panel-config')">×</button>
-      </h3>
-      
-      <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
-      
-      <button class="btn-save" style="background: var(--turquoise-strong); color: white; margin-bottom: 18px; font-weight: 900;" onclick="solicitarPermisoNotificaciones()">  Activar Notificaciones Push</button>
-
-      <label>  Peso de Polar (kg)</label>
-      <input type="number" id="cfg-peso" value="50" inputmode="numeric" style="margin-bottom: 18px;">
-      
-      <label>  Toujeo / Baja</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric" style="margin-bottom: 12px;">
-      <label>  Factor Corrección (1U baja X mg/dL)</label><input type="number" id="cfg-fc" value="30" inputmode="numeric" style="margin-bottom: 8px;">
-      
-      <h3 style="font-size: 16px; margin-top:24px;">  Objetivos de Energía (Metas)</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
-        <div><label>Antes Comer</label><input type="number" id="cfg-meta-antes" value="100" inputmode="numeric"></div>
-        <div><label>Corrección</label><input type="number" id="cfg-meta-cor" value="150" inputmode="numeric"></div>
-      </div>
-      
-      <h3 style="font-size: 16px; margin-top:12px;">Ratios (Comida para Polar por 1U)</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
-        <div><label>  Desayuno</label><input type="number" id="cfg-r-desayuno" value="4" inputmode="numeric" onchange="actualizarTextosComida()"></div>
-        <div><label>  Once</label><input type="number" id="cfg-r-mam" value="0" inputmode="numeric" onchange="actualizarTextosComida()"></div>
-        <div><label>  Almuerzo</label><input type="number" id="cfg-r-alm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
-        <div><label>  Merienda PM</label><input type="number" id="cfg-r-mpm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
-        <div style="grid-column: span 2;"><label>  Cena</label><input type="number" id="cfg-r-cena" value="14" inputmode="numeric" onchange="actualizarTextosComida()"></div>
-      </div>
-
-      <select id="cfg-tema" onchange="cambiarTema()" style="margin-top: 24px; margin-bottom: 24px; font-weight: 800;">
-        <option value="elite">  Polar Élite (Oficial V5)</option>
-        <option value="original">  Polar Ice (Clásico)</option>
-        <option value="oscuro">  Tema Negro (Modo Oscuro)</option>
-        <option value="blanco">  Tema Blanco (Modo Claro)</option>
-        <option value="halloween">  Halloween</option>
-        <option value="mustard_jet">  Jet & Mustard</option>
-        <option value="moonstone_orange">  Moonstone & Orange</option>
-        <option value="persian_carrot">  Persian Blue & Carrot</option>
-        <option value="mellow_cornflower">  Cornflower & Citron</option>
-      </select>
-
-      <h3 style="font-size: 16px; margin-top:24px;">Llamadas de Emergencia Rápidas</h3>
-      <a href="tel:131" id="btn-llamar-emergencia" class="btn-emergency" style="margin-top: 0; margin-bottom: 12px; padding: 18px; font-size: 18px;">LLAMAR EMERGENCIA</a>
-      <a href="tel:973808283" id="btn-llamar-papa" class="btn-papa" style="margin-top: 0; margin-bottom: 24px; padding: 18px; font-size: 18px;">LLAMAR PAPÁ O MAMÁ</a>
-
-      <h3 style="font-size: 16px; margin-top:24px;">  Números de Emergencia</h3>
-      <label>  Ambulancia / Rescate</label><input type="tel" id="cfg-tel-emergencia" value="131" class="input-emergencia bg-rojo-alerta">
-      <label>  Teléfono Papá</label><input type="tel" id="cfg-tel-papa" value="973808283" class="input-emergencia bg-blanco-sombra">
-      
-      <button id="btn-guardar-config" class="btn-accent" style="margin-top: 18px; background: var(--turquoise-strong); padding: 16px; font-size: 18px; border-radius: 16px;" onclick="guardarConfig()">  Guardar</button>
-    </div>
-
-    <!-- MAIN GRID (CALCULADORA) -->
-    <div class="grid">
+    <!-- MAIN GRID (CALCULADORA ÉLITE - INICIO) -->
+    <div class="grid" id="main-calculator">
       <div class="card card-meal card-full">
         <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
-        <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true';">
+        <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true'; calcular(false);">
           <option value="desayuno">DESAYUNO</option><option value="mam">ONCE</option><option value="almuerzo">ALMUERZO</option><option value="mpm">MERIENDA TARDE</option><option value="cena">CENA</option><option value="corroborar">CORROBORAR</option>
         </select>
       </div>
 
       <div class="card card-glucose">
         <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
-        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar()">
+        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); calcular(true); autoFocoCarbos()">
         <label for="meta" class="label-small" style="color: inherit; font-size: 14px;">  Nivel ideal:</label>
-        <select id="meta" class="select-small"></select>
+        <select id="meta" class="select-small" onchange="calcular(true)"></select>
       </div>
 
       <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
         <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
-        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()">
+        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar(); calcular(true)">
+        
         <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
         <input type="hidden" id="ejercicio" value="1">
-        <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 18px; font-size: 14px; margin: 0; border: none; box-shadow: 0 6px 15px rgba(0,0,0,0.15); background: #4CAF50 !important; color: #FFFFFF !important;" onclick="ciclarEjercicio()">No, estará tranquilo</button>
+        <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
+      </div>
+      
+      <!-- EXCELENCIA: Contenedor de resultado dinámico alineado al grid sin sobreponerse (no es fixed) -->
+      <div id="resultado" class="result-box"></div>
+    </div>
+
+    <!-- PANELES DE NAVEGACIÓN COMPLETOS -->
+
+    <!-- VISTA GRÁFICAS (Analítico solo) -->
+    <div id="view-graficas" style="display: none;">
+      <div class="card card-panel-grafico card-full" id="panel-grafico" style="display: block; margin-bottom: 20px;">
+        <h3 class="panel-header-small">
+          <span class="title-flex">
+            <div class="icon-26">
+              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
+            </div>
+            Panel Analítico
+          </span> 
+          <div class="title-flex">
+            <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Semana Actual</span>
+          </div>
+        </h3>
+        <p style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;">Toca los puntos en la curva para ver el nivel y hora exactos:</p>
+        
+        <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 12px; text-align: center; overflow-x: auto; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
+          <canvas id="graficoPicos" style="width: 100%; height: 260px; display: block; cursor: pointer;"></canvas>
+          <div id="grafico-tooltip" style="display:none; position:absolute; background:var(--text-primary); color:var(--text-inverse); padding:8px 14px; border-radius:10px; font-size:13px; font-weight:900; pointer-events:none; transform:translate(-50%, -120%); box-shadow:0 8px 20px rgba(0,0,0,0.25); z-index:10; white-space:nowrap;"></div>
+        </div>
+        
+        <div id="barras-mensuales" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
       </div>
     </div>
 
-    <button class="btn-main" onclick="calcular()">  Medir gemas</button>
+    <!-- VISTA HISTORIAL (Guardados solo) -->
+    <div id="view-historial" style="display: none;">
+      <div class="historial-box" id="panel-historial" style="display: block; margin-top: 0;">
+        <h3 class="panel-header-small" style="font-size: 22px;">
+          <div class="title-flex">
+             <div class="icon-26">
+               <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
+             </div>
+             Guardados
+          </div>
+        </h3>
+        <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
+        <div id="lista-historial"></div>
+        <button id="btn-borrar-historial" class="btn-save bg-rojo-alerta" style="margin-top: 18px; width: 100%; font-size: 15px;" onclick="borrarHistorialCompleto()">Borrar Todo el Historial</button>
+      </div>
+    </div>
 
-    <div id="resultado" class="result-box"></div>
-
-    <div id="panel-historial" class="historial-box">
-      <h3 class="panel-header-small" style="font-size: 22px;">
-        <div class="title-flex">
-           <div class="icon-26">
-             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
-           </div>
-           Guardados
+    <!-- PANEL CITAS -->
+    <div id="view-citas" style="display: none;">
+      <div class="card card-citas card-full" id="panel-citas" style="display: block;">
+        <h3 class="panel-header-small">
+          <div class="title-flex">
+            <div class="icon-26">
+               <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 50 85 L 20 45 C 5 20, 35 10, 50 30 C 65 10, 95 20, 80 45 Z" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="50" cy="85" r="8" fill="#E85D75"/>
+                <circle cx="20" cy="45" r="8" fill="#F9A03F"/>
+                <circle cx="80" cy="45" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/>
+              </svg>
+            </div>
+            Agregar cita
+          </div>
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div><label>Fecha</label><input type="date" id="cita-fecha"></div>
+          <div><label>Hora</label><input type="time" id="cita-hora"></div>
         </div>
-        <button class="btn-close-panel" onclick="toggleHistorial()">×</button>
-      </h3>
-      <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
-      <div id="estado-sync" onclick="sincronizarAhora()" style="cursor: pointer; text-align: center; font-size: 13px; font-weight: 800; padding: 10px 12px; margin-bottom: 14px; border-radius: 14px; background: rgba(0,0,0,0.05); color: var(--text-primary);">Toca para sincronizar con la nube.</div>
-      <div id="lista-historial"></div>
+        <label>Especialista</label><input type="text" id="cita-especialista" placeholder="Endocrinólogo, Pediatra...">
+        <button class="btn-accent" style="margin-bottom: 24px; background: var(--turquoise-strong); display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px;" onclick="agregarCita()">Agendar</button>
+        <h4 style="font-size: 15px; margin-bottom: 12px; color: var(--turquoise-soft); font-weight: 900;">Citas pendientes:</h4>
+        <div id="lista-citas"></div>
+      </div>
+    </div>
 
-      <!-- BOTONES COMPACTOS LADO A LADO -->
-      <div style="display: flex; gap: 12px; margin-top: 18px;">
-        <button class="btn-save" style="background: var(--turquoise-strong); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="sincronizarAhora()">Sincronizar</button>
-        <button id="btn-borrar-historial" class="btn-save bg-rojo-alerta" style="margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="borrarHistorialCompleto()">Borrar</button>
-        <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 0; margin-bottom: 0; flex: 1; font-size: 15px;" onclick="toggleHistorial()">Cerrar</button>
+    <!-- PANEL DE CONFIGURACIÓN (Reducido) -->
+    <div id="view-config" style="display: none;">
+      <div class="card card-settings card-full" id="panel-config" style="display: block;">
+        <h3 class="panel-header-small">
+          <div class="title-flex">
+            <div class="icon-26">
+              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="18" fill="none" stroke="#2C3A40" stroke-width="6"/>
+                <circle cx="50" cy="15" r="7" fill="#FF5A4D"/>
+                <circle cx="75" cy="25" r="7" fill="#FFFFFF" stroke="#2C3A40" stroke-width="1.5"/>
+                <circle cx="85" cy="50" r="7" fill="#FCA311"/>
+              </svg>
+            </div>
+            Esquema actual
+          </div>
+        </h3>
+        
+        <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 10px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div><label>Peso Polar (kg)</label><input type="number" id="cfg-peso" value="50" inputmode="numeric"></div>
+          <div><label>Toujeo</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric"></div>
+          <div style="grid-column: span 2;"><label>F. Corrección (1U baja X)</label><input type="number" id="cfg-fc" value="30" inputmode="numeric"></div>
+        </div>
+        
+        <h3>Objetivos (Metas)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div><label>Antes Comer</label><input type="number" id="cfg-meta-antes" value="100" inputmode="numeric"></div>
+          <div><label>Corrección</label><input type="number" id="cfg-meta-cor" value="150" inputmode="numeric"></div>
+        </div>
+        
+        <h3>Ratios (Por 1U)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div><label>Desayuno</label><input type="number" id="cfg-r-desayuno" value="4" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+          <div><label>Once</label><input type="number" id="cfg-r-mam" value="0" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+          <div><label>Almuerzo</label><input type="number" id="cfg-r-alm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+          <div><label>Merienda PM</label><input type="number" id="cfg-r-mpm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+          <div style="grid-column: span 2;"><label>Cena</label><input type="number" id="cfg-r-cena" value="14" inputmode="numeric" onchange="actualizarTextosComida()"></div>
+        </div>
+
+        <select id="cfg-tema" onchange="cambiarTema()" style="margin-top: 12px; margin-bottom: 12px; font-weight: 800;">
+          <option value="elite">  Polar Élite (Oficial V5)</option>
+          <option value="original">  Polar Ice (Clásico)</option>
+          <option value="oscuro">  Tema Negro (Modo Oscuro)</option>
+          <option value="halloween">  Halloween</option>
+        </select>
+
+        <h3>Emergencias</h3>
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <a href="tel:131" id="btn-llamar-emergencia" class="btn-emergency" style="flex:1;">LLAMAR<br>AMBULANCIA</a>
+          <a href="tel:973808283" id="btn-llamar-papa" class="btn-papa" style="flex:1;">LLAMAR<br>PAPÁ / MAMÁ</a>
+        </div>
+
+        <label>Ambulancia</label><input type="tel" id="cfg-tel-emergencia" value="131" class="input-emergencia bg-rojo-alerta">
+        <label>Teléfono Familia</label><input type="tel" id="cfg-tel-papa" value="973808283" class="input-emergencia bg-blanco-sombra">
+        
+        <button id="btn-guardar-config" class="btn-accent" style="margin-top: 10px; background: var(--turquoise-strong); padding: 12px; font-size: 16px; border-radius: 12px;" onclick="guardarConfig()">Guardar Todo</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA COMPLETA AVATARES -->
+    <div id="view-avatars" style="display: none;">
+      <div class="card card-avatars card-full" id="panel-avatars" style="display: block;">
+        <h3 class="panel-header-small">
+          <span>  Bestias de Poder</span>
+          <div class="title-flex">
+            <button class="btn-close-panel" onclick="switchTab('home')">×</button>
+          </div>
+        </h3>
+        <div id="avatars-grid-container" class="avatars-grid"></div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA COMPLETA USUARIO -->
+    <div id="view-usuario" style="display: none;">
+      <div class="card card-settings card-full" id="panel-usuario" style="display: block;">
+        <h3 class="panel-header-small">
+          Perfil de Líder
+          <button class="btn-close-panel" onclick="switchTab('home')">×</button>
+        </h3>
+        <label>Cambiar Nombre Visible</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <input type="text" id="input-nuevo-nombre" placeholder="Ej: Deivis" style="margin-bottom: 0; flex: 1;">
+          <button class="btn-accent" style="margin-top: 0; width: auto; padding: 0 20px; background: var(--turquoise-strong);" onclick="guardarNombreUsuario()">Guardar</button>
+        </div>
+        <button class="btn-save bg-rojo-alerta" style="margin-top: 0;" onclick="cerrarSesion()">Cerrar Sesión Segura</button>
       </div>
     </div>
 
   </div> <!-- Cierre App Container -->
+
+  <!-- EXCELENCIA: BARRA DE NAVEGACIÓN INFERIOR DIVIDIDA -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </div>
+    <!-- Botón panel de gráficas -->
+    <div class="nav-item" id="nav-graficas" onclick="switchTab('graficas')">
+      <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </div>
+    <!-- Nuevo botón historial (lista) -->
+    <div class="nav-item" id="nav-historial" onclick="switchTab('historial')">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+    </div>
+    <div class="nav-item" id="nav-citas" onclick="switchTab('citas')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    </div>
+    <div class="nav-item" id="nav-config" onclick="switchTab('config')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </div>
+  </div>
+
 </div> <!-- Cierre Main App -->
 
 <script>
   /* ====== INICIALIZAR SUPABASE ====== */
   const { createClient } = supabase;
-  
   const supabaseUrl = 'https://rgwawwdldqodzmsizean.supabase.co'; 
   const supabaseKey = 'sb_publishable_-4Q07zNvB5Ep9fLwIZW6Yw_axmOPTM7';
-  
   const polarDb = createClient(supabaseUrl, supabaseKey);
 
-  /* ====== EXCELENCIA: GESTIÓN DE COLA OFFLINE Y SINCRONIZACIÓN ====== */
-  const CLAVE_HISTORIAL = 'historial_polar';
-  const CLAVE_COLA = 'polar_cola_sync';
-  const DIAS_MAX_SUBIDA = 30; // no resucitamos registros que la limpieza mensual ya borró de la nube
-  let sincronizandoAhora = false;
-  let ultimoErrorSync = '';
+  /* ====== EXCELENCIA: NAVEGADOR INFERIOR ====== */
+  function switchTab(tabId) {
+    // 1. Ocultar todas las vistas
+    document.getElementById('main-calculator').style.display = 'none';
+    document.getElementById('view-graficas').style.display = 'none';
+    document.getElementById('view-historial').style.display = 'none';
+    document.getElementById('view-citas').style.display = 'none';
+    document.getElementById('view-config').style.display = 'none';
+    document.getElementById('view-avatars').style.display = 'none';
+    document.getElementById('view-usuario').style.display = 'none';
 
-  function leerJSON(clave, porDefecto) {
-    try { return JSON.parse(localStorage.getItem(clave) || porDefecto); }
-    catch (e) { return JSON.parse(porDefecto); }
-  }
+    // 2. Quitar clase active de todos los iconos de la barra inferior
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-  function fechaLocalISODesde(fecha) {
-    const tzOffset = fecha.getTimezoneOffset() * 60000;
-    return new Date(fecha.getTime() - tzOffset).toISOString().split('T')[0];
-  }
-
-  function tiempoDeRegistro(item) {
-    if (item.timestamp) return Number(item.timestamp);
-    if (item.created_at) return new Date(item.created_at).getTime();
-    if (item.iso) return new Date(item.iso + 'T00:00:00').getTime();
-    return 0;
-  }
-
-  // Identidad de un registro sin depender de columnas nuevas en la base de datos.
-  function huellaRegistro(item, minutoForzado) {
-    const minuto = (typeof minutoForzado === 'number') ? minutoForzado : Math.floor(tiempoDeRegistro(item) / 60000);
-    const comida = item.tipoComida || item.tipo_comida || '';
-    return [minuto, comida, Number(item.glucosa) || 0, Number(item.carbos) || 0, Number(item.dosis) || 0].join('|');
-  }
-
-  // El reloj del equipo y el del servidor nunca son idénticos: toleramos ±1 minuto.
-  function existeEnNube(item, huellasNube) {
-    const minuto = Math.floor(tiempoDeRegistro(item) / 60000);
-    return huellasNube.has(huellaRegistro(item, minuto - 1)) ||
-           huellasNube.has(huellaRegistro(item, minuto)) ||
-           huellasNube.has(huellaRegistro(item, minuto + 1));
-  }
-
-  function registrarHuella(huellas, item) {
-    const minuto = Math.floor(tiempoDeRegistro(item) / 60000);
-    huellas.add(huellaRegistro(item, minuto));
-  }
-
-  function registroDesdeNube(fila) {
-    const d = new Date(fila.created_at);
-    return {
-      fecha: d.toLocaleString('es-CL'),
-      iso: fechaLocalISODesde(d),
-      dosis: fila.dosis,
-      glucosa: fila.glucosa,
-      carbos: fila.carbos,
-      tipoComida: fila.tipo_comida,
-      timestamp: d.getTime(),
-      subido: true
-    };
-  }
-
-  function filaParaNube(item, userId) {
-    const d = new Date(tiempoDeRegistro(item));
-    return {
-      paciente_id: userId,
-      glucosa: item.glucosa,
-      carbos: item.carbos,
-      dosis: item.dosis,
-      tipo_comida: item.tipoComida || item.tipo_comida || null,
-      created_at: d.toISOString()
-    };
-  }
-
-  function contarPendientes() {
-    const historial = leerJSON(CLAVE_HISTORIAL, '[]');
-    return historial.filter(r => r.subido !== true).length;
-  }
-
-  /* La sesión real vive en Supabase, no en la bandera de localStorage.
-     Si el token expiró, la app parecía conectada pero la nube rechazaba
-     cada registro en silencio: ese es el origen del historial que no viaja. */
-  async function obtenerSesionValida() {
-    try {
-      const { data, error } = await polarDb.auth.getSession();
-      if (error) return null;
-      const sesion = data ? data.session : null;
-      if (sesion && sesion.user && sesion.user.id) {
-        localStorage.setItem('polar_user_id', sesion.user.id);
-        return sesion;
+    // 3. Activar la vista y el ícono correspondiente
+    if (tabId === 'home') {
+      document.getElementById('main-calculator').style.display = 'grid'; 
+      document.getElementById('nav-home').classList.add('active');
+      
+      if(document.getElementById('glucosa').value !== '' || document.getElementById('carbos').value !== '') {
+         calcular(true);
       }
-      return null;
-    } catch (e) {
-      return null;
+    } 
+    else if (tabId === 'graficas') {
+      document.getElementById('view-graficas').style.display = 'block';
+      document.getElementById('nav-graficas').classList.add('active');
+      renderGraficoPicos();
+    } 
+    else if (tabId === 'historial') {
+      document.getElementById('view-historial').style.display = 'block';
+      document.getElementById('nav-historial').classList.add('active');
+      actualizarVistaHistorial();
+    } 
+    else if (tabId === 'citas') {
+      document.getElementById('view-citas').style.display = 'block';
+      document.getElementById('nav-citas').classList.add('active');
+      renderCitas();
+    } 
+    else if (tabId === 'config') {
+      document.getElementById('view-config').style.display = 'block';
+      document.getElementById('nav-config').classList.add('active');
+    }
+    else if (tabId === 'avatars') {
+      document.getElementById('view-avatars').style.display = 'block';
+      renderAvatarPanel();
+    }
+    else if (tabId === 'usuario') {
+      document.getElementById('view-usuario').style.display = 'block';
     }
   }
 
-  function pintarEstadoSync(texto, color) {
-    const caja = document.getElementById('estado-sync');
-    if (!caja) return;
-    caja.innerHTML = texto;
-    caja.style.color = color || 'var(--text-primary)';
-  }
-
-  function actualizarEstadoSync(estado, detalle) {
-    const pendientes = contarPendientes();
-    const motivo = detalle || ultimoErrorSync;
-    if (estado === 'sincronizando') return pintarEstadoSync('Sincronizando con la nube...', 'var(--turquoise-strong)');
-    if (estado === 'sin-sesion') return pintarEstadoSync('Sesión caducada: vuelve a iniciar sesión para sincronizar.', '#D64545');
-    if (estado === 'sin-conexion') return pintarEstadoSync(`Sin conexión. ${pendientes} registro(s) esperan para subir.`, '#D68A45');
-    if (estado === 'error') return pintarEstadoSync(`No se pudo sincronizar${motivo ? ': ' + motivo : ''}. Toca para reintentar.`, '#D64545');
-    if (pendientes > 0) return pintarEstadoSync(`${pendientes} registro(s) sin subir. Toca para reintentar.`, '#D68A45');
-    return pintarEstadoSync('Todo sincronizado en la nube. Toca para actualizar.', 'var(--turquoise-strong)');
-  }
-
-  function refrescarVistasHistorial() {
-    if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
-    const panelHistorial = document.getElementById('panel-historial');
-    if (panelHistorial && panelHistorial.style.display === 'block') {
-      if (typeof actualizarVistaHistorial === 'function') actualizarVistaHistorial();
-    }
-  }
-
-  // Sube la cola offline registro por registro: un dato malo ya no bloquea a los demás.
-  async function procesarColaOffline(userId) {
-    if (!navigator.onLine) return;
-    const cola = leerJSON(CLAVE_COLA, '[]');
-    if (cola.length === 0) return;
-
-    const quedanEnCola = [];
-    for (const fila of cola) {
-      const filaConDueno = Object.assign({}, fila, { paciente_id: fila.paciente_id || userId });
-      const { error } = await polarDb.from('historial_polar').insert([filaConDueno]);
-      if (error) {
-        console.warn('Registro en cola no pudo subirse:', error.message);
-        ultimoErrorSync = error.message;
-        quedanEnCola.push(fila);
-      }
-    }
-
-    if (quedanEnCola.length === 0) localStorage.removeItem(CLAVE_COLA);
-    else localStorage.setItem(CLAVE_COLA, JSON.stringify(quedanEnCola));
-  }
-
-  /* Recupera los registros que quedaron sólo en este equipo (guardados mientras la
-     nube rechazaba la escritura o antes de que existiera la sincronización). */
-  async function subirRegistrosHuerfanos(userId, historialLocal, huellasNube) {
-    const limite = Date.now() - (DIAS_MAX_SUBIDA * 24 * 60 * 60 * 1000);
-    const candidatos = historialLocal.filter(r =>
-      r.subido !== true &&
-      tiempoDeRegistro(r) >= limite &&
-      !existeEnNube(r, huellasNube)
-    );
-
-    const subidos = [];
-    for (const item of candidatos) {
-      const { error } = await polarDb.from('historial_polar').insert([filaParaNube(item, userId)]);
-      if (error) {
-        console.warn('No se pudo subir un registro local:', error.message);
-        ultimoErrorSync = error.message;
-        continue;
-      }
-      const subido = Object.assign({}, item, { subido: true });
-      subidos.push(subido);
-      registrarHuella(huellasNube, subido);
-    }
-    if (subidos.length > 0) console.log(`Se recuperaron ${subidos.length} registro(s) locales hacia la nube.`);
-    return subidos;
-  }
-
+  /* ====== GESTIÓN DE COLA OFFLINE Y SINCRONIZACIÓN ====== */
   async function sincronizarDatosNube() {
-    if (sincronizandoAhora) return;
-    sincronizandoAhora = true;
-    try {
-      const sesion = await obtenerSesionValida();
-      if (!sesion) { actualizarEstadoSync('sin-sesion'); return; }
-      const userId = sesion.user.id;
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) return;
 
-      if (!navigator.onLine) { actualizarEstadoSync('sin-conexion'); return; }
-      actualizarEstadoSync('sincronizando');
+    await procesarColaOffline();
 
-      await procesarColaOffline(userId);
+    const { data, error } = await polarDb
+      .from('historial_polar')
+      .select('*')
+      .eq('paciente_id', userId)
+      .order('created_at', { ascending: true }); 
 
-      const { data, error } = await polarDb
-        .from('historial_polar')
-        .select('*')
-        .eq('paciente_id', userId)
-        .order('created_at', { ascending: true });
+    if (error) {
+      console.error("Fallo en la sincronización:", error.message);
+      return;
+    }
 
-      // Si la descarga falla no tocamos nada: jamás borramos lo que sí está en el equipo.
-      if (error) {
-        console.error('Fallo en la sincronización:', error.message);
-        ultimoErrorSync = error.message;
-        actualizarEstadoSync('error', error.message);
-        return;
-      }
-
-      const historialLocal = leerJSON(CLAVE_HISTORIAL, '[]');
-      const registrosNube = (data || []).map(registroDesdeNube);
-      const huellasNube = new Set();
-      registrosNube.forEach(r => registrarHuella(huellasNube, r));
-
-      const recuperados = await subirRegistrosHuerfanos(userId, historialLocal, huellasNube);
-
-      // Fusión: la nube manda sobre lo ya subido (así se propagan los borrados),
-      // y lo que todavía no viajó se conserva marcado como pendiente.
-      // Dos seguros para no perder nunca una medición:
-      //  - si la nube responde vacía, no borramos nada de este equipo;
-      //  - lo recién subido se respeta unos minutos por si la nube aún no lo devuelve.
-      const nubeRespondioConDatos = registrosNube.length > 0;
-      const margenReciente = Date.now() - (5 * 60 * 1000);
-
-      const fusion = new Map();
-      registrosNube.concat(recuperados).forEach(r => fusion.set(huellaRegistro(r), r));
-      historialLocal.forEach(r => {
-        if (existeEnNube(r, huellasNube)) return;
-        const clave = huellaRegistro(r);
-        if (fusion.has(clave)) return;
-        if (r.subido === true) {
-          const esReciente = tiempoDeRegistro(r) >= margenReciente;
-          if (nubeRespondioConDatos && !esReciente) return; // borrado desde otro equipo
-          fusion.set(clave, r);
-          return;
-        }
-        fusion.set(clave, Object.assign({}, r, { subido: false }));
+    if (data && data.length > 0) {
+      const historialDescargado = data.map(dbItem => {
+        const d = new Date(dbItem.created_at);
+        return {
+          fecha: d.toLocaleString('es-CL'),
+          iso: d.toISOString().split('T')[0],
+          dosis: dbItem.dosis,
+          glucosa: dbItem.glucosa,
+          carbos: dbItem.carbos,
+          tipoComida: dbItem.tipo_comida,
+          timestamp: d.getTime()
+        };
       });
 
-      const historialFusionado = Array.from(fusion.values())
-        .sort((a, b) => tiempoDeRegistro(a) - tiempoDeRegistro(b));
+      localStorage.setItem('historial_polar', JSON.stringify(historialDescargado));
 
-      localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historialFusionado));
-
-      if (contarPendientes() === 0) ultimoErrorSync = '';
-      refrescarVistasHistorial();
-      actualizarEstadoSync('ok');
-    } catch (e) {
-      console.error('Error inesperado al sincronizar:', e);
-      actualizarEstadoSync('error', e && e.message);
-    } finally {
-      sincronizandoAhora = false;
+      if (typeof renderGraficoPicos === 'function') renderGraficoPicos();
+      if (document.getElementById('view-historial').style.display === 'block') {
+        if (typeof actualizarVistaHistorial === 'function') actualizarVistaHistorial();
+      }
     }
   }
 
-  async function sincronizarAhora() {
-    await sincronizarDatosNube();
-    refrescarVistasHistorial();
-  }
-
-  window.addEventListener('online', () => sincronizarDatosNube());
-  window.addEventListener('focus', () => { if (localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube(); });
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube();
-  });
-  setInterval(() => {
-    if (document.visibilityState === 'visible' && localStorage.getItem('polar_session_activa') === 'true') sincronizarDatosNube();
-  }, 60000);
-
-  // Mantiene el identificador del líder alineado con la sesión real de Supabase.
-  polarDb.auth.onAuthStateChange((evento, sesion) => {
-    if (sesion && sesion.user) {
-      localStorage.setItem('polar_user_id', sesion.user.id);
-      if (evento === 'TOKEN_REFRESHED') sincronizarDatosNube();
+  async function procesarColaOffline() {
+    if(!navigator.onLine) return;
+    let cola = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
+    if(cola.length === 0) return;
+    
+    const { error } = await polarDb.from('historial_polar').insert(cola);
+    if(!error) {
+       localStorage.removeItem('polar_cola_sync');
+       console.log("Datos offline subidos con éxito.");
     }
-  });
+  }
+  window.addEventListener('online', procesarColaOffline);
 
-  // === REVISIÓN DE REGISTROS ANTIGUOS (30 DÍAS) ===
   async function revisarRegistrosAntiguos() {
-    const sesion = await obtenerSesionValida();
-    const userId = sesion ? sesion.user.id : null;
+    const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
 
     const fechaLimite = new Date();
@@ -934,7 +741,7 @@
 
   /* ====== LÓGICA DE ACCESO ====== */
   function verificarSesion() {
-    const session = localStorage.getItem('polar_session_activa');
+    const session = localStorage.getItem('polar_session_activa'); 
     if (session === 'true') {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('main-app').style.display = 'block';
@@ -942,28 +749,6 @@
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('main-app').style.display = 'none';
     }
-  }
-
-  /* Comprueba que la sesión de Supabase siga viva. Sin esto la app podía verse
-     conectada durante semanas mientras la nube rechazaba cada registro. */
-  async function verificarSesionSegura() {
-    if (localStorage.getItem('polar_session_activa') !== 'true') { verificarSesion(); return; }
-
-    const sesion = await obtenerSesionValida();
-    if (!sesion) {
-      // Nunca borramos el historial local aquí: los registros sin subir deben sobrevivir.
-      localStorage.removeItem('polar_session_activa');
-      verificarSesion();
-      const pendientes = contarPendientes();
-      alert(pendientes > 0
-        ? `Líder, tu sesión caducó en este equipo. Vuelve a iniciar sesión: tienes ${pendientes} registro(s) guardados aquí que se subirán a la nube al entrar.`
-        : 'Líder, tu sesión caducó en este equipo. Vuelve a iniciar sesión para recuperar tu historial de la nube.');
-      return;
-    }
-
-    verificarSesion();
-    cargarNombreUsuario();
-    await sincronizarDatosNube();
   }
 
   async function validarAcceso() {
@@ -984,18 +769,9 @@
       alert("Acceso Denegado. Verifica el correo o la contraseña.");
       document.getElementById('login-pass').value = '';
     } else {
-      // Si en este equipo estuvo otra de las cuentas, su historial local no debe
-      // mezclarse ni subirse bajo el nuevo líder.
-      const idAnterior = localStorage.getItem('polar_user_id');
-      if (idAnterior && idAnterior !== data.user.id) {
-        localStorage.removeItem('historial_polar');
-        localStorage.removeItem('citas_polar');
-        localStorage.removeItem('temporizadores_polar');
-      }
-
       localStorage.setItem('polar_session_activa', 'true');
       localStorage.setItem('polar_rol', data.user.email);
-      localStorage.setItem('polar_user_id', data.user.id);
+      localStorage.setItem('polar_user_id', data.user.id); 
       
       const meta = data.user.user_metadata || {};
       if(meta.nombre_lider) {
@@ -1020,50 +796,33 @@
   }
 
   async function cerrarSesion() {
-    const pendientes = contarPendientes();
-    if (pendientes > 0) {
-      if (navigator.onLine) await sincronizarDatosNube();
-      if (contarPendientes() > 0) {
-        if (!confirm(`Líder, quedan ${contarPendientes()} registro(s) sin subir a la nube. Si cierras sesión ahora se perderán. ¿Cerrar de todas formas?`)) return;
-      }
-    }
-
     await polarDb.auth.signOut();
     localStorage.removeItem('polar_session_activa');
     localStorage.removeItem('polar_rol');
     localStorage.removeItem('polar_user_id');
-    localStorage.removeItem('historial_polar');
+    localStorage.removeItem('historial_polar'); 
     localStorage.removeItem('citas_polar');
-    localStorage.removeItem('temporizadores_polar');
-    localStorage.removeItem('polar_cola_sync');
-
+    
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
     document.getElementById('lista-historial').innerHTML = '';
     document.getElementById('btn-usuario-nombre').innerText = 'Líder';
     
-    if(document.getElementById('panel-usuario').style.display === 'block') {
-      togglePanel('panel-usuario');
-    }
+    switchTab('home');
     
     const panelMenu = document.getElementById('panel-menu');
     if (panelMenu.classList.contains('open')) toggleMenuPanel();
     verificarSesion();
   }
 
-  /* =================================================== */
-  /* GESTIÓN NOMBRE LÍDER SINCRONIZADA                   */
-  /* =================================================== */
   async function guardarNombreUsuario() {
     const nuevoNombre = document.getElementById('input-nuevo-nombre').value.trim();
     const userId = localStorage.getItem('polar_user_id') || 'default';
     if(nuevoNombre) {
       localStorage.setItem('polar_nombre_lider_' + userId, nuevoNombre);
       document.getElementById('btn-usuario-nombre').innerText = nuevoNombre;
-      
       polarDb.auth.updateUser({ data: { nombre_lider: nuevoNombre } });
-      
-      togglePanel('panel-usuario');
+      switchTab('home');
     }
   }
 
@@ -1073,9 +832,6 @@
     document.getElementById('btn-usuario-nombre').innerText = nombreGuardado;
   }
 
-  /* =================================================== */
-  /* FUNCIONES DE DESHACER                               */
-  /* =================================================== */
   let backupData = null; let toastTimeout;
 
   function activarDeshacer(tipo, datosViejos) { 
@@ -1092,34 +848,19 @@
         localStorage.setItem('citas_polar', JSON.stringify(backupData.datos)); 
         renderCitas(); 
     } 
-    else if (backupData.tipo === 'temporizadores') {
-        localStorage.setItem('temporizadores_polar', JSON.stringify(backupData.datos));
-        renderTemporizadores();
-    }
-    else if (backupData.tipo === 'historial') {
-        // Se borraron también de la nube: al restaurarlos vuelven a viajar hacia arriba.
-        const restaurados = backupData.datos.map(r => Object.assign({}, r, { subido: false }));
-        localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(restaurados));
-        actualizarVistaHistorial();
-        renderGraficoPicos();
-        sincronizarDatosNube();
+    else if (backupData.tipo === 'historial') { 
+        localStorage.setItem('historial_polar', JSON.stringify(backupData.datos)); 
+        actualizarVistaHistorial(); 
+        renderGraficoPicos(); 
     }
     document.getElementById('toast-undo').classList.remove('show'); backupData = null;
   }
 
-  /* =================================================== */
-  /* TEMAS VISUALES CON CONTRASTE DINÁMICO DE TEXTO      */
-  /* =================================================== */
   const temasVisuales = {
     elite: { '--bg-polar': '#FAF8F5', '--white': '#FFFFFF', '--blue-ice-light': '#5B9BD5', '--blue-ice-mid': '#F3C623', '--turquoise-soft': '#088387', '--turquoise-strong': '#088387', '--text-primary': '#2C3A40', '--text-inverse': '#FFFFFF', '--text-dark': '#2C3A40', '--btn-text': '#FFFFFF', '--accent-btn': '#F05A4A', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#2C3A40', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': 'rgba(44, 58, 64, 0.20)', '--label-color': '#2C3A40', '--calendar-invert': '0', '--bg-card-glucose': '#088387', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#2C3A40', '--text-card-carbs': '#FFFFFF' },
     original: { '--bg-polar': '#F0F6F7', '--white': '#FFFFFF', '--blue-ice-light': '#D4E4E6', '--blue-ice-mid': '#A2C5C9', '--turquoise-soft': '#7AB0B2', '--turquoise-strong': '#4A8C8E', '--text-primary': '#1A2A30', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2A30', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#1A2A30', '--card-bg': '#2C3A40', '--card-text': '#F0F6F7', '--input-bg': '#FFFFFF', '--input-text': '#1A2A30', '--input-border': 'rgba(0, 0, 0, 0.25)', '--label-color': '#1A2A30', '--calendar-invert': '1', '--bg-card-glucose': '#D4E4E6', '--text-card-glucose': '#1A2A30', '--bg-card-carbs': '#A2C5C9', '--text-card-carbs': '#1A2A30' },
     oscuro: { '--bg-polar': '#121212', '--white': '#1E1E1E', '--blue-ice-light': '#2C2C2C', '--blue-ice-mid': '#3A3A3A', '--turquoise-soft': '#66B2B4', '--turquoise-strong': '#4A8C8E', '--text-primary': '#F0F0F0', '--text-inverse': '#121212', '--text-dark': '#F0F0F0', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#121212', '--card-bg': '#1E1E1E', '--card-text': '#F0F0F0', '--input-bg': '#2A2A2A', '--input-text': '#F0F0F0', '--input-border': 'rgba(255, 255, 255, 0.4)', '--label-color': '#F0F0F0', '--calendar-invert': '1', '--bg-card-glucose': '#2C2C2C', '--text-card-glucose': '#F0F0F0', '--bg-card-carbs': '#3A3A3A', '--text-card-carbs': '#F0F0F0' },
-    blanco: { '--bg-polar': '#F8F9FA', '--white': '#FFFFFF', '--blue-ice-light': '#E9ECEF', '--blue-ice-mid': '#CED4DA', '--turquoise-soft': '#495057', '--turquoise-strong': '#212529', '--text-primary': '#1A1A1A', '--text-inverse': '#FFFFFF', '--text-dark': '#1A1A1A', '--btn-text': '#FFFFFF', '--accent-btn': '#0D6EFD', '--accent-btn-text': '#FFFFFF', '--card-bg': '#E9ECEF', '--card-text': '#1A1A1A', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': '#ADB5BD', '--label-color': '#1A1A1A', '--calendar-invert': '0', '--bg-card-glucose': '#E9ECEF', '--text-card-glucose': '#1A1A1A', '--bg-card-carbs': '#CED4DA', '--text-card-carbs': '#1A1A1A' },
-    halloween: { '--bg-polar': '#2A162B', '--white': '#1A0B1A', '--blue-ice-light': '#582A4D', '--blue-ice-mid': '#B5452C', '--turquoise-soft': '#E88C15', '--turquoise-strong': '#E88C15', '--text-primary': '#F5D6B4', '--text-inverse': '#1A0B1A', '--text-dark': '#F5D6B4', '--btn-text': '#1A0B1A', '--accent-btn': '#B5452C', '--accent-btn-text': '#FFFFFF', '--card-bg': '#1A0B1A', '--card-text': '#F5D6B4', '--input-bg': '#2A162B', '--input-text': '#F5D6B4', '--input-border': '#E88C15', '--label-color': '#F5D6B4', '--calendar-invert': '1', '--bg-card-glucose': '#582A4D', '--text-card-glucose': '#F5D6B4', '--bg-card-carbs': '#B5452C', '--text-card-carbs': '#FFFFFF' },
-    mustard_jet: { '--bg-polar': '#E4DFD8', '--white': '#FFFFFF', '--blue-ice-light': '#F2D04E', '--blue-ice-mid': '#24221B', '--turquoise-soft': '#F2D04E', '--turquoise-strong': '#24221B', '--text-primary': '#24221B', '--text-inverse': '#E4DFD8', '--text-dark': '#24221B', '--btn-text': '#FFFFFF', '--accent-btn': '#F2D04E', '--accent-btn-text': '#24221B', '--card-bg': '#FFFFFF', '--card-text': '#24221B', '--input-bg': '#FFFFFF', '--input-text': '#24221B', '--input-border': 'rgba(36, 34, 27, 0.25)', '--label-color': '#24221B', '--calendar-invert': '0', '--bg-card-glucose': '#24221B', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#F2D04E', '--text-card-carbs': '#24221B' },
-    moonstone_orange: { '--bg-polar': '#7AA6B3', '--white': '#FFFFFF', '--blue-ice-light': '#EE6C29', '--blue-ice-mid': '#282B2B', '--turquoise-soft': '#EE6C29', '--turquoise-strong': '#282B2B', '--text-primary': '#282B2B', '--text-inverse': '#FFFFFF', '--text-dark': '#282B2B', '--btn-text': '#FFFFFF', '--accent-btn': '#EE6C29', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#282B2B', '--input-bg': '#FFFFFF', '--input-text': '#282B2B', '--input-border': 'rgba(40, 43, 43, 0.3)', '--label-color': '#282B2B', '--calendar-invert': '0', '--bg-card-glucose': '#282B2B', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#EE6C29', '--text-card-carbs': '#282B2B' },
-    persian_carrot: { '--bg-polar': '#EEEEEE', '--white': '#FFFFFF', '--blue-ice-light': '#EF8F00', '--blue-ice-mid': '#0038BC', '--turquoise-soft': '#EF8F00', '--turquoise-strong': '#0038BC', '--text-primary': '#0038BC', '--text-inverse': '#FFFFFF', '--text-dark': '#0038BC', '--btn-text': '#FFFFFF', '--accent-btn': '#EF8F00', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#0038BC', '--input-bg': '#FFFFFF', '--input-text': '#0038BC', '--input-border': 'rgba(0, 56, 188, 0.25)', '--label-color': '#0038BC', '--calendar-invert': '0', '--bg-card-glucose': '#0038BC', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#EF8F00', '--text-card-carbs': '#1A1A1A' },
-    mellow_cornflower: { '--bg-polar': '#DDD4C4', '--white': '#FFFFFF', '--blue-ice-light': '#F1C436', '--blue-ice-mid': '#5C88CD', '--turquoise-soft': '#F1C436', '--turquoise-strong': '#5C88CD', '--text-primary': '#1A2B4C', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2B4C', '--btn-text': '#FFFFFF', '--accent-btn': '#F1C436', '--accent-btn-text': '#1A2B4C', '--card-bg': '#FFFFFF', '--card-text': '#1A2B4C', '--input-bg': '#FFFFFF', '--input-text': '#1A2B4C', '--input-border': 'rgba(26, 43, 76, 0.25)', '--label-color': '#1A2B4C', '--calendar-invert': '0', '--bg-card-glucose': '#5C88CD', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#F1C436', '--text-card-carbs': '#1A2B4C' }
+    halloween: { '--bg-polar': '#2A162B', '--white': '#1A0B1A', '--blue-ice-light': '#582A4D', '--blue-ice-mid': '#B5452C', '--turquoise-soft': '#E88C15', '--turquoise-strong': '#E88C15', '--text-primary': '#F5D6B4', '--text-inverse': '#1A0B1A', '--text-dark': '#F5D6B4', '--btn-text': '#1A0B1A', '--accent-btn': '#B5452C', '--accent-btn-text': '#FFFFFF', '--card-bg': '#1A0B1A', '--card-text': '#F5D6B4', '--input-bg': '#2A162B', '--input-text': '#F5D6B4', '--input-border': '#E88C15', '--label-color': '#F5D6B4', '--calendar-invert': '1', '--bg-card-glucose': '#582A4D', '--text-card-glucose': '#F5D6B4', '--bg-card-carbs': '#B5452C', '--text-card-carbs': '#FFFFFF' }
   };
 
   function cambiarTema() { 
@@ -1136,9 +877,6 @@
     for (const [key, value] of Object.entries(paleta)) { root.style.setProperty(key, value); } 
   }
 
-  /* =================================================== */
-  /* REDONDEO ESTRICTO Y DINÁMICO                        */
-  /* =================================================== */
   let usoRedondeoElite = true;
   let diasFiltroBarras = 7;
   
@@ -1193,37 +931,37 @@
       `;
 
       divBarras.innerHTML = `
-          <h4 style="font-size: 17px; color: var(--turquoise-strong); margin-bottom: 18px; font-weight: 900;">mg/dl</h4>
+          <h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 8px; font-weight: 900;">mg/dl</h4>
 
-          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
             <span>240 de azúcar en adelante</span><span>${pMas240}%</span>
           </div>
-          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
             <div style="height: 100%; background: #FF9F0A; width: ${pMas240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
           </div>
 
-          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
             <span>de 181 a 240</span><span>${p240}%</span>
           </div>
-          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
             <div style="height: 100%; background: #F3C623; width: ${p240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
           </div>
 
-          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
             <span>de 70 a 180</span><span>${p180}%</span>
           </div>
-          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 16px; overflow:hidden;">
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
             <div style="height: 100%; background: #4CAF50; width: ${p180}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
           </div>
 
-          <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 900; color: ${textCol}; margin-bottom: 6px;">
+          <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
             <span>en 70</span><span>${p70}%</span>
           </div>
-          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 14px; margin-bottom: 28px; overflow:hidden;">
+          <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 16px; overflow:hidden;">
             <div style="height: 100%; background: #FF3B30; width: ${p70}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
           </div>
 
-          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
               <div style="${circuloStyle(7)}" onclick="cambiarFiltroBarras(7)">7<br><span style="font-size:11px;font-weight:700;">días</span></div>
               <div style="${circuloStyle(10)}" onclick="cambiarFiltroBarras(10)">10<br><span style="font-size:11px;font-weight:700;">días</span></div>
               <div style="${circuloStyle(14)}" onclick="cambiarFiltroBarras(14)">14<br><span style="font-size:11px;font-weight:700;">días</span></div>
@@ -1268,9 +1006,6 @@
     metas: { antes: 100, correccion: 150 }
   };
 
-  /* =================================================== */
-  /* SVGs DE AVATARES CON COLORES REALES                 */
-  /* =================================================== */
   const svgOso = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>`;
   const svgZorro = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="15,50 35,20 45,50" fill="#E67E22"/><polygon points="85,50 65,20 55,50" fill="#E67E22"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#D35400"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#2C3A40"/></svg>`;
   const svgPinguino = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 5 95 A 45 45 0 0 1 95 95 Z" fill="#2C3A40"/><path d="M 20 95 A 30 40 0 0 1 80 95 Z" fill="#FFFFFF"/><polygon points="45,65 55,65 50,75" fill="#F3C623"/><circle cx="40" cy="55" r="4" fill="#2C3A40"/><circle cx="60" cy="55" r="4" fill="#2C3A40"/></svg>`;
@@ -1363,9 +1098,10 @@
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { document.getElementById('splash-screen').classList.add('splash-oculto'); }, 1500);
     verificarSesion();
-
-    // Valida la sesión real de Supabase y baja/sube todo lo que falte.
-    verificarSesionSegura();
+    
+    if (localStorage.getItem('polar_session_activa') === 'true') {
+      sincronizarDatosNube();
+    }
 
     cargarNombreUsuario();
 
@@ -1402,9 +1138,8 @@
     if (document.getElementById('cfg-r-cena')) document.getElementById('cfg-r-cena').value = config.ratios.cena;
     
     actualizarDropdownMetas(); 
-
     actualizarRecordatoriosUI();
-    actualizarTextosComida(); renderCitas(); renderTemporizadores(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
+    actualizarTextosComida(); renderCitas(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
     autoSeleccionarComida(); 
 
     document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
@@ -1412,6 +1147,9 @@
 
     const btnInstall = document.getElementById('btn-install'); const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (!isStandalone) { if (isIOS) { btnInstall.style.display = 'flex'; } }
+    
+    // Iniciar app en vista principal
+    switchTab('home');
   });
 
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('btn-install').style.display = 'flex'; });
@@ -1421,32 +1159,6 @@
     const panel = document.getElementById('panel-menu'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-recetas').classList.remove('open');
     if (panel.classList.contains('open')) { panel.classList.remove('open'); overlay.classList.remove('active'); } else { panel.classList.add('open'); overlay.classList.add('active'); }
   }
-  
-  function abrirDesdeMenu(tipo) {
-    toggleMenuPanel();
-    setTimeout(() => {
-      if (tipo === 'panel') { const panel = document.getElementById('panel-grafico'); cerrarTodosPanelesSecundarios(); if (panel.style.display !== 'block') { panel.style.display = 'block'; renderGraficoPicos(); } }
-      else if (tipo === 'historial') { const panel = document.getElementById('panel-historial'); cerrarTodosPanelesSecundarios(); if (panel.style.display !== 'block') toggleHistorial(); } 
-    }, 300);
-  }
-
-  function cerrarTodosPanelesSecundarios() {
-    ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario', 'panel-temporizador'].forEach(p => {
-      document.getElementById(p).style.display = 'none';
-    });
-  }
-
-  function togglePanel(idPanel) {
-    const paneles = ['panel-config', 'panel-avatars', 'panel-citas', 'panel-grafico', 'panel-usuario', 'panel-temporizador'];
-    paneles.forEach(p => {
-      if(p === idPanel) {
-        const el = document.getElementById(p); const mostrando = el.style.display === 'block'; el.style.display = mostrando ? 'none' : 'block';
-        if (!mostrando && idPanel === 'panel-grafico') renderGraficoPicos();
-        if (idPanel === 'panel-avatars') renderAvatarPanel();
-        if (idPanel === 'panel-temporizador') renderTemporizadores();
-      } else { document.getElementById(p).style.display = 'none'; }
-    });
-  }
 
   function toggleRecetasPanel() {
     const panel = document.getElementById('panel-recetas'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-menu').classList.remove('open');
@@ -1455,11 +1167,13 @@
 
   function cerrarOverlays() { document.getElementById('panel-recetas').classList.remove('open'); document.getElementById('panel-menu').classList.remove('open'); document.getElementById('panel-overlay').classList.remove('active'); }
   
+  /* ====== GESTIÓN DE CITAS Y CALENDARIO ====== */
   function agregarCita() {
     const f = document.getElementById('cita-fecha').value; const h = document.getElementById('cita-hora').value; const e = document.getElementById('cita-especialista').value.trim();
     if (!f || !h || !e) { alert("Llena todo para agendar con excelencia."); return; }
-    let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); citas.push({ id: Date.now(), fecha: f, hora: h, especialista: e }); citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); citas.push({ id: Date.now(), fecha: f, hora: h, specialist: e }); citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     localStorage.setItem('citas_polar', JSON.stringify(citas)); document.getElementById('cita-fecha').value = ''; document.getElementById('cita-hora').value = ''; document.getElementById('cita-especialista').value = ''; renderCitas(); verificarCitasProximas();
+    agregarAlCalendario(e, f, h);
   }
   
   function borrarCita(id) { 
@@ -1471,135 +1185,42 @@
       activarDeshacer('citas', cv);
   }
   
+  function agregarAlCalendario(especialista, fecha, hora) {
+    const start = fecha.replace(/-/g, '') + 'T' + hora.replace(':', '') + '00';
+    let horaFin = String(parseInt(hora.split(':')[0]) + 1).padStart(2, '0');
+    if (horaFin === '24') horaFin = '00';
+    const end = fecha.replace(/-/g, '') + 'T' + horaFin + hora.split(':')[1] + '00';
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Cita+Médica:+${encodeURIComponent(especialista)}&dates=${start}/${end}&details=Cita+agendada+desde+Polar`;
+    window.open(url, '_blank');
+  }
+
   function renderCitas() {
-    const lista = document.getElementById('lista-citas'); const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); const badge = document.getElementById('badge-citas');
-    if (citas.length > 0) { badge.style.display = 'block'; badge.innerText = citas.length; } else { badge.style.display = 'none'; }
+    const lista = document.getElementById('lista-citas'); const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
     if (citas.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">No hay citas pendientes.</p>'; return; }
     lista.innerHTML = citas.map(cita => {
       const pF = cita.fecha.split('-'); const fechaLimpia = `${pF[2]}/${pF[1]}/${pF[0]}`;
       return `<div class="cita-card">
         <div>
-          <div class="cita-titulo">${cita.especialista}</div>
+          <div class="cita-titulo">${cita.specialist || cita.especialista}</div>
           <div class="cita-fecha">${fechaLimpia} | ${cita.hora}</div>
         </div>
-        <button class="btn-borrar-cita" onclick="borrarCita(${cita.id})">Borrar</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+          <button class="btn-borrar-cita" onclick="borrarCita(${cita.id})">Borrar</button>
+        </div>
       </div>`;
     }).join('');
-  }
-
-  /* =================================================== */
-  /* GESTIÓN DE TEMPORIZADORES PERSONALIZADOS           */
-  /* =================================================== */
-  function agregarTemporizadorPersonalizado() {
-    const nombre = document.getElementById('timer-nombre').value.trim();
-    const minutos = parseFloat(document.getElementById('timer-minutos').value);
-    if (!nombre || isNaN(minutos) || minutos <= 0) {
-      alert("Ingresa un nombre válido y los minutos para el temporizador.");
-      return;
-    }
-    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
-    timers.push({ id: Date.now(), nombre: nombre, minutos: minutos });
-    localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
-    document.getElementById('timer-nombre').value = '';
-    document.getElementById('timer-minutos').value = '';
-    renderTemporizadores();
-  }
-
-  function borrarTemporizador(id) {
-    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
-    const tv = timers;
-    timers = timers.filter(t => t.id !== id);
-    localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
-    renderTemporizadores();
-    activarDeshacer('temporizadores', tv);
-  }
-
-  function renderTemporizadores() {
-    const lista = document.getElementById('lista-temporizadores');
-    if (!lista) return;
-    let timers = JSON.parse(localStorage.getItem('temporizadores_polar') || '[]');
-    
-    // Si no hay temporizadores guardados, mostramos predeterminados útiles
-    if (timers.length === 0) {
-      timers = [
-        { id: 1, nombre: 'Revisión Azúcar Baja', minutos: 15 },
-        { id: 2, nombre: 'Control de 2 Horas', minutos: 120 }
-      ];
-      localStorage.setItem('temporizadores_polar', JSON.stringify(timers));
-    }
-
-    lista.innerHTML = timers.map(t => `
-      <div class="timer-card">
-        <div>
-          <div class="timer-titulo">${t.nombre}</div>
-          <div class="timer-tiempo">${t.minutos} minutos</div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-small" style="background: var(--turquoise-strong); color: white; font-weight: 900;" onclick="iniciarTemporizadorPolar(${t.minutos})">Iniciar</button>
-          <button class="btn-borrar-timer" onclick="borrarTemporizador(${t.id})">Borrar</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  /* ====== EXCELENCIA: SOLICITAR PERMISO Y NOTIFICACIONES PUSH REALES ====== */
-  async function solicitarPermisoNotificaciones() {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      alert("Tu navegador no soporta notificaciones push nativas.");
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification("¡Polar Élite Conectado!", {
-          body: "Las alertas y avisos del sistema están activos con éxito.",
-          icon: "polar-logo.png",
-          vibrate: [200, 100, 200]
-        });
-      });
-      console.log("Permiso de notificaciones concedido.");
-    } else {
-      alert("Has denegado los permisos de notificación. Las alertas automáticas no sonarán.");
-    }
-  }
-
-  /* ====== TEMPORIZADOR ÉLITE CON NOTIFICACIÓN ====== */
-  function iniciarTemporizadorPolar(minutos) {
-    const milisegundos = minutos * 60 * 1000;
-    
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
-    alert(`¡Temporizador activado! Te avisaremos en ${minutos} minutos.`);
-
-    setTimeout(() => {
-      if ("Notification" in window && Notification.permission === "granted") {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.showNotification("¡Tiempo cumplido, Líder!", {
-            body: `Ya pasaron los ${minutos} minutos. Es momento de revisar la energía de Polar.`,
-            icon: "polar-logo.png",
-            vibrate: [300, 100, 300, 100, 300],
-            tag: 'polar-timer'
-          });
-        });
-      } else {
-        alert(`¡Tiempo cumplido! Han pasado los ${minutos} minutos.`);
-      }
-    }, milisegundos);
   }
 
   function verificarCitasProximas() {
     const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
     if (citas.length === 0) return;
-    const ahora = new Date(); const manana = new Date(); manana.setDate(ahora.getDate() + 1); const isoManana = manana.toISOString().split('T')[0];
+    
+    const isoHoy = obtenerFechaLocalISO();
     
     citas.forEach(cita => {
-      if (cita.fecha === isoManana) {
-        const keyNotif = `notif_cita_${cita.fecha}_${cita.hora}`;
+      if (cita.fecha === isoHoy) {
+        const keyNotif = `notif_cita_hoy_${cita.fecha}_${cita.hora}`;
         if (!localStorage.getItem(keyNotif)) {
-          const pF = cita.fecha.split('-'); const fechaExacta = `${pF[2]}/${pF[1]}/${pF[0]}`;
           
           if (Notification.permission !== "granted") {
             Notification.requestPermission();
@@ -1607,8 +1228,8 @@
 
           if ("Notification" in window && Notification.permission === "granted") {
             navigator.serviceWorker.ready.then(registration => {
-              registration.showNotification("¡Atención líder!", {
-                body: `Mañana tienes cita agendada con ${cita.especialista} el ${fechaExacta} a las ${cita.hora}`,
+              registration.showNotification("¡Atención líder, cita hoy!", {
+                body: `Hoy tienes cita con ${cita.specialist || cita.especialista} a las ${cita.hora}. ¡Prepárate con excelencia!`,
                 icon: "polar-logo.png",
                 vibrate: [200, 100, 200, 100, 200]
               });
@@ -1625,7 +1246,7 @@
       if (txtToujeo) { txtToujeo.innerText = config.toujeo; }
   }
 
-  /* ====== EXCELENCIA: GENERACIÓN DE PDF ÉLITE (TABLA CLÍNICA) ====== */
+  /* ====== GENERACIÓN DE PDF ÉLITE ====== */
   function generarPDFElite() {
       const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
       
@@ -1731,7 +1352,7 @@
     document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
     document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
-    togglePanel('panel-config'); 
+    switchTab('home'); 
     alert("Metas y control médico guardados con excelencia.");
   }
   
@@ -1747,7 +1368,6 @@
     `;
   }
 
-  /* ====== EL CEREBRO AUTOMÁTICO DE COMIDAS ====== */
   function determinarComidaAutomatica() {
     const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
     const hoyIso = obtenerFechaLocalISO();
@@ -1825,81 +1445,52 @@
   function despertarPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('sleeping'); b.classList.add('awake'); }
   function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
 
-  /* ====== EXCELENCIA: GUARDADO OFFLINE INQUEBRANTABLE ====== */
-  async function guardarDosisAplicada(dosis, glucosa, carbos, tipoComida) {
-    const sesion = await obtenerSesionValida();
-    const userId = sesion ? sesion.user.id : null;
+  /* ====== EXCELENCIA: GUARDADO DE CERO FRICCIÓN ====== */
+  function guardarDosisAplicada(e, dosis, glucosa, carbos, tipoComida) {
+    if (e) {
+      e.preventDefault(); 
+      e.stopPropagation();
+    }
+
+    const userId = localStorage.getItem('polar_user_id');
     if (!userId) {
-        alert("Líder, tu sesión caducó y este registro no llegaría a la nube. Vuelve a iniciar sesión para guardarlo con seguridad.");
-        localStorage.removeItem('polar_session_activa');
-        verificarSesion();
+        alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
         return;
     }
 
-    const ahora = new Date();
-    const fecha = ahora.toLocaleString('es-CL');
-    const isoFecha = obtenerFechaLocalISO();
+    const ahora = new Date(); 
+    const fecha = ahora.toLocaleString('es-CL'); 
+    const isoFecha = obtenerFechaLocalISO(); 
 
-    const registroLocal = { fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime(), subido: false };
-    let historial = leerJSON(CLAVE_HISTORIAL, '[]');
-    historial.push(registroLocal);
-    localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historial));
+    let historial = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
+    historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
+    localStorage.setItem('historial_polar', JSON.stringify(historial));
 
-    // CRONÓMETRO AUTOMÁTICO SOLICITADO: 2 horas por defecto, o 15 minutos si la glucosa está por debajo de 60
-    let minutosTemporizador = 120;
-    if (glucosa > 0 && glucosa < 60) {
-        minutosTemporizador = 15;
-    }
-    iniciarTemporizadorPolar(minutosTemporizador);
-
-    // La hora la fija el equipo: así el registro es el mismo en todos los computadores.
-    const filaNube = filaParaNube(registroLocal, userId);
-    let subidoAlaNube = false;
-
-    try {
-        const { error } = await polarDb
-          .from('historial_polar')
-          .insert([filaNube]);
-
+    // MANDA A SUPABASE EN SEGUNDO PLANO
+    polarDb.from('historial_polar').insert([
+        { paciente_id: userId, glucosa: glucosa, carbos: carbos, dosis: dosis, tipo_comida: tipoComida }
+    ]).then(({ error }) => {
         if (error) throw error;
-        subidoAlaNube = true;
+    }).catch((err) => {
+        console.warn("Offline guardado en cola: ", err);
+        let colaSync = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
+        colaSync.push({ paciente_id: userId, glucosa: glucosa, carbos: carbos, dosis: dosis, tipo_comida: tipoComida, created_at: new Date().toISOString() });
+        localStorage.setItem('polar_cola_sync', JSON.stringify(colaSync));
+    });
 
-        historial = leerJSON(CLAVE_HISTORIAL, '[]');
-        const indice = historial.findIndex(r => r.timestamp === registroLocal.timestamp);
-        if (indice !== -1) {
-          historial[indice].subido = true;
-          localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historial));
-        }
-    } catch (e) {
-        console.warn("Offline guardado en cola: ", e);
-        ultimoErrorSync = (e && e.message) ? e.message : 'sin conexión';
-        let colaSync = leerJSON(CLAVE_COLA, '[]');
-        colaSync.push(filaNube);
-        localStorage.setItem(CLAVE_COLA, JSON.stringify(colaSync));
-    }
+    // Limpieza total y cero scroll
+    document.getElementById('glucosa').value = ''; 
+    document.getElementById('carbos').value = ''; 
+    document.getElementById('resultado').style.display = 'none'; 
+    delete document.getElementById('comida').dataset.manual; 
+    dormirPolar(); 
+    autoSeleccionarComida(); 
 
-    actualizarEstadoSync(subidoAlaNube ? 'ok' : (navigator.onLine ? 'error' : 'sin-conexion'));
-    if (document.getElementById('panel-historial').style.display === 'block') actualizarVistaHistorial();
-    renderGraficoPicos();
-
-    document.getElementById('glucosa').value = '';
-    document.getElementById('carbos').value = '';
-    document.getElementById('resultado').style.display = 'none';
-    delete document.getElementById('comida').dataset.manual;
-    dormirPolar();
-
-    const avisoNube = subidoAlaNube
-      ? 'Ya está en la nube: lo verás en tus otros equipos.'
-      : 'Quedó guardado en este equipo y se subirá a la nube en cuanto vuelva la conexión.';
-    alert(`polar guardo ${dosis}u con excelencia. Se activó temporizador automático de ${minutosTemporizador} minutos.\n\n${avisoNube}`);
-    autoSeleccionarComida();
+    switchTab('home');
   }
-
-  function toggleHistorial() { const p = document.getElementById('panel-historial'); if (p.style.display === 'block') p.style.display = 'none'; else { actualizarVistaHistorial(); p.style.display = 'block'; sincronizarDatosNube(); setTimeout(() => p.scrollIntoView({behavior: "smooth"}), 100); } }
-
+  
   function actualizarVistaHistorial() {
-    const lista = document.getElementById('lista-historial'); const historial = leerJSON(CLAVE_HISTORIAL, '[]');
-    actualizarEstadoSync(navigator.onLine ? 'ok' : 'sin-conexion');
+    const lista = document.getElementById('lista-historial'); const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
     if (historial.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; return; }
     const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'Corroboración', 'post-comida': '2 Horas Post-Comida' };
     let html = ''; let fechaAgrupada = ''; const hOrd = historial.slice(); 
@@ -1909,14 +1500,12 @@
       if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div class="historial-fecha-bloque">${dS}</div>`; }
       let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
       let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
-      const marcaNube = item.subido === true ? '' : `<div style="font-size: 11px; font-weight: 800; color: #D68A45; margin-top: 3px;">Pendiente de subir a la nube</div>`;
 
       html += `<div class="historial-registro">
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
           <div>
             <div style="font-size: 12px; font-weight: 800; color: var(--text-primary);">${hS} - <span style="color: var(--turquoise-strong);">${nom}</span></div>
             <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">${det}</div>
-            ${marcaNube}
           </div>
           <div style="text-align: right;">${dos}</div>
         </div>
@@ -1925,35 +1514,29 @@
     lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
   }
 
-  async function borrarHistorialCompleto() {
-    if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) {
-      const hV = leerJSON(CLAVE_HISTORIAL, '[]');
-      const sesion = await obtenerSesionValida();
-      const userId = sesion ? sesion.user.id : null;
+  async function borrarHistorialCompleto() { 
+    if(confirm("¿Seguro que quieres borrar TODO el historial? Esto evita borrados accidentales de mediciones importantes.")) { 
+      const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      const userId = localStorage.getItem('polar_user_id');
 
-      if (!userId) {
-        alert("Líder, tu sesión caducó. Vuelve a iniciar sesión antes de borrar para que el cambio también viaje a tus otros equipos.");
-        return;
+      if (userId) {
+        const { error } = await polarDb
+          .from('historial_polar')
+          .delete()
+          .eq('paciente_id', userId);
+
+        if (error) {
+          console.error("Error al borrar en la nube:", error);
+          alert("Fallo en la conexión. No se pudo borrar de la nube.");
+          return;
+        }
       }
 
-      const { error } = await polarDb
-        .from('historial_polar')
-        .delete()
-        .eq('paciente_id', userId);
-
-      if (error) {
-        console.error("Error al borrar en la nube:", error);
-        alert("Fallo en la conexión. No se pudo borrar de la nube.");
-        return;
-      }
-
-      localStorage.removeItem(CLAVE_HISTORIAL);
-      localStorage.removeItem(CLAVE_COLA);
-      actualizarVistaHistorial();
+      localStorage.removeItem('historial_polar'); 
+      actualizarVistaHistorial(); 
       renderGraficoPicos();
-      actualizarEstadoSync('ok');
       activarDeshacer('historial', hV);
-    }
+    } 
   }
 
   function sugerirEsquema() {
@@ -2024,12 +1607,19 @@
     }
 
     const puntos = historialSemana.slice(-15);
-    const maxVal = 400; const minVal = 0; const stepX = gridW / Math.max(puntos.length - 1, 1);
+    const maxVal = 400; const minVal = 0; 
+    
+    const minTimeVal = Math.min(...puntos.map(parseItemTime));
+    const maxTimeVal = Math.max(...puntos.map(parseItemTime));
+    const timeRange = maxTimeVal - minTimeVal || 1; 
 
     const coords = puntos.map((item, index) => {
         let val = parseFloat(item.glucosa) || 100;
         if (isNaN(val) || String(item.glucosa).toUpperCase() === 'HI') val = 600;
-        let pX = paddingX + (index * stepX);
+        
+        let itemTime = parseItemTime(item);
+        let pX = paddingX + ((itemTime - minTimeVal) / timeRange) * gridW;
+        
         let pY = paddingY + gridH - ((val - minVal) / (maxVal - minVal)) * gridH;
         if (pY < paddingY) pY = paddingY; 
         return {x: pX, y: pY, val: val, originalStr: item.glucosa};
@@ -2060,24 +1650,29 @@
 
     if(!tooltipListenerAdded) {
         const manejarToqueGrafico = (e) => {
+            if (e.type === 'touchstart') e.preventDefault(); 
+
             const rect = canvas.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
             
-            const clientX = e.clientX;
-            const clientY = e.clientY;
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
             
             const x = clientX - rect.left;
             const y = clientY - rect.top;
             
             let closest = null; 
-            let minDist = 40; 
+            let minDist = 15; 
 
             if (window.graficoCoordsGlobal) {
                 window.graficoCoordsGlobal.forEach(c => {
-                    const cssX = c.x / dpr; 
-                    const cssY = c.y / dpr;
-                    const dist = Math.hypot(cssX - x, cssY - y);
-                    if (dist < minDist) { 
+                    const dist = Math.hypot(c.x - x, c.y - y);
+                    if (dist <= minDist) { 
                         minDist = dist; 
                         closest = c; 
                     }
@@ -2087,26 +1682,53 @@
             const tooltip = document.getElementById('grafico-tooltip');
             if (closest) {
                 tooltip.innerHTML = `Nivel: ${closest.val} mg/dL<br>Hora: ${closest.time}`;
-                tooltip.style.left = (closest.x / dpr) + 'px';
-                tooltip.style.top = (closest.y / dpr) + 'px';
+                tooltip.style.left = closest.x + 'px';
+                tooltip.style.top = closest.y + 'px';
                 tooltip.style.display = 'block';
-                setTimeout(() => tooltip.style.display = 'none', 4000); 
+                setTimeout(() => tooltip.style.display = 'none', 3500); 
             } else { 
                 tooltip.style.display = 'none'; 
             }
         };
 
-        canvas.addEventListener('pointerdown', manejarToqueGrafico);
+        canvas.addEventListener('touchstart', manejarToqueGrafico, {passive: false});
+        canvas.addEventListener('mousedown', manejarToqueGrafico);
         tooltipListenerAdded = true;
     }
   }
 
+  function autoFocoCarbos() {
+    const glucosaInput = document.getElementById('glucosa');
+    if (glucosaInput.value.length >= 3) {
+      document.getElementById('carbos').focus();
+    }
+  }
+
   function ciclarEjercicio() {
-    estadoEjercicio = (estadoEjercicio + 1) % 3; const btn = document.getElementById('btn-ejercicio'); const input = document.getElementById('ejercicio');
-    if (estadoEjercicio === 0) { btn.innerText = "No, estará tranquilo"; btn.style.background = "#4CAF50"; btn.style.color = "#FFFFFF"; input.value = "1"; } 
-    else if (estadoEjercicio === 1) { btn.innerText = "Sí, un poco (Menos energía)"; btn.style.background = "#FF9F0A"; btn.style.color = "#FFFFFF"; input.value = "0.66"; } 
-    else { btn.innerText = "Sí, muchísimo (Mitad energía)"; btn.style.background = "#FF3B30"; btn.style.color = "#FFFFFF"; input.value = "0.5"; }
+    estadoEjercicio = (estadoEjercicio + 1) % 3; 
+    const btn = document.getElementById('btn-ejercicio'); 
+    const input = document.getElementById('ejercicio');
+    
+    if (estadoEjercicio === 0) { 
+        btn.innerText = "Tranquilo"; 
+        btn.style.setProperty('background', '#4CAF50', 'important'); 
+        btn.style.setProperty('color', '#FFFFFF', 'important'); 
+        input.value = "1"; 
+    } 
+    else if (estadoEjercicio === 1) { 
+        btn.innerText = "Un poco"; 
+        btn.style.setProperty('background', '#FF9F0A', 'important'); 
+        btn.style.setProperty('color', '#FFFFFF', 'important'); 
+        input.value = "0.66"; 
+    } 
+    else { 
+        btn.innerText = "Mucho"; 
+        btn.style.setProperty('background', '#FF3B30', 'important'); 
+        btn.style.setProperty('color', '#FFFFFF', 'important'); 
+        input.value = "0.5"; 
+    }
     dormirPolar(); 
+    calcular(false);
   }
 
   function navegarCalculos(dir) {
@@ -2120,7 +1742,6 @@
         document.getElementById('meta').value = est.meta; 
         estadoEjercicio = est.estadoEjercicio - 1; 
         ciclarEjercicio(); 
-        calcular(true); 
     }
   }
 
@@ -2131,7 +1752,16 @@
     const carbos = parseFloat(carbosInput) || 0;
     const comidaKey = document.getElementById('comida').value; 
     const metaRestar = parseFloat(document.getElementById('meta').value);
-    const peso = parseFloat(document.getElementById('cfg-peso') ? document.getElementById('cfg-peso').value : 50) || 50;
+
+    if (glucosaInput === '' && carbosInput === '') {
+        document.getElementById('resultado').style.display = 'none';
+        return;
+    }
+
+    if (document.activeElement === document.getElementById('glucosa') && carbosInput === '' && comidaKey !== 'corroborar') {
+        document.getElementById('resultado').style.display = 'none';
+        return;
+    }
 
     if (!esNav) { 
       const estA = { glucosa: glucosaInput, carbos: carbosInput, comida: comidaKey, meta: metaRestar, estadoEjercicio: estadoEjercicio }; 
@@ -2167,90 +1797,54 @@
           <strong>• ¡Tu energía está bajita!</strong><br>
           <strong>Toma algo dulce YA:</strong> Bebe medio vaso de jugo o agua con 3 cucharaditas de azúcar.<br>
           <strong>Modo estatua:</strong> Siéntate y descansa. Cero correr o jugar.<br>
-          <strong>Espera y revisa:</strong> Quédate tranquilo 15 minutos y vuelve a medirte. Si sigue baja, toma otro poquito de jugo.
+          <strong>Espera y revisa:</strong> Quédate tranquilo 15 minutos y vuelve a medirte.
         </div>`;
     } 
     else {
       if (glucosa >= 70 && glucosa <= 130) {
-        protocoloClinicoHTML = `
-          <div class="protocolo-box protocolo-normal">
-            Estás en los valores recomendados. Realiza tus comidas o actividades con normalidad.
-          </div>`;
+        protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Estás en los valores recomendados.</div>`;
       }
       else if (glucosa >= 140 && glucosa <= 180) {
-        protocoloClinicoHTML = `
-          <div class="protocolo-box protocolo-normal">
-            Un poquito alta. Una caminata ligera de 10 a 15 minutos ayuda a bajarla. Bebe un vaso de agua.
-          </div>`;
+        protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Un poquito alta. Bebe un vaso de agua.</div>`;
       }
       else if (glucosa >= 181 && glucosa <= 249) {
-        protocoloClinicoHTML = `
-          <div class="protocolo-box protocolo-normal">
-            Aplica tu corrección. Toma agua pura y descansa o camina muy suave. Mide de nuevo en 2 horas.
-          </div>`;
+        protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Aplica tu corrección. Toma agua pura.</div>`;
       }
       else if (glucosa >= 250 && glucosa < 400) {
-        protocoloClinicoHTML = `
-          <div class="protocolo-box protocolo-normal">
-            <strong>• Actividad:</strong> Cero ejercicio. El esfuerzo físico puede empeorar el cuadro.<br>
-            <strong>• Hidratación:</strong> Bebe medio litro de agua en la próxima hora.
-          </div>`;
+        protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal"><strong>• Actividad:</strong> Cero ejercicio.<br><strong>• Hidratación:</strong> Bebe medio litro de agua.</div>`;
       }
       else if (glucosa >= 400) {
         colorNumeroGemas = "#FF3B30";
-        protocoloClinicoHTML = `
-          <div class="protocolo-box protocolo-alerta">
-            <strong>⚠️ Cifra crítica de ${glucosa} mg/dl.</strong><br>
-            Puedes acudir a un médico si sigues así o verifica tu catéter a ver si está fallando.
-          </div>`;
+        protocoloClinicoHTML = `<div class="protocolo-box protocolo-alerta"><strong>⚠️ Cifra crítica.</strong> Verifica tu catéter.</div>`;
       }
     }
-
-    let alternativaSaludable = "";
-    if (carbos > 50) {
-        alternativaSaludable = "Carga pesada detectada. Sugerencia: Cambia la mitad de esa porción por brócoli al vapor o ensalada verde.";
-    } else if (carbos > 20 && carbos <= 50) {
-        alternativaSaludable = "Asegúrate de que esos CHO vengan acompañados de proteína para estabilizar el índice glucémico.";
-    } else if (carbos > 0) {
-        alternativaSaludable = "Comida táctica limpia. Impacto mínimo en la glucosa.";
-    } else {
-        alternativaSaludable = "Evaluación limpia.";
-    }
-
-    document.getElementById('recomendacion-comida').innerHTML = `
-      <h4>Sugerencia de Nutrición</h4>
-      <p>${alternativaSaludable}</p>
-      <div style="background: var(--white); padding: 14px; border-radius: 14px; margin-top: 14px; border-left: 4px solid var(--turquoise-strong); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-        <strong style="color: var(--turquoise-strong); font-size: 14px; display: block; margin-bottom: 6px;">Protocolo Clínico Actual:</strong>
-        <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">${protocoloClinicoHTML}</span>
-      </div>`;
 
     let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
     let btnAdel = `<button class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
 
+    // EXCELENCIA: Botón con ONPOINTERDOWN para cero latencia
     resDiv.className = "result-box";
     resDiv.innerHTML = `
       <h2>¡Gemas Calculadas!</h2>
       <div class="result-number" style="color: ${colorNumeroGemas} !important;">${dosisFinal}</div>
-      <div class="result-unit">Gemas Ultra para Polar</div>
-      <div class="result-details">
+      
+      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 5px; margin-bottom: 12px; font-size: 18px; padding: 14px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" 
+      onpointerdown="guardarDosisAplicada(event, ${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar Dosis</button>
+      
+      <div class="result-unit" style="margin-bottom: 4px;">Gemas Ultra para Polar</div>
+      <div class="result-details" style="margin-top: 8px;">
         Por Comida: <strong>${dosisComida} U</strong> (R${ratio})<br>
         Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar})
         ${protocoloClinicoHTML}
       </div>
-      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">${btnAtras}${btnAdel}</div>
+      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">${btnAtras}${btnAdel}</div>`;
       
-      <!-- BOTÓN ÚNICO DE GUARDADO (INICIA EL TEMPORIZADOR AUTOMÁTICAMENTE) -->
-      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 20px; font-size: 18px; padding: 16px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" onclick="guardarDosisAplicada(${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar dosis aplicada</button>`;
-      
-    resDiv.style.display = "block"; resDiv.scrollIntoView({ behavior: 'smooth' }); despertarPolar();
+    resDiv.style.display = "block"; despertarPolar(); 
   }
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); }); }
 
-  /* =================================================== */
-  /* SWIPE & DRAG PARA CERRAR EL MENÚ LATERAL            */
-  /* =================================================== */
+  /* ====== SWIPE & DRAG PARA CERRAR EL MENÚ LATERAL ====== */
   let startX = 0;
   const panelMenu = document.getElementById('panel-menu');
 
