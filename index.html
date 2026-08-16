@@ -734,6 +734,30 @@
   }
   window.addEventListener('online', procesarColaOffline);
 
+  /* ====== EXCELENCIA: SINCRONIZACIÓN EN TIEMPO REAL ====== */
+  function activarSuscripcionTiempoReal() {
+    const userId = localStorage.getItem('polar_user_id');
+    if (!userId) return;
+
+    polarDb.removeAllChannels();
+
+    polarDb.channel('radar-familiar-elite')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', 
+          schema: 'public', 
+          table: 'historial_polar',
+          filter: `paciente_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log("¡Registro detectado en tiempo real!", payload);
+          sincronizarDatosNube();
+        }
+      )
+      .subscribe();
+  }
+
   async function revisarRegistrosAntiguos() {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
@@ -811,6 +835,7 @@
       }
       
       await sincronizarDatosNube();
+      activarSuscripcionTiempoReal();
       await revisarRegistrosAntiguos();
       cargarNombreUsuario();
       
@@ -1142,6 +1167,7 @@
     
     if (localStorage.getItem('polar_session_activa') === 'true') {
       sincronizarDatosNube();
+      activarSuscripcionTiempoReal();
     }
 
     cargarNombreUsuario();
