@@ -1153,7 +1153,7 @@
 
   function obtenerFechaLocalISO() { const ahora = new Date(); const tzOffset = ahora.getTimezoneOffset() * 60000; return new Date(ahora.getTime() - tzOffset).toISOString().split('T')[0]; }
 
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { 
         document.getElementById('splash-screen').classList.add('splash-oculto'); 
         // EXCELENCIA: La barra inferior se activa justo aquí, si la sesión está abierta
@@ -1166,8 +1166,16 @@
     verificarSesion();
     
     if (localStorage.getItem('polar_session_activa') === 'true') {
-      sincronizarDatosNube();
-      activarSuscripcionTiempoReal();
+      // EXCELENCIA: Asegurar que Supabase recupere la sesión ANTES de pedir datos
+      const { data: { session } } = await polarDb.auth.getSession();
+      
+      if (session) {
+          await sincronizarDatosNube();
+          activarSuscripcionTiempoReal();
+      } else {
+          // Si el token murió, cerramos para proteger a la familia
+          cerrarSesion();
+      }
     }
 
     cargarNombreUsuario();
@@ -1612,9 +1620,15 @@
     if (ult.length === 0) { alert("No hay mediciones en los últimos 2 días."); return; }
     let s = 0; let c = 0; ult.forEach(r => { if (r.glucosa && r.glucosa > 0) { s += Number(r.glucosa); c++; } }); if (c === 0) return;
     const p = s / c; let m = "";
-    if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).\n\nSugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios. Revisa con médico.`;
-    else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).\n\nSugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
-    else m = `Promedio EXCELENTE (${p.toFixed(0)}).\n\nSugerencia: Estás dominando al 100%. Mantén el esquema.`;
+    if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).
+
+Sugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios. Revisa con médico.`;
+    else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).
+
+Sugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
+    else m = `Promedio EXCELENTE (${p.toFixed(0)}).
+
+Sugerencia: Estás dominando al 100%. Mantén el esquema.`;
     alert(m);
   }
 
