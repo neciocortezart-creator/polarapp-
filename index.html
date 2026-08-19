@@ -21,7 +21,6 @@
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap');
 
     :root {
-      /* ELITE UI SYSTEM */
       --bg-polar: #FAF8F5; 
       --white: #FFFFFF; 
       --blue-ice-light: #5B9BD5; 
@@ -29,7 +28,6 @@
       --turquoise-soft: #088387; 
       --turquoise-strong: #088387; 
       
-      /* TOKENS DE TEXTO DINÁMICOS */
       --text-primary: #2C3A40; 
       --text-inverse: #FFFFFF;
       --text-dark: #2C3A40; 
@@ -47,7 +45,6 @@
       --label-color: var(--text-primary);
       --calendar-invert: 0;
 
-      /* Contrastes dinámicos de tarjetas */
       --bg-card-glucose: #088387;
       --text-card-glucose: #FFFFFF;
       --bg-card-carbs: #2C3A40;
@@ -58,7 +55,6 @@
     
     body { background-color: var(--bg-polar); color: var(--text-primary); padding: 20px; -webkit-font-smoothing: antialiased; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
 
-    /* PANTALLAS DE CARGA Y LOGIN (MURO ÉLITE) - Z-INDEX CORREGIDO */
     #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-polar); display: flex; justify-content: center; align-items: center; z-index: 99999; transition: opacity 0.5s ease-out, visibility 0.5s ease-out; }
     #splash-screen img { width: 150px; height: auto; border-radius: 35px; animation: latido 1.5s infinite ease-in-out; box-shadow: 0 15px 40px rgba(0,0,0,0.08); }
     @keyframes latido { 0% { transform: scale(0.97); } 50% { transform: scale(1.03); } 100% { transform: scale(0.97); } }
@@ -71,14 +67,11 @@
     .login-box label { font-size: 14px; font-weight: 800; color: var(--text-primary); display: block; text-align: left; margin-bottom: 8px; }
     .login-box input { margin-bottom: 20px; background: var(--bg-polar); border: 2px solid var(--input-border); color: var(--input-text); transition: all 0.3s ease; }
 
-    /* CONTENEDOR PRINCIPAL OCULTO INICIALMENTE */
     #main-app { display: none; }
 
-    /* EXCELENCIA: Estabilidad añadida al contenedor principal y espacio para la barra de nav */
     .app-container { max-width: 450px; margin: 0 auto; padding-bottom: 100px; min-height: 85vh; display: flex; flex-direction: column; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
     
-    /* EXCELENCIA EN SIMETRÍA: Alineación vertical perfecta del logo, texto y menú */
     .logo-container { display: flex; align-items: center; gap: 12px; cursor: pointer; height: 45px; }
 
     .hamburger-btn { background: none; border: none; font-size: 28px; color: var(--text-primary); font-weight: 900; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2001; line-height: 1; margin-top: 2px; }
@@ -111,14 +104,13 @@
     .card-glucose { background: var(--bg-card-glucose); color: var(--text-card-glucose); transition: background 0.4s ease, color 0.4s ease; }
     .card-carbs { background: var(--bg-card-carbs); color: var(--text-card-carbs); transition: background 0.4s ease, color 0.4s ease; }
     
-    .card-settings, .card-avatars, .card-citas, .card-panel-grafico { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
+    .card-settings, .card-avatars, .card-citas, .card-panel-grafico, .card-buscador { background: var(--card-bg); color: var(--card-text); display: none; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(44,58,64,0.1); } 
 
     .avatar-frame { background: var(--turquoise-strong); border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(8,131,135,0.2); height: 130px; width: 130px; margin: 0 auto; transition: all 0.3s ease; }
 
     label { font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: inherit; }
     .label-small { font-size: 13px; margin-top: 12px; margin-bottom: 6px; color: inherit; font-weight: 700; }
 
-    /* INPUTS ÉLITE CON CONTRASTE */
     input:not([type="file"]), select, textarea { width: 100%; background: var(--input-bg); border: 2px solid var(--input-border); border-radius: 16px; padding: 14px; font-size: 18px; font-weight: 600; color: var(--input-text) !important; outline: none; appearance: none; -webkit-appearance: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .card-meal select { background: var(--bg-polar); border-color: rgba(0,0,0,0.1); color: var(--text-primary) !important; font-size: 15px; font-weight: 800; }
     .card-carbs input, .card-glucose input { background: #FFFFFF; color: #1A1A1A !important; border-color: transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -126,12 +118,16 @@
     input:focus, select:focus, textarea:focus { border-color: var(--turquoise-strong); box-shadow: 0 0 0 4px rgba(8, 131, 135, 0.15); transform: translateY(-2px); }
     select.select-small { padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--input-text) !important; font-weight: 700; }
 
-    /* Compactado para la configuración */
-    .card-settings input, .card-citas input { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
+    .card-settings input, .card-citas input, .card-buscador input { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
     .card-settings select { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
-    .card-settings label, .card-citas label { font-size: 12px; margin-bottom: 4px; color: var(--label-color); font-weight: 800; }
-    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3 { font-size: 16px; margin-bottom: 10px; color: var(--turquoise-strong); font-weight: 900; }
-    .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
+    .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator, .card-buscador input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
+
+    /* 2. EXCELENCIA: CONTRASTE Y LECTURA PERFECTA EN CUALQUIER TEMA */
+    .card-settings label, .card-citas label { font-size: 13px; margin-bottom: 4px; color: var(--card-text); font-weight: 800; opacity: 0.85; }
+    .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3, .card-buscador h3 { font-size: 16px; margin-bottom: 12px; color: var(--card-text); font-weight: 900; }
+    .panel-header-small { font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--card-text); font-weight: 900; }
+    .card-panel-grafico p, .card-buscador p { color: var(--card-text); opacity: 0.9; }
+    .btn-close-panel { color: var(--card-text); }
 
     .btn-main { background: var(--turquoise-strong); color: var(--btn-text); border: none; width: 100%; padding: 20px; border-radius: 100px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(8,131,135,0.25); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-top: 8px; }
     .btn-main:active { transform: scale(0.95); box-shadow: 0 5px 15px rgba(8,131,135,0.2); }
@@ -143,33 +139,43 @@
     .btn-small:active { transform: scale(0.92); }
     .btn-small:disabled { background: #E0E0E0; color: #999; cursor: not-allowed; border: none; }
 
-    /* EXCELENCIA: CAJA DE RESULTADOS ESTABLE Y NO ATRAVESADA */
+    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* 1. EXCELENCIA: MODAL MÁS COMPACTO Y SIN ESPACIOS MUERTOS */
     .result-box { 
-      margin-top: 16px; 
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%) !important;
+      width: 85%; 
+      max-width: 290px; 
       background: var(--white); 
-      border-radius: var(--radius); 
-      padding: 20px 15px; 
+      border-radius: 20px; 
+      padding: 16px 14px; 
       text-align: center; 
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
       display: none; 
-      position: relative; 
-      width: 100%; 
-      z-index: 10; 
-      border: 2px solid var(--turquoise-strong); 
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      z-index: 10000;
+      border: 3px solid var(--turquoise-strong); 
+      animation: popInModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
       overflow: hidden; 
-      grid-column: span 2;
+    }
+    .result-box h2 { font-size: 14px; color: var(--text-primary); font-weight: 900; margin-bottom: 2px; position: relative; z-index: 2; }
+    .result-number { font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 4px; position: relative; z-index: 2; letter-spacing: -1px; }
+    .result-unit { font-size: 11px; font-weight: 900; color: var(--text-primary); position: relative; z-index: 2; opacity: 0.6; text-transform: uppercase; margin-bottom: 6px; }
+    .result-details { font-size: 12px; color: var(--text-primary); font-weight: 700; margin-top: 4px; background: var(--bg-polar); padding: 10px; border-radius: 10px; position: relative; z-index: 2; text-align: left; line-height: 1.3; border: 1px solid rgba(0,0,0,0.04); }
+
+    @keyframes popInModal { 
+      0% { opacity: 0; transform: translate(-50%, -40%) scale(0.95) !important; } 
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1) !important; } 
     }
     
     .result-box::after { content: ""; position: absolute; bottom: -30px; left: -30px; width: 120px; height: 120px; background: var(--turquoise-strong); opacity: 0.04; border-radius: 40% 60% 70% 30%; pointer-events: none; }
-    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .result-box h2 { font-size: 18px; color: var(--text-primary); font-weight: 900; margin-bottom: 8px; position: relative; z-index: 2; }
-    .result-number { font-size: 65px; font-weight: 900; line-height: 1; margin-bottom: 4px; position: relative; z-index: 2; letter-spacing: -2px; }
-    .result-unit { font-size: 16px; font-weight: 800; color: var(--text-primary); position: relative; z-index: 2; opacity: 0.7; text-transform: uppercase; margin-bottom: 12px; }
-    .result-details { font-size: 14px; color: var(--text-primary); font-weight: 700; margin-top: 10px; background: var(--bg-polar); padding: 14px; border-radius: 16px; position: relative; z-index: 2; text-align: left; line-height: 1.5; border: 1px solid rgba(0,0,0,0.04); }
+    /* NUEVA X DE CERRAR EN EL MODAL */
+    .btn-close-modal { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.06); border: none; color: var(--text-primary); font-size: 18px; font-weight: 900; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: transform 0.2s, background 0.2s; line-height: 1; }
+    .btn-close-modal:active { transform: scale(0.85); background: rgba(0,0,0,0.12); }
 
-    /* ALERTAS EN ROJO PURO */
     .alert-box { background: #FF3B30 !important; color: #FFFFFF !important; }
     .alert-box h2, .alert-box .result-number, .alert-box p, .alert-box .result-unit, .alert-box .result-details { color: #FFFFFF !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
     
@@ -204,7 +210,6 @@
     .rules-menu li { margin-bottom: 10px; padding-left: 22px; position: relative; }
     .rules-menu li::before { content: " "; position: absolute; left: 0; top: 0; font-size: 14px; }
 
-    /* CSS PARA LA CUADRÍCULA DE AVATARES */
     .avatars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 14px; margin-top: 12px; }
     .avatar-card { background: var(--white); border-radius: 16px; padding: 12px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; box-shadow: 0 6px 15px rgba(0,0,0,0.04); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; }
     .avatar-card.locked { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
@@ -214,11 +219,10 @@
     .avatar-card p { font-size: 11px; font-weight: 900; color: var(--turquoise-strong); margin: 0; text-transform: uppercase; }
 
     .panel-header-elite { font-size: 26px; font-weight: 900; color: var(--turquoise-strong); display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; margin-bottom: 24px; }
-    .panel-header-small { font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--turquoise-strong); font-weight: 900; }
     .title-flex { display: flex; align-items: center; gap: 10px; }
     .icon-24 { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
     .icon-26 { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
-    .btn-close-panel { background: none; border: none; color: var(--text-primary); font-size: 28px; font-weight: 900; cursor: pointer; line-height: 1; padding: 0; }
+    .btn-close-panel { background: none; border: none; font-size: 28px; font-weight: 900; cursor: pointer; line-height: 1; padding: 0; }
     
     .btn-menu-lateral { background: var(--white); color: var(--text-primary); margin: 0 0 16px 0; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s; }
     .btn-menu-lateral:active { transform: scale(0.95); }
@@ -240,13 +244,12 @@
     .protocolo-alerta { background: rgba(255, 59, 48, 0.1); border-left: 4px solid #FF3B30; }
     .protocolo-normal { background: var(--bg-polar); }
 
-    /* EXCELENCIA: BARRA INFERIOR CON ANIMACIÓN Y OCULTA AL INICIO */
     .bottom-nav {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%) translateY(30px);
-      background: #1A2126; /* Oscuro elegante */
+      background: #1A2126; 
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -261,7 +264,6 @@
       transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
-    /* Esta clase activa la barra después de que cargue el logo */
     .bottom-nav.show {
       opacity: 1;
       pointer-events: auto;
@@ -303,7 +305,6 @@
   <img src="polar-logo.png" alt="Cargando App Polar...">
 </div>
 
-<!-- MURO ÉLITE (SISTEMA DE ACCESO) -->
 <div id="login-screen">
   <div class="login-box">
     <div style="width: 75px; height: 75px; background: var(--turquoise-strong); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 12px 30px rgba(8,131,135,0.35);">
@@ -322,7 +323,6 @@
   </div>
 </div>
 
-<!-- CONTENEDOR PRINCIPAL DE LA APP -->
 <div id="main-app">
 
   <div id="panel-overlay" class="overlay" onclick="cerrarOverlays()"></div>
@@ -336,15 +336,14 @@
       <button class="btn-small" style="flex: 1; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; background: var(--text-primary); color: white; border: none; cursor: pointer;" onclick="cerrarSesion()">Cerrar Sesión</button>
     </div>
 
-    <!-- Redirigidos a la nueva barra de navegación dividida -->
-    <button class="btn-menu-lateral" onclick="switchTab('graficas'); toggleMenuPanel();">
+    <button class="btn-menu-lateral" onclick="switchTab('graficas');">
       <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
       </div>
       Panel Analítico
     </button>
     
-    <button class="btn-menu-lateral" onclick="switchTab('historial'); toggleMenuPanel();">
+    <button class="btn-menu-lateral" onclick="switchTab('historial');">
       <div class="icon-24">
         <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 30 20 L 70 20 M 30 50 L 70 50 M 30 80 L 70 80 M 30 20 L 30 80 M 70 20 L 70 80" fill="none" stroke="#2C3A40" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="20" r="8" fill="#FF5A4D"/><circle cx="70" cy="20" r="8" fill="#FCA311"/><circle cx="30" cy="50" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/><circle cx="70" cy="50" r="8" fill="#D84B79"/><circle cx="30" cy="80" r="8" fill="#4B6584"/><circle cx="70" cy="80" r="8" fill="#FFFFFF" stroke="#2C3A40" stroke-width="2"/></svg>
       </div>
@@ -386,12 +385,10 @@
       </div>
       <div class="top-actions">
         <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
-        <!-- BOTÓN DE USUARIO QUE ABRE PESTAÑA COMPLETA -->
         <button id="btn-usuario-nombre" class="icon-btn" onclick="switchTab('usuario')">Líder</button>
       </div>
     </div>
 
-    <!-- MAIN GRID (CALCULADORA ÉLITE - INICIO) -->
     <div class="grid" id="main-calculator">
       <div class="card card-meal card-full">
         <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
@@ -402,27 +399,24 @@
 
       <div class="card card-glucose">
         <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
-        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); calcular(true); autoFocoCarbos()">
+        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
         <label for="meta" class="label-small" style="color: inherit; font-size: 14px;">  Nivel ideal:</label>
-        <select id="meta" class="select-small" onchange="calcular(true)"></select>
+        <select id="meta" class="select-small" onchange="calcular(false)"></select>
       </div>
 
       <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
         <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
-        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar(); calcular(true)">
+        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
         
         <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
         <input type="hidden" id="ejercicio" value="1">
         <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
       </div>
       
-      <!-- EXCELENCIA: Contenedor de resultado dinámico alineado al grid sin sobreponerse (no es fixed) -->
+      <!-- EXCELENCIA: Contenedor de resultado dinámico -->
       <div id="resultado" class="result-box"></div>
     </div>
 
-    <!-- PANELES DE NAVEGACIÓN COMPLETOS -->
-
-    <!-- VISTA GRÁFICAS (Analítico solo) -->
     <div id="view-graficas" style="display: none;">
       <div class="card card-panel-grafico card-full" id="panel-grafico" style="display: block; margin-bottom: 20px;">
         <h3 class="panel-header-small">
@@ -436,7 +430,7 @@
             <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Semana Actual</span>
           </div>
         </h3>
-        <p style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;">Toca los puntos en la curva para ver el nivel y hora exactos:</p>
+        <p style="font-size: 14px; font-weight: 700; margin-bottom: 18px; line-height: 1.4;">Toca los puntos en la curva para ver el nivel y hora exactos:</p>
         
         <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 12px; text-align: center; overflow-x: auto; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
           <canvas id="graficoPicos" style="width: 100%; height: 260px; display: block; cursor: pointer;"></canvas>
@@ -444,10 +438,35 @@
         </div>
         
         <div id="barras-mensuales" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
+        
+        <div id="panel-comidas-stats" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
       </div>
     </div>
 
-    <!-- VISTA HISTORIAL (Guardados solo) -->
+    <div id="view-buscador" style="display: none;">
+      <div class="card card-buscador card-full" style="display: block; margin-bottom: 20px; border: 2px solid var(--turquoise-strong); box-shadow: 0 10px 25px rgba(8,131,135,0.1);">
+          <h3 class="panel-header-small" style="margin-bottom: 8px;">
+              <span class="title-flex">
+                  <div class="icon-26">
+                      <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                  </div>
+                  Buscador Táctico
+              </span>
+          </h3>
+          <p style="font-size: 13px; font-weight: 700; margin-bottom: 14px;">Selecciona una fecha para auditar las comidas y niveles exactos de ese día.</p>
+          
+          <div style="display: flex; gap: 10px;">
+              <input type="date" id="buscador-fecha" style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--input-border); font-weight: 900; color: var(--turquoise-strong); background: var(--bg-polar);" onchange="buscarDiaEspecifico()">
+          </div>
+
+          <div id="resultado-buscador" style="display: none; margin-top: 16px; background: var(--bg-polar); padding: 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          </div>
+      </div>
+    </div>
+
     <div id="view-historial" style="display: none;">
       <div class="historial-box" id="panel-historial" style="display: block; margin-top: 0;">
         <h3 class="panel-header-small" style="font-size: 22px;">
@@ -464,7 +483,6 @@
       </div>
     </div>
 
-    <!-- PANEL CITAS -->
     <div id="view-citas" style="display: none;">
       <div class="card card-citas card-full" id="panel-citas" style="display: block;">
         <h3 class="panel-header-small">
@@ -491,7 +509,6 @@
       </div>
     </div>
 
-    <!-- PANEL DE CONFIGURACIÓN (Reducido) -->
     <div id="view-config" style="display: none;">
       <div class="card card-settings card-full" id="panel-config" style="display: block;">
         <h3 class="panel-header-small">
@@ -556,7 +573,6 @@
       </div>
     </div>
 
-    <!-- PESTAÑA COMPLETA AVATARES -->
     <div id="view-avatars" style="display: none;">
       <div class="card card-avatars card-full" id="panel-avatars" style="display: block;">
         <h3 class="panel-header-small">
@@ -569,7 +585,6 @@
       </div>
     </div>
 
-    <!-- PESTAÑA COMPLETA USUARIO -->
     <div id="view-usuario" style="display: none;">
       <div class="card card-settings card-full" id="panel-usuario" style="display: block;">
         <h3 class="panel-header-small">
@@ -585,18 +600,18 @@
       </div>
     </div>
 
-  </div> <!-- Cierre App Container -->
+  </div>
 
-  <!-- EXCELENCIA: BARRA DE NAVEGACIÓN INFERIOR DIVIDIDA -->
   <div class="bottom-nav">
     <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
     </div>
-    <!-- Botón panel de gráficas -->
     <div class="nav-item" id="nav-graficas" onclick="switchTab('graficas')">
       <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
     </div>
-    <!-- Nuevo botón historial (lista) -->
+    <div class="nav-item" id="nav-buscador" onclick="switchTab('buscador')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    </div>
     <div class="nav-item" id="nav-historial" onclick="switchTab('historial')">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
     </div>
@@ -608,42 +623,43 @@
     </div>
   </div>
 
-</div> <!-- Cierre Main App -->
+</div>
 
 <script>
-  /* ====== INICIALIZAR SUPABASE ====== */
   const { createClient } = supabase;
   const supabaseUrl = 'https://rgwawwdldqodzmsizean.supabase.co'; 
   const supabaseKey = 'sb_publishable_-4Q07zNvB5Ep9fLwIZW6Yw_axmOPTM7';
   const polarDb = createClient(supabaseUrl, supabaseKey);
 
-  /* ====== EXCELENCIA: NAVEGADOR INFERIOR CON TOGGLE ====== */
   function switchTab(tabId) {
-    // Verificar si el tab clickeado ya está activo en la barra de navegación
+    const panelMenu = document.getElementById('panel-menu');
+    const overlay = document.getElementById('panel-overlay');
+    if (panelMenu && panelMenu.classList.contains('open')) {
+        panelMenu.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+    }
+
     let isAlreadyActive = false;
     const navBtn = document.getElementById('nav-' + tabId);
     if (navBtn && navBtn.classList.contains('active') && tabId !== 'home') {
         isAlreadyActive = true;
     }
 
-    // Si ya está activo y no es el home, volvemos al home (Toggle)
     if (isAlreadyActive) {
         tabId = 'home';
     }
 
-    // 1. Ocultar todas las vistas
     document.getElementById('main-calculator').style.display = 'none';
     document.getElementById('view-graficas').style.display = 'none';
+    document.getElementById('view-buscador').style.display = 'none'; 
     document.getElementById('view-historial').style.display = 'none';
     document.getElementById('view-citas').style.display = 'none';
     document.getElementById('view-config').style.display = 'none';
     document.getElementById('view-avatars').style.display = 'none';
     document.getElementById('view-usuario').style.display = 'none';
 
-    // 2. Quitar clase active de todos los iconos de la barra inferior
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-    // 3. Activar la vista y el ícono correspondiente
     if (tabId === 'home') {
       document.getElementById('main-calculator').style.display = 'grid'; 
       document.getElementById('nav-home').classList.add('active');
@@ -657,6 +673,10 @@
       document.getElementById('nav-graficas').classList.add('active');
       renderGraficoPicos();
     } 
+    else if (tabId === 'buscador') {
+      document.getElementById('view-buscador').style.display = 'block';
+      document.getElementById('nav-buscador').classList.add('active');
+    }
     else if (tabId === 'historial') {
       document.getElementById('view-historial').style.display = 'block';
       document.getElementById('nav-historial').classList.add('active');
@@ -680,7 +700,6 @@
     }
   }
 
-  /* ====== GESTIÓN DE COLA OFFLINE Y SINCRONIZACIÓN ====== */
   async function sincronizarDatosNube() {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
@@ -734,7 +753,6 @@
   }
   window.addEventListener('online', procesarColaOffline);
 
-  /* ====== EXCELENCIA: SINCRONIZACIÓN EN TIEMPO REAL ====== */
   function activarSuscripcionTiempoReal() {
     const userId = localStorage.getItem('polar_user_id');
     if (!userId) return;
@@ -791,7 +809,6 @@
     }
   }
 
-  /* ====== LÓGICA DE ACCESO ====== */
   function verificarSesion() {
     const session = localStorage.getItem('polar_session_activa'); 
     if (session === 'true') {
@@ -1027,6 +1044,131 @@
               <div style="${circuloStyle(90)}" onclick="cambiarFiltroBarras(90)">90<br><span style="font-size:11px;font-weight:700;">días</span></div>
           </div>
       `;
+
+      renderDesgloseComidas(historialFiltrado, textCol);
+  }
+
+  function renderDesgloseComidas(historialFiltrado, textCol) {
+      const divComidas = document.getElementById('panel-comidas-stats');
+      if(!divComidas) return;
+
+      let stats = {
+          desayuno: { sum: 0, count: 0 },
+          mam: { sum: 0, count: 0 },
+          almuerzo: { sum: 0, count: 0 },
+          mpm: { sum: 0, count: 0 },
+          cena: { sum: 0, count: 0 }
+      };
+      let totalValidos = 0;
+
+      historialFiltrado.forEach(d => {
+          let val = parseFloat(d.glucosa);
+          if (!isNaN(val) && stats.hasOwnProperty(d.tipoComida)) {
+              stats[d.tipoComida].sum += val;
+              stats[d.tipoComida].count++;
+              totalValidos++;
+          }
+      });
+
+      if (totalValidos === 0) {
+          divComidas.innerHTML = '<p style="font-size: 13px; font-weight: 700; opacity: 0.6; text-align: center;">Sin registros de glucosa en este periodo.</p>';
+          return;
+      }
+
+      const nombres = { desayuno: 'Desayuno', mam: 'Once', almuerzo: 'Almuerzo', mpm: 'Merienda', cena: 'Cena' };
+      const colores = { desayuno: '#FCA311', mam: '#D84B79', almuerzo: '#4CAF50', mpm: '#5B9BD5', cena: '#A35496' };
+
+      let html = `<h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 12px; font-weight: 900;">Promedio de Energía por Comida</h4>`;
+
+      for (let key in stats) {
+          if(stats[key].count > 0) {
+              let promedio = Math.round(stats[key].sum / stats[key].count);
+              let colorBarra = colores[key];
+              let nombre = nombres[key];
+              
+              let colorAlerta = 'var(--text-primary)';
+              if (promedio < 70) colorAlerta = '#FF3B30';
+              else if (promedio > 180) colorAlerta = '#FF9F0A';
+              else colorAlerta = '#4CAF50'; 
+
+              let fillPercent = Math.min((promedio / 250) * 100, 100);
+
+              html += `
+              <div style="display:flex; justify-content:space-between; align-items: flex-end; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+                  <span>${nombre} <span style="opacity: 0.5; font-size: 11px;">(${stats[key].count} reg.)</span></span>
+                  <span style="font-size: 15px; color: ${colorAlerta};">${promedio} <span style="font-size: 10px; color: ${textCol}; opacity: 0.7;">mg/dL</span></span>
+              </div>
+              <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 8px; margin-bottom: 12px; overflow:hidden;">
+                  <div style="height: 100%; background: ${colorBarra}; width: ${fillPercent}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+              </div>`;
+          }
+      }
+
+      divComidas.innerHTML = html;
+  }
+
+  function buscarDiaEspecifico() {
+      const fechaSeleccionada = document.getElementById('buscador-fecha').value;
+      const contenedorResultados = document.getElementById('resultado-buscador');
+
+      if (!fechaSeleccionada) {
+          contenedorResultados.style.display = 'none';
+          return;
+      }
+
+      const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+      const registrosDelDia = historialCompleto.filter(item => item.iso === fechaSeleccionada);
+
+      contenedorResultados.style.display = 'block';
+      contenedorResultados.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+      if (registrosDelDia.length === 0) {
+          contenedorResultados.innerHTML = '<p style="text-align: center; font-weight: 800; color: var(--text-primary); margin: 0; opacity: 0.6;">Sin registros de escudo en esta fecha.</p>';
+          return;
+      }
+
+      const dictNombres = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda', 'cena': 'Cena', 'corroborar': 'Revisión', 'post-comida': '2H Post' };
+      const dictColores = { 'desayuno': '#FCA311', 'mam': '#D84B79', 'almuerzo': '#4CAF50', 'mpm': '#5B9BD5', 'cena': '#A35496', 'corroborar': '#2C3A40', 'post-comida': '#088387' };
+
+      const partesFecha = fechaSeleccionada.split('-');
+      const fechaLimpia = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+
+      let html = `<h4 style="font-size: 15px; font-weight: 900; color: var(--text-primary); margin-bottom: 12px; text-align: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">Auditoría del ${fechaLimpia}</h4>`;
+
+      registrosDelDia.sort((a, b) => a.timestamp - b.timestamp);
+
+      registrosDelDia.forEach(reg => {
+          const nombreComida = dictNombres[reg.tipoComida] || 'Manual';
+          const colorEtiqueta = dictColores[reg.tipoComida] || '#2C3A40';
+          
+          let colorGlucosa = 'var(--text-primary)';
+          if(reg.glucosa < 70) colorGlucosa = '#FF3B30';
+          else if(reg.glucosa > 180) colorGlucosa = '#FF9F0A';
+          else colorGlucosa = '#4CAF50';
+
+          const horaRegistro = reg.fecha.split(', ')[1] || '-';
+
+          html += `
+          <div style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-left: 5px solid ${colorEtiqueta};">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 15px; font-weight: 900; color: ${colorEtiqueta}; text-transform: uppercase;">${nombreComida}</span>
+                  <span style="font-size: 12px; font-weight: 900; background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 10px; color: var(--text-primary);">${horaRegistro}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: 14px; font-weight: 700; line-height: 1.4;">
+                      Nivel: <span style="font-size: 16px; font-weight: 900; color: ${colorGlucosa};">${reg.glucosa || '-'}</span> <br>
+                      Carga: <strong style="color: var(--text-primary);">${reg.carbos || 0}g CHO</strong>
+                  </div>
+                  <div style="text-align: right;">
+                      <div style="font-size: 11px; font-weight: 800; color: var(--text-primary); opacity: 0.6; text-transform: uppercase;">Dosis</div>
+                      <div style="font-size: 22px; font-weight: 900; color: var(--turquoise-strong); line-height: 1;">${reg.dosis}U</div>
+                  </div>
+              </div>
+          </div>
+          `;
+      });
+
+      contenedorResultados.innerHTML = html;
   }
 
   function toggleRedondeo() {
@@ -1156,7 +1298,6 @@
   window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { 
         document.getElementById('splash-screen').classList.add('splash-oculto'); 
-        // EXCELENCIA: La barra inferior se activa justo aquí, si la sesión está abierta
         if(localStorage.getItem('polar_session_activa') === 'true') {
             const navBottom = document.querySelector('.bottom-nav');
             if(navBottom) navBottom.classList.add('show');
@@ -1166,14 +1307,12 @@
     verificarSesion();
     
     if (localStorage.getItem('polar_session_activa') === 'true') {
-      // EXCELENCIA: Asegurar que Supabase recupere la sesión ANTES de pedir datos
       const { data: { session } } = await polarDb.auth.getSession();
       
       if (session) {
           await sincronizarDatosNube();
           activarSuscripcionTiempoReal();
       } else {
-          // Si el token murió, cerramos para proteger a la familia
           cerrarSesion();
       }
     }
@@ -1223,7 +1362,6 @@
     const btnInstall = document.getElementById('btn-install'); const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (!isStandalone) { if (isIOS) { btnInstall.style.display = 'flex'; } }
     
-    // Iniciar app en vista principal
     switchTab('home');
   });
 
@@ -1242,7 +1380,6 @@
 
   function cerrarOverlays() { document.getElementById('panel-recetas').classList.remove('open'); document.getElementById('panel-menu').classList.remove('open'); document.getElementById('panel-overlay').classList.remove('active'); }
   
-  /* ====== GESTIÓN DE CITAS Y CALENDARIO ====== */
   function agregarCita() {
     const f = document.getElementById('cita-fecha').value; const h = document.getElementById('cita-hora').value; const e = document.getElementById('cita-especialista').value.trim();
     if (!f || !h || !e) { alert("Llena todo para agendar con excelencia."); return; }
@@ -1321,7 +1458,6 @@
       if (txtToujeo) { txtToujeo.innerText = config.toujeo; }
   }
 
-  /* ====== GENERACIÓN DE PDF ÉLITE ====== */
   function generarPDFElite() {
       const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
       
@@ -1520,7 +1656,6 @@
   function despertarPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('sleeping'); b.classList.add('awake'); }
   function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
 
-  /* ====== EXCELENCIA: GUARDADO DE CERO FRICCIÓN ====== */
   function guardarDosisAplicada(e, dosis, glucosa, carbos, tipoComida) {
     if (e) {
       e.preventDefault(); 
@@ -1541,7 +1676,6 @@
     historial.push({ fecha: fecha, iso: isoFecha, dosis: dosis, glucosa: glucosa, carbos: carbos, tipoComida: tipoComida, timestamp: ahora.getTime() }); 
     localStorage.setItem('historial_polar', JSON.stringify(historial));
 
-    // MANDA A SUPABASE EN SEGUNDO PLANO
     polarDb.from('historial_polar').insert([
         { paciente_id: userId, glucosa: glucosa, carbos: carbos, dosis: dosis, tipo_comida: tipoComida }
     ]).then(({ error }) => {
@@ -1553,7 +1687,6 @@
         localStorage.setItem('polar_cola_sync', JSON.stringify(colaSync));
     });
 
-    // Limpieza total y cero scroll
     document.getElementById('glucosa').value = ''; 
     document.getElementById('carbos').value = ''; 
     document.getElementById('resultado').style.display = 'none'; 
@@ -1903,29 +2036,30 @@ Sugerencia: Estás dominando al 100%. Mantén el esquema.`;
     let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
     let btnAdel = `<button class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
 
-    // EXCELENCIA: Botón con ONPOINTERDOWN para cero latencia
     resDiv.className = "result-box";
     resDiv.innerHTML = `
+      <button class="btn-close-modal" onclick="document.getElementById('resultado').style.display='none'">×</button>
       <h2>¡Gemas Calculadas!</h2>
       <div class="result-number" style="color: ${colorNumeroGemas} !important;">${dosisFinal}</div>
       
-      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 5px; margin-bottom: 12px; font-size: 18px; padding: 14px; border-radius: 16px; box-shadow: 0 8px 25px rgba(8,131,135,0.25);" 
+      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 0px; margin-bottom: 8px; font-size: 14px; padding: 10px; border-radius: 12px; box-shadow: 0 6px 20px rgba(8,131,135,0.2);" 
       onpointerdown="guardarDosisAplicada(event, ${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar Dosis</button>
       
       <div class="result-unit" style="margin-bottom: 4px;">Gemas Ultra para Polar</div>
-      <div class="result-details" style="margin-top: 8px;">
+      <div class="result-details" style="margin-top: 0px;">
         Por Comida: <strong>${dosisComida} U</strong> (R${ratio})<br>
         Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar})
         ${protocoloClinicoHTML}
       </div>
-      <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">${btnAtras}${btnAdel}</div>`;
+      <div style="display: flex; justify-content: center; gap: 10px; margin-top: 12px;">
+        ${btnAtras}${btnAdel}
+      </div>`;
       
     resDiv.style.display = "block"; despertarPolar(); 
   }
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); }); }
 
-  /* ====== SWIPE & DRAG PARA CERRAR EL MENÚ LATERAL ====== */
   let startX = 0;
   const panelMenu = document.getElementById('panel-menu');
 
