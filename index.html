@@ -92,7 +92,7 @@
     .icon-btn.active { background: var(--turquoise-strong); color: var(--btn-text); box-shadow: 0 8px 20px rgba(8,131,135,0.2); }
     .icon-btn.settings { background: var(--text-primary); color: var(--text-inverse); }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; width: 100%; }
     
     .card { border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); }
     .card::before { content: ""; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--white); opacity: 0.08; border-radius: 40% 60% 70% 30%; z-index: 0; pointer-events: none; }
@@ -122,7 +122,6 @@
     .card-settings select { margin-bottom: 8px; padding: 8px; font-size: 14px; border-color: var(--input-border); color: var(--input-text) !important; border-radius: 10px; }
     .card-settings input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="time"]::-webkit-calendar-picker-indicator, .card-citas input[type="date"]::-webkit-calendar-picker-indicator, .card-buscador input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(var(--calendar-invert)); }
 
-    /* 2. EXCELENCIA: CONTRASTE Y LECTURA PERFECTA EN CUALQUIER TEMA */
     .card-settings label, .card-citas label { font-size: 13px; margin-bottom: 4px; color: var(--card-text); font-weight: 800; opacity: 0.85; }
     .card-settings h3, .card-avatars h3, .card-citas h3, .card-panel-grafico h3, .card-buscador h3 { font-size: 16px; margin-bottom: 12px; color: var(--card-text); font-weight: 900; }
     .panel-header-small { font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--card-text); font-weight: 900; }
@@ -141,7 +140,6 @@
 
     @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    /* 1. EXCELENCIA: MODAL MÁS COMPACTO Y SIN ESPACIOS MUERTOS */
     .result-box { 
       position: fixed; 
       top: 50%; 
@@ -172,7 +170,6 @@
     
     .result-box::after { content: ""; position: absolute; bottom: -30px; left: -30px; width: 120px; height: 120px; background: var(--turquoise-strong); opacity: 0.04; border-radius: 40% 60% 70% 30%; pointer-events: none; }
 
-    /* NUEVA X DE CERRAR EN EL MODAL */
     .btn-close-modal { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.06); border: none; color: var(--text-primary); font-size: 18px; font-weight: 900; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: transform 0.2s, background 0.2s; line-height: 1; }
     .btn-close-modal:active { transform: scale(0.85); background: rgba(0,0,0,0.12); }
 
@@ -389,33 +386,46 @@
       </div>
     </div>
 
-    <div class="grid" id="main-calculator">
-      <div class="card card-meal card-full">
-        <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
-        <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true'; calcular(false);">
-          <option value="desayuno">DESAYUNO</option><option value="mam">ONCE</option><option value="almuerzo">ALMUERZO</option><option value="mpm">MERIENDA TARDE</option><option value="cena">CENA</option><option value="corroborar">CORROBORAR</option>
-        </select>
-      </div>
+    <!-- FORMULARIO TÁCTICO PARA CAPTURAR ENTER / DONE DE TECLADOS MÓVILES -->
+    <form id="form-calculator" onsubmit="event.preventDefault(); document.activeElement.blur(); calcular(false); return false;">
+      <div class="grid" id="main-calculator">
+        <div class="card card-meal card-full">
+          <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
+          <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true'; calcular(false);">
+            <option value="desayuno">DESAYUNO</option><option value="mam">ONCE</option><option value="almuerzo">ALMUERZO</option><option value="mpm">MERIENDA TARDE</option><option value="cena">CENA</option><option value="corroborar">CORROBORAR</option>
+          </select>
+        </div>
 
-      <div class="card card-glucose">
-        <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
-        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
-        <label for="meta" class="label-small" style="color: inherit; font-size: 14px;">  Nivel ideal:</label>
-        <select id="meta" class="select-small" onchange="calcular(false)"></select>
-      </div>
+        <div class="card card-glucose">
+          <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
+          <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" enterkeyhint="done" 
+                 oninput="dormirPolar(); autoFocoCarbos()" 
+                 onfocus="document.getElementById('resultado').style.display='none';" 
+                 onchange="ejecutarCalculoSiListo()"
+                 onblur="ejecutarCalculoSiListo()"
+                 onkeydown="if(event.key === 'Enter' || event.keyCode === 13) { this.blur(); calcular(false); }">
+          <label for="meta" class="label-small" style="color: inherit; font-size: 14px;">  Nivel ideal:</label>
+          <select id="meta" class="select-small" onchange="calcular(false)"></select>
+        </div>
 
-      <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
-        <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
-        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
+        <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
+          <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
+          <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" enterkeyhint="done" 
+                 oninput="dormirPolar()" 
+                 onfocus="document.getElementById('resultado').style.display='none';" 
+                 onchange="ejecutarCalculoSiListo()"
+                 onblur="ejecutarCalculoSiListo()"
+                 onkeydown="if(event.key === 'Enter' || event.keyCode === 13) { this.blur(); calcular(false); }">
+          
+          <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
+          <input type="hidden" id="ejercicio" value="1">
+          <button type="button" id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
+        </div>
         
-        <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
-        <input type="hidden" id="ejercicio" value="1">
-        <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
+        <!-- EXCELENCIA: Contenedor de resultado dinámico -->
+        <div id="resultado" class="result-box"></div>
       </div>
-      
-      <!-- EXCELENCIA: Contenedor de resultado dinámico -->
-      <div id="resultado" class="result-box"></div>
-    </div>
+    </form>
 
     <div id="view-graficas" style="display: none;">
       <div class="card card-panel-grafico card-full" id="panel-grafico" style="display: block; margin-bottom: 20px;">
@@ -630,6 +640,20 @@
   const supabaseUrl = 'https://rgwawwdldqodzmsizean.supabase.co'; 
   const supabaseKey = 'sb_publishable_-4Q07zNvB5Ep9fLwIZW6Yw_axmOPTM7';
   const polarDb = createClient(supabaseUrl, supabaseKey);
+
+  function ejecutarCalculoSiListo() {
+    const glucosaInput = document.getElementById('glucosa').value.trim();
+    const carbosInput = document.getElementById('carbos').value.trim();
+    const comidaKey = document.getElementById('comida').value;
+
+    if (glucosaInput !== '' || carbosInput !== '') {
+      if (comidaKey === 'corroborar' && glucosaInput !== '') {
+        calcular(false);
+      } else if (glucosaInput !== '' && carbosInput !== '') {
+        calcular(false);
+      }
+    }
+  }
 
   function switchTab(tabId) {
     const panelMenu = document.getElementById('panel-menu');
@@ -2033,16 +2057,16 @@ Sugerencia: Estás dominando al 100%. Mantén el esquema.`;
       }
     }
 
-    let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
-    let btnAdel = `<button class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
+    let btnAtras = `<button type="button" class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
+    let btnAdel = `<button type="button" class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
 
     resDiv.className = "result-box";
     resDiv.innerHTML = `
-      <button class="btn-close-modal" onclick="document.getElementById('resultado').style.display='none'">×</button>
+      <button type="button" class="btn-close-modal" onclick="document.getElementById('resultado').style.display='none'">×</button>
       <h2>¡Gemas Calculadas!</h2>
       <div class="result-number" style="color: ${colorNumeroGemas} !important;">${dosisFinal}</div>
       
-      <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 0px; margin-bottom: 8px; font-size: 14px; padding: 10px; border-radius: 12px; box-shadow: 0 6px 20px rgba(8,131,135,0.2);" 
+      <button type="button" class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 0px; margin-bottom: 8px; font-size: 14px; padding: 10px; border-radius: 12px; box-shadow: 0 6px 20px rgba(8,131,135,0.2);" 
       onpointerdown="guardarDosisAplicada(event, ${dosisFinal}, ${glucosa}, ${carbos}, '${comidaKey}')">Guardar Dosis</button>
       
       <div class="result-unit" style="margin-bottom: 4px;">Gemas Ultra para Polar</div>
